@@ -75,18 +75,14 @@ body {
 
 .sidebar-logo {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 
   img {
-    max-width: 100%;
+    width: 100%;
+    max-width: 240px;
     height: auto;
-    max-height: 80px;
-  }
-
-  .logo-text {
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 0.5rem;
+    max-height: 140px;
+    object-fit: contain;
   }
 }
 
