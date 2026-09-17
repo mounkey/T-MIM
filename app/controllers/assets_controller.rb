@@ -44,7 +44,7 @@ class AssetsController < ApplicationController
   end
 
   def new
-    @asset = Asset.new
+    @asset = Asset.new(client_id: params[:client_id])
   end
 
   def edit
@@ -54,7 +54,7 @@ class AssetsController < ApplicationController
     @asset = Asset.new(asset_params)
 
     if @asset.save
-      redirect_to asset_path(@asset), notice: "Maquinaria creada correctamente."
+      redirect_to asset_path(@asset), notice: "Vehículo registrado correctamente."
     else
       render :new, status: :unprocessable_entity
     end
@@ -62,7 +62,7 @@ class AssetsController < ApplicationController
 
   def update
     if @asset.update(asset_params)
-      redirect_to asset_path(@asset), notice: "Maquinaria actualizada correctamente."
+      redirect_to asset_path(@asset), notice: "Vehículo actualizado correctamente."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -70,7 +70,7 @@ class AssetsController < ApplicationController
 
   def destroy
     @asset.destroy
-    redirect_to assets_path, notice: "Maquinaria eliminada correctamente.", status: :see_other
+    redirect_to assets_path, notice: "Vehículo eliminado correctamente.", status: :see_other
   end
 
   private
@@ -80,6 +80,6 @@ class AssetsController < ApplicationController
   end
 
   def asset_params
-    params.require(:asset).permit(:name, :description, :make, :model, :year, :serial_number, :plate, :location, :status, :asset_category_id, :tag_id)
+    params.require(:asset).permit(:name, :description, :make, :model, :year, :serial_number, :plate, :location, :status, :asset_category_id, :tag_id, :client_id)
   end
 end

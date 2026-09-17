@@ -63,6 +63,19 @@
             <div class="card-header bg-white fw-bold text-primary">Información General</div>
             <div class="card-body">
               <div class="row mb-3">
+                <div class="col-sm-4 text-muted">Propietario</div>
+                <div class="col-sm-8 fw-bold text-dark">
+                  <% if @asset.client %>
+                    <%= link_to @asset.client.name, client_path(@asset.client), class: "text-decoration-none text-primary" %>
+                    <% if @asset.client.phone.present? %>
+                      <small class="text-muted ms-2">(<%= @asset.client.phone %>)</small>
+                    <% end %>
+                  <% else %>
+                    <span class="text-muted fw-normal">Sin Propietario Asignado</span>
+                  <% end %>
+                </div>
+              </div>
+              <div class="row mb-3">
                 <div class="col-sm-4 text-muted">Marca</div>
                 <div class="col-sm-8 fw-bold text-dark"><%= @asset.make %></div>
               </div>

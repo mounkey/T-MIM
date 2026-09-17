@@ -17,6 +17,10 @@
             <i class="fas fa-home icon-dashboard"></i> Dashboard
           <% end %>
 
+          <%= link_to clients_path, class: "nav-link #{'active' if controller_name == 'clients'}" do %>
+            <i class="fas fa-user-friends icon-clients"></i> Clientes
+          <% end %>
+
           <%= link_to assets_path, class: "nav-link #{'active' if controller_name == 'assets'}" do %>
             <i class="fas fa-car icon-assets"></i> Vehículos
           <% end %>

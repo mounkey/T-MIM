@@ -1,0 +1,34 @@
+<%= simple_form_for(@client,
+    url: @client.persisted? ? client_path(@client) : clients_path,
+    defaults: { label: false },
+    html: { class: "p-1", data: { turbo_frame: "_top" } }) do |f| %>
+
+    <div class="mb-3">
+      <%= f.input :name, placeholder: "Nombre o Razón Social (Obligatorio)", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :rut, placeholder: "RUT / DNI / Identificación", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :phone, placeholder: "Teléfono / WhatsApp de Contacto", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :email, placeholder: "Correo Electrónico", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :address, placeholder: "Dirección", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :notes, as: :text, placeholder: "Notas adicionales sobre el cliente", input_html: { rows: 3, class: "form-control-lg" } %>
+    </div>
+
+    <div class="mt-4 clearfix">
+      <%= f.button :submit, @client.persisted? ? "Actualizar Cliente" : "Guardar Cliente", class: "btn-submit-custom" %>
+    </div>
+
+<% end %>

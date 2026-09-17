@@ -45,8 +45,10 @@ Rails.application.routes.draw do
   resources :tags
   resources :providers, path: "proveedores"
 
+  resources :clients, path: "clientes"
+
   # Renamed path to avoid conflict with Rails asset pipeline (/assets)
-  resources :assets, path: "maquinaria" do
+  resources :assets, path: "vehiculos" do
     resources :meters, only: [:new, :create, :edit, :update, :destroy]
   end
 

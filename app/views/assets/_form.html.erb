@@ -4,7 +4,11 @@
     html: { class: "p-1", data: { turbo_frame: "_top" } }) do |f| %>
 
     <div class="mb-3">
-      <%= f.input :name, placeholder: "Nombre (Ej. Excavadora 01)", input_html: { class: "form-control-lg" } %>
+      <%= f.association :client, label_method: :display_name, prompt: "Seleccione Propietario / Cliente (Opcional)", input_html: { class: "form-select-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :name, placeholder: "Identificador / Apodo (Ej. Camioneta Roja)", input_html: { class: "form-control-lg" } %>
     </div>
 
     <div class="mb-3">

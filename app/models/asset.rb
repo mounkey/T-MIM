@@ -3,6 +3,7 @@ class Asset < ApplicationRecord
 
   belongs_to :asset_category
   belongs_to :tag
+  belongs_to :client, optional: true
   has_many :meters, dependent: :destroy
   has_many :logbook_records, dependent: :destroy
   has_many :maintenance_states, dependent: :destroy
