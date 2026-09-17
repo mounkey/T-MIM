@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_09_08_135130) do
+ActiveRecord::Schema[8.2].define(version: 2026_09_17_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -50,6 +50,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_08_135130) do
   create_table "assets", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.uuid "asset_category_id", null: false
+    t.uuid "client_id"
     t.date "commission_date"
     t.datetime "created_at", null: false
     t.text "description"
@@ -65,6 +66,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_08_135130) do
     t.integer "year"
     t.index ["account_id"], name: "index_assets_on_account_id"
     t.index ["asset_category_id"], name: "index_assets_on_asset_category_id"
+    t.index ["client_id"], name: "index_assets_on_client_id"
     t.index ["tag_id"], name: "index_assets_on_tag_id"
   end
 
@@ -74,6 +76,20 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_08_135130) do
     t.uuid "region_id", null: false
     t.datetime "updated_at", null: false
     t.index ["region_id"], name: "index_cities_on_region_id"
+  end
+
+  create_table "clients", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.string "address"
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "name", null: false
+    t.text "notes"
+    t.string "phone"
+    t.string "rut"
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_clients_on_account_id"
+    t.index ["rut", "account_id"], name: "index_clients_on_rut_and_account_id"
   end
 
   create_table "components", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -302,8 +318,10 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_08_135130) do
   add_foreign_key "accounts", "cities"
   add_foreign_key "accounts", "regions"
   add_foreign_key "assets", "asset_categories"
+  add_foreign_key "assets", "clients"
   add_foreign_key "assets", "tags"
   add_foreign_key "cities", "regions"
+  add_foreign_key "clients", "accounts"
   add_foreign_key "components", "accounts"
   add_foreign_key "components", "asset_categories"
   add_foreign_key "invoices", "accounts"
