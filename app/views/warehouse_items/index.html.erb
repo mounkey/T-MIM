@@ -32,7 +32,7 @@
     </div>
 
     <div class="col-12 col-sm-12 col-md-4 d-flex align-items-center justify-content-md-end">
-      <%= link_to new_warehouse_item_path, class: "btn btn-primary btn-lg rounded-pill px-4 shadow-sm" do %>
+      <%= link_to new_warehouse_item_path, class: "btn btn-primary btn-lg rounded-pill px-4 shadow-sm", data: { turbo_frame: "large_modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('largeModal')).show()" do %>
         <i class="fas fa-plus me-1"></i> Nuevo Repuesto / Insumo
       <% end %>
     </div>
@@ -107,7 +107,7 @@
                   <%= link_to warehouse_item_path(item), class: "btn btn-sm btn-outline-info me-1", title: "Ver Kardex" do %>
                     <i class="fas fa-history"></i>
                   <% end %>
-                  <%= link_to edit_warehouse_item_path(item), class: "btn btn-sm btn-outline-primary me-1", title: "Editar" do %>
+                  <%= link_to edit_warehouse_item_path(item), class: "btn btn-sm btn-outline-primary me-1", title: "Editar", data: { turbo_frame: "large_modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('largeModal')).show()" do %>
                     <i class="fas fa-edit"></i>
                   <% end %>
                   <%= link_to warehouse_item_path(item), data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro de eliminar este ítem de bodega?" }, class: "btn btn-sm btn-outline-danger", title: "Eliminar" do %>

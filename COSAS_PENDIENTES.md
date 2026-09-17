@@ -7,5 +7,10 @@
   * Resumen de movimientos de Kardex por período (entradas vs consumos en vehículos).
   * Generación en formato PDF profesional con Grover.
 
+## Configuración del Sistema
+* [ ] **Administrador de Categorías de Bodega y Unidades de Medida:**
+  * Crear CRUD / Mantenedor en Configuración para crear y editar Categorías de Repuestos personalizadas.
+  * Crear CRUD / Mantenedor en Configuración para Unidades de Medida personalizadas (Litros, Unidades, Horas, etc.).
+
 ---
 *Archivo de seguimiento de tareas y requerimientos pendientes.*

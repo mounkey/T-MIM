@@ -1,6 +1,9 @@
-<%= simple_form_for(@warehouse_item,
-    url: @warehouse_item.persisted? ? warehouse_item_path(@warehouse_item) : warehouse_items_path,
-    html: { class: "p-1", data: { turbo_frame: "_top" } }) do |f| %>
+<%= turbo_frame_tag "large_modal_body" do %>
+  <h2 class="text-center mb-4"><%= @warehouse_item.new_record? ? "Nuevo Repuesto / Insumo" : "Editar Repuesto" %></h2>
+
+  <%= simple_form_for(@warehouse_item,
+      url: @warehouse_item.persisted? ? warehouse_item_path(@warehouse_item) : warehouse_items_path,
+      html: { class: "p-1", data: { turbo_frame: "large_modal_body" } }) do |f| %>
 
     <div class="mb-3">
       <%= f.label :name, "Nombre del Repuesto / Insumo *", class: "form-label fw-bold text-dark" %>
@@ -60,4 +63,5 @@
       <%= f.button :submit, @warehouse_item.persisted? ? "Actualizar Repuesto" : "Guardar en Bodega", class: "btn-submit-custom" %>
     </div>
 
+  <% end %>
 <% end %>
