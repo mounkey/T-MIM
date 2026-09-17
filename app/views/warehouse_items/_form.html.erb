@@ -1,54 +1,63 @@
 <%= simple_form_for(@warehouse_item,
     url: @warehouse_item.persisted? ? warehouse_item_path(@warehouse_item) : warehouse_items_path,
-    defaults: { label: false },
     html: { class: "p-1", data: { turbo_frame: "_top" } }) do |f| %>
 
     <div class="mb-3">
-      <%= f.input :name, placeholder: "Nombre del Repuesto / Insumo (Ej. Aceite Sintético 5W30)", input_html: { class: "form-control-lg" } %>
+      <%= f.label :name, "Nombre del Repuesto / Insumo *", class: "form-label fw-bold text-dark" %>
+      <%= f.input :name, label: false, placeholder: "Ej. Aceite Sintético 5W30, Filtro de Aire...", input_html: { class: "form-control-lg" } %>
     </div>
 
-    <div class="row g-2 mb-3">
+    <div class="row g-3 mb-3">
       <div class="col-md-6">
-        <%= f.input :sku, placeholder: "Código / SKU / N° Parte", input_html: { class: "form-control-lg" } %>
+        <%= f.label :sku, "Código / SKU / N° Parte (Opcional)", class: "form-label fw-bold text-dark" %>
+        <%= f.input :sku, label: false, placeholder: "Ej. SKU-98765 o PH-4967", input_html: { class: "form-control-lg" } %>
       </div>
       <div class="col-md-6">
-        <%= f.input :category, collection: ["Lubricantes", "Filtros", "Frenos", "Suspensión", "Eléctrico", "Neumáticos", "General"], prompt: "Categoría", input_html: { class: "form-select-lg" } %>
+        <%= f.label :category, "Categoría", class: "form-label fw-bold text-dark" %>
+        <%= f.input :category, label: false, collection: ["General", "Lubricantes", "Filtros", "Frenos", "Suspensión", "Eléctrico", "Neumáticos"], include_blank: false, input_html: { class: "form-select-lg" } %>
       </div>
     </div>
 
-    <div class="row g-2 mb-3">
+    <div class="row g-3 mb-3">
       <div class="col-md-4">
-        <%= f.input :unit, collection: ["Unidad", "Litro", "Galón", "Juego", "Kit", "Metro"], prompt: "Unidad de Medida", input_html: { class: "form-select-lg" } %>
+        <%= f.label :unit, "Unidad de Medida", class: "form-label fw-bold text-dark" %>
+        <%= f.input :unit, label: false, collection: ["Unidad", "Litro", "Galón", "Juego", "Kit", "Metro"], include_blank: false, input_html: { class: "form-select-lg" } %>
       </div>
       <div class="col-md-4">
-        <%= f.input :stock_quantity, placeholder: "Stock Inicial", input_html: { class: "form-control-lg" } %>
+        <%= f.label :stock_quantity, "Stock Inicial (Físico)", class: "form-label fw-bold text-dark" %>
+        <%= f.input :stock_quantity, label: false, placeholder: "0", input_html: { class: "form-control-lg" } %>
       </div>
       <div class="col-md-4">
-        <%= f.input :minimum_stock, placeholder: "Stock Mínimo (Alerta)", input_html: { class: "form-control-lg" } %>
+        <%= f.label :minimum_stock, "Stock Mínimo (Alerta)", class: "form-label fw-bold text-dark" %>
+        <%= f.input :minimum_stock, label: false, placeholder: "2", input_html: { class: "form-control-lg" } %>
       </div>
     </div>
 
     <% if current_user.admin? %>
-      <div class="row g-2 mb-3">
+      <div class="row g-3 mb-3">
         <div class="col-md-6">
-          <%= f.input :cost_price, placeholder: "Precio Costo / Compra ($)", input_html: { class: "form-control-lg" } %>
+          <%= f.label :cost_price, "Precio Costo / Compra ($)", class: "form-label fw-bold text-dark" %>
+          <%= f.input :cost_price, label: false, placeholder: "Ej. 15000", input_html: { class: "form-control-lg" } %>
         </div>
         <div class="col-md-6">
-          <%= f.input :sale_price, placeholder: "Precio Venta / Cliente ($)", input_html: { class: "form-control-lg" } %>
+          <%= f.label :sale_price, "Precio Venta al Cliente ($)", class: "form-label fw-bold text-dark" %>
+          <%= f.input :sale_price, label: false, placeholder: "Ej. 25000", input_html: { class: "form-control-lg" } %>
         </div>
       </div>
     <% end %>
 
     <div class="mb-3">
-      <%= f.input :location, placeholder: "Ubicación en Taller (Ej. Estante A - Nivel 2)", input_html: { class: "form-control-lg" } %>
+      <%= f.label :location, "Ubicación en Taller (Opcional)", class: "form-label fw-bold text-dark" %>
+      <%= f.input :location, label: false, placeholder: "Ej. Estante A - Nivel 2", input_html: { class: "form-control-lg" } %>
     </div>
 
     <div class="mb-3">
-      <%= f.input :description, as: :text, placeholder: "Descripción o especificaciones técnicas del repuesto...", input_html: { rows: 3, class: "form-control-lg" } %>
+      <%= f.label :description, "Descripción o Notas Técnicas (Opcional)", class: "form-label fw-bold text-dark" %>
+      <%= f.input :description, as: :text, label: false, placeholder: "Especificaciones, compatibilidad con modelos...", input_html: { rows: 3, class: "form-control-lg" } %>
     </div>
 
     <div class="mt-4 clearfix">
-      <%= f.button :submit, @warehouse_item.persisted? ? "Actualizar Repuesto" : "Guardar Repuesto", class: "btn-submit-custom" %>
+      <%= f.button :submit, @warehouse_item.persisted? ? "Actualizar Repuesto" : "Guardar en Bodega", class: "btn-submit-custom" %>
     </div>
 
 <% end %>
