@@ -7,6 +7,7 @@ class LogbookRecord < ApplicationRecord
 
   has_many :logbook_entries, dependent: :destroy
   has_many :maintenance_checks, dependent: :destroy
+  has_many :stock_movements, dependent: :nullify
 
   validates :recorded_at, presence: true
 end

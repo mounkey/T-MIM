@@ -47,6 +47,12 @@ Rails.application.routes.draw do
 
   resources :clients, path: "clientes"
 
+  resources :warehouse_items, path: "bodega" do
+    member do
+      post :add_stock
+    end
+  end
+
   # Renamed path to avoid conflict with Rails asset pipeline (/assets)
   resources :assets, path: "vehiculos" do
     resources :meters, only: [:new, :create, :edit, :update, :destroy]

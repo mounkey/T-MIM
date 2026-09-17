@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_09_17_120000) do
+ActiveRecord::Schema[8.2].define(version: 2026_09_17_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -237,6 +237,25 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_17_120000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "stock_movements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.uuid "asset_id"
+    t.datetime "created_at", null: false
+    t.uuid "logbook_record_id"
+    t.integer "movement_type", default: 0, null: false
+    t.text "notes"
+    t.decimal "quantity", precision: 10, scale: 2, null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.uuid "warehouse_item_id", null: false
+    t.index ["account_id"], name: "index_stock_movements_on_account_id"
+    t.index ["asset_id"], name: "index_stock_movements_on_asset_id"
+    t.index ["logbook_record_id"], name: "index_stock_movements_on_logbook_record_id"
+    t.index ["movement_type"], name: "index_stock_movements_on_movement_type"
+    t.index ["user_id"], name: "index_stock_movements_on_user_id"
+    t.index ["warehouse_item_id"], name: "index_stock_movements_on_warehouse_item_id"
+  end
+
   create_table "sub_components", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_id"
     t.uuid "component_id", null: false
@@ -315,6 +334,26 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_17_120000) do
     t.index ["run", "account_id"], name: "index_users_on_run_and_account_id", unique: true
   end
 
+  create_table "warehouse_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.string "category", default: "General"
+    t.decimal "cost_price", precision: 12, scale: 2, default: "0.0"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "location"
+    t.decimal "minimum_stock", precision: 10, scale: 2, default: "2.0", null: false
+    t.string "name", null: false
+    t.decimal "reserved_quantity", precision: 10, scale: 2, default: "0.0", null: false
+    t.decimal "sale_price", precision: 12, scale: 2, default: "0.0"
+    t.string "sku"
+    t.decimal "stock_quantity", precision: 10, scale: 2, default: "0.0", null: false
+    t.string "unit", default: "Unidad"
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_warehouse_items_on_account_id"
+    t.index ["name", "account_id"], name: "index_warehouse_items_on_name_and_account_id"
+    t.index ["sku", "account_id"], name: "index_warehouse_items_on_sku_and_account_id"
+  end
+
   add_foreign_key "accounts", "cities"
   add_foreign_key "accounts", "regions"
   add_foreign_key "assets", "asset_categories"
@@ -346,6 +385,11 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_17_120000) do
   add_foreign_key "meters", "assets"
   add_foreign_key "providers", "cities"
   add_foreign_key "providers", "regions"
+  add_foreign_key "stock_movements", "accounts"
+  add_foreign_key "stock_movements", "assets"
+  add_foreign_key "stock_movements", "logbook_records"
+  add_foreign_key "stock_movements", "users"
+  add_foreign_key "stock_movements", "warehouse_items"
   add_foreign_key "sub_components", "accounts"
   add_foreign_key "sub_components", "components"
   add_foreign_key "super_admins", "cities"
@@ -353,4 +397,5 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_17_120000) do
   add_foreign_key "tags", "accounts"
   add_foreign_key "user_login_histories", "accounts"
   add_foreign_key "user_login_histories", "users"
+  add_foreign_key "warehouse_items", "accounts"
 end

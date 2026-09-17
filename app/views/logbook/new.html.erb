@@ -98,9 +98,40 @@
                   </div>
                 <% end %>
 
+                <!-- 3. Repuestos e Insumos de Bodega -->
+                <div class="mb-4">
+                  <h5 class="mb-3 text-muted border-bottom pb-2"><i class="fas fa-boxes me-1"></i> Repuestos e Insumos Utilizados</h5>
+                  
+                  <div id="parts-container">
+                    <div class="part-row row g-2 mb-2 align-items-center bg-light p-2 rounded">
+                      <div class="col-12 col-md-5">
+                        <%= select_tag "parts[][warehouse_item_id]", 
+                            options_from_collection_for_select(WarehouseItem.all.order(:name), :id, :display_name), 
+                            prompt: "Seleccionar Repuesto de Bodega...", 
+                            class: "form-select" %>
+                      </div>
+                      <div class="col-6 col-md-3">
+                        <div class="input-group input-group-sm">
+                          <%= number_field_tag "parts[][quantity]", nil, placeholder: "Cantidad", step: 0.1, min: 0.1, class: "form-control form-control-sm" %>
+                          <span class="input-group-text">Cant.</span>
+                        </div>
+                      </div>
+                      <div class="col-6 col-md-4">
+                        <%= select_tag "parts[][action_type]", 
+                            options_for_select([["Consumir / Instalar en Auto", "exit"], ["Reservar para este Auto", "reserve"]]), 
+                            class: "form-select form-select-sm" %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-2 text-end">
+                    <small class="text-muted fst-italic">El stock se actualizará y quedará registrado en el Kardex automáticamente.</small>
+                  </div>
+                </div>
+
                 <div class="mb-4">
                   <%= label_tag :remarks, "Observaciones Generales", class: "form-label text-muted fw-bold" %>
-                  <%= text_area_tag :remarks, nil, class: "form-control", rows: 3, placeholder: "Comentarios sobre el estado general..." %>
+                  <%= text_area_tag :remarks, nil, class: "form-control", rows: 3, placeholder: "Comentarios sobre el estado general o trabajo realizado..." %>
                 </div>
 
                 <div class="d-grid gap-2">

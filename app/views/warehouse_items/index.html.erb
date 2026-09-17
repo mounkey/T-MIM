@@ -1,0 +1,135 @@
+<% content_for :page_title, "Bodega de Repuestos e Insumos" %>
+
+<div class="container-fluid pb-5">
+  <!-- Top Cards: Summary -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-md-4">
+      <div class="card shadow-sm border-0 p-3 h-100 bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-uppercase text-muted fw-bold mb-1 small">Total Ítems en Catálogo</h6>
+            <h3 class="fw-bold mb-0 text-dark"><%= @total_items %></h3>
+          </div>
+          <div class="bg-light rounded-circle p-3 text-primary">
+            <i class="fas fa-boxes fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-4">
+      <div class="card shadow-sm border-0 p-3 h-100 bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-uppercase text-muted fw-bold mb-1 small">Alertas de Stock Bajo</h6>
+            <h3 class="fw-bold mb-0 <%= @low_stock_items > 0 ? 'text-danger' : 'text-success' %>"><%= @low_stock_items %></h3>
+          </div>
+          <div class="bg-light rounded-circle p-3 <%= @low_stock_items > 0 ? 'text-danger' : 'text-success' %>">
+            <i class="fas fa-exclamation-triangle fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-12 col-md-4 d-flex align-items-center justify-content-md-end">
+      <%= link_to new_warehouse_item_path, class: "btn btn-primary btn-lg rounded-pill px-4 shadow-sm" do %>
+        <i class="fas fa-plus me-1"></i> Nuevo Repuesto / Insumo
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Search & Filter Card -->
+  <div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-body p-3">
+      <%= form_with url: warehouse_items_path, method: :get, local: true, class: "row g-2 align-items-center" do |f| %>
+        <div class="col-12 col-md-6">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+            <%= f.text_field :query, value: params[:query], placeholder: "Buscar por nombre, SKU/código o ubicación...", class: "form-control bg-light border-0" %>
+          </div>
+        </div>
+        <div class="col-8 col-md-4">
+          <%= f.select :category, 
+              options_for_select([["Todas las categorías", ""], "Lubricantes", "Filtros", "Frenos", "Suspensión", "Eléctrico", "Neumáticos", "General"], params[:category]), 
+              {}, 
+              class: "form-select bg-light border-0", 
+              onchange: "this.form.submit()" %>
+        </div>
+        <div class="col-4 col-md-2">
+          <%= f.submit "Filtrar", class: "btn btn-outline-secondary w-100" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card shadow-sm border-0 bg-white">
+    <div class="card-body p-0 table-responsive">
+      <table class="table table-hover align-middle mb-0" style="color: #333 !important;">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4 text-dark">Repuesto / Insumo</th>
+            <th class="text-dark">Categoría</th>
+            <th class="text-center text-dark">Stock Físico</th>
+            <th class="text-center text-dark">Reservados ⏳</th>
+            <th class="text-center text-dark">Disponibles ✅</th>
+            <th class="text-dark">Ubicación</th>
+            <th class="text-dark">Estado</th>
+            <th class="text-end text-dark pe-4">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @warehouse_items.any? %>
+            <% @warehouse_items.each do |item| %>
+              <% badge = item.stock_status_badge %>
+              <tr>
+                <td class="ps-4">
+                  <div class="fw-bold"><%= link_to item.name, warehouse_item_path(item), class: "text-decoration-none text-dark" %></div>
+                  <% if item.sku.present? %>
+                    <small class="text-muted"><i class="fas fa-barcode me-1"></i><%= item.sku %></small>
+                  <% end %>
+                </td>
+                <td><span class="badge bg-light text-secondary border"><%= item.category %></span></td>
+                <td class="text-center fw-bold fs-6"><%= item.stock_quantity %> <%= item.unit %></td>
+                <td class="text-center">
+                  <% if item.reserved_quantity > 0 %>
+                    <span class="badge bg-warning text-dark px-2 py-1"><%= item.reserved_quantity %> <%= item.unit %></span>
+                  <% else %>
+                    <span class="text-muted">-</span>
+                  <% end %>
+                </td>
+                <td class="text-center">
+                  <span class="badge bg-success px-2 py-1 fs-6"><%= item.available_stock %> <%= item.unit %></span>
+                </td>
+                <td><%= item.location.presence || "-" %></td>
+                <td><span class="badge <%= badge[:class] %>"><%= badge[:label] %></span></td>
+                <td class="text-end pe-4">
+                  <%= link_to warehouse_item_path(item), class: "btn btn-sm btn-outline-info me-1", title: "Ver Kardex" do %>
+                    <i class="fas fa-history"></i>
+                  <% end %>
+                  <%= link_to edit_warehouse_item_path(item), class: "btn btn-sm btn-outline-primary me-1", title: "Editar" do %>
+                    <i class="fas fa-edit"></i>
+                  <% end %>
+                  <%= link_to warehouse_item_path(item), data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro de eliminar este ítem de bodega?" }, class: "btn btn-sm btn-outline-danger", title: "Eliminar" do %>
+                    <i class="fas fa-trash"></i>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                <i class="fas fa-boxes fa-3x mb-3 text-secondary opacity-50"></i>
+                <p class="h6">No hay repuestos registrados en bodega.</p>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-center p-3">
+      <%= paginate @warehouse_items %>
+    </div>
+  </div>
+</div>

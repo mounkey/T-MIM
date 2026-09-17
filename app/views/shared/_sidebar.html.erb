@@ -25,6 +25,10 @@
             <i class="fas fa-car icon-assets"></i> Vehículos
           <% end %>
 
+          <%= link_to warehouse_items_path, class: "nav-link #{'active' if controller_name == 'warehouse_items'}" do %>
+            <i class="fas fa-boxes icon-warehouse"></i> Bodega
+          <% end %>
+
           <%= link_to logbook_index_path, class: "nav-link #{'active' if controller_name == 'logbook'}" do %>
             <i class="fas fa-clipboard-list icon-logbook"></i> Bitácora
           <% end %>

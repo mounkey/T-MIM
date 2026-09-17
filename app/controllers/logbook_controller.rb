@@ -131,8 +131,27 @@ class LogbookController < ApplicationController
          MaintenanceStatusService.new(@asset, plan).update_state!
       end
 
-      # Smart Add Logic (If implemented in view)
-      # if params[:new_parts].present? ...
+      # Process Warehouse Parts & Consumptions
+      parts = params[:parts] || []
+      parts.each do |part_data|
+        item_id = part_data[:warehouse_item_id]
+        quantity = part_data[:quantity].to_f
+        action_type = part_data[:action_type].presence || "exit"
+
+        next if item_id.blank? || quantity <= 0
+
+        warehouse_item = WarehouseItem.find(item_id)
+        StockMovement.create!(
+          account: current_account,
+          warehouse_item: warehouse_item,
+          user: current_user,
+          asset: @asset,
+          logbook_record: record,
+          movement_type: action_type.to_sym,
+          quantity: quantity,
+          notes: "#{action_type == 'reserve' ? 'Reserva' : 'Instalación'} para #{@asset.name} (#{@asset.plate.presence || 'S/P'})"
+        )
+      end
     end
 
     redirect_to logbook_index_path, notice: "Bitácora actualizada correctamente."
