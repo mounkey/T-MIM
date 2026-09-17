@@ -1,6 +1,6 @@
 class WarehouseItemsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_warehouse_item, only: %i[ show edit update destroy stock_entry add_stock reserve_stock release_stock ]
+  before_action :set_warehouse_item, only: %i[ show edit update destroy add_stock ]
 
   def index
     @warehouse_items = WarehouseItem.all.order(:name)
