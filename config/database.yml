@@ -24,13 +24,13 @@ default: &default
 
 development:
   <<: *default
-  database: mim_development
+  database: tmim_development
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.
   # When left blank, PostgreSQL will use the default role. This is
   # the same name as the operating system user running Rails.
-  #username: mim
+  #username: tmim
 
   # The password associated with the PostgreSQL role (username).
   #password:
@@ -58,7 +58,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: mim_test
+  database: tmim_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -89,18 +89,18 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: mim_production
-    username: mim
-    password: <%= ENV["MIM_DATABASE_PASSWORD"] %>
+    database: tmim_production
+    username: tmim
+    password: <%= ENV["TMIM_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
-    database: mim_production_cache
+    database: tmim_production_cache
     migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
-    database: mim_production_queue
+    database: tmim_production_queue
     migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
-    database: mim_production_cable
+    database: tmim_production_cable
     migrations_paths: db/cable_migrate

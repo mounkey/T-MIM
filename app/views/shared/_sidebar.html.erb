@@ -7,8 +7,8 @@
 
         <!-- Logo -->
         <div class="sidebar-logo">
-          <%= image_tag "logo.png", alt: "MIM Logo" %>
-          <div class="logo-text">Mantenimiento Inteligente Maquinaria</div>
+          <%= image_tag "logo.png", alt: "T-MIM Logo" %>
+          <div class="logo-text">Talleres y Mantención Inteligente</div>
         </div>
 
         <!-- Navigation -->
@@ -18,7 +18,7 @@
           <% end %>
 
           <%= link_to assets_path, class: "nav-link #{'active' if controller_name == 'assets'}" do %>
-            <i class="fas fa-truck icon-assets"></i> Maquinaria
+            <i class="fas fa-car icon-assets"></i> Vehículos
           <% end %>
 
           <%= link_to logbook_index_path, class: "nav-link #{'active' if controller_name == 'logbook'}" do %>
