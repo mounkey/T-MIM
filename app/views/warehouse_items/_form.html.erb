@@ -3,35 +3,35 @@
 
   <%= simple_form_for(@warehouse_item,
       url: @warehouse_item.persisted? ? warehouse_item_path(@warehouse_item) : warehouse_items_path,
-      html: { class: "p-1", data: { turbo_frame: "modal_body" } }) do |f| %>
+      html: { class: "p-1 text-start", data: { turbo_frame: "modal_body" } }) do |f| %>
 
     <div class="mb-3">
-      <%= f.label :name, "Nombre del Repuesto / Insumo *", class: "form-label fw-bold text-dark" %>
+      <%= f.label :name, "Nombre del Repuesto / Insumo *", class: "form-label text-white fw-bold d-block" %>
       <%= f.input :name, label: false, placeholder: "Ej. Aceite Sintético 5W30, Filtro de Aire...", input_html: { class: "form-control-lg" } %>
     </div>
 
     <div class="row g-3 mb-3">
       <div class="col-md-6">
-        <%= f.label :sku, "Código / SKU (Opcional)", class: "form-label fw-bold text-dark" %>
+        <%= f.label :sku, "Código / SKU (Opcional)", class: "form-label text-white fw-bold d-block" %>
         <%= f.input :sku, label: false, placeholder: "Ej. SKU-98765 o PH-4967", input_html: { class: "form-control-lg" } %>
       </div>
       <div class="col-md-6">
-        <%= f.label :category, "Categoría", class: "form-label fw-bold text-dark" %>
+        <%= f.label :category, "Categoría", class: "form-label text-white fw-bold d-block" %>
         <%= f.input :category, label: false, collection: ["General", "Lubricantes", "Filtros", "Frenos", "Suspensión", "Eléctrico", "Neumáticos"], include_blank: false, input_html: { class: "form-select-lg" } %>
       </div>
     </div>
 
     <div class="row g-3 mb-3">
       <div class="col-md-4">
-        <%= f.label :unit, "Unidad", class: "form-label fw-bold text-dark" %>
+        <%= f.label :unit, "Unidad de Medida", class: "form-label text-white fw-bold d-block" %>
         <%= f.input :unit, label: false, collection: ["Unidad", "Litro", "Galón", "Juego", "Kit", "Metro"], include_blank: false, input_html: { class: "form-select-lg" } %>
       </div>
       <div class="col-md-4">
-        <%= f.label :stock_quantity, "Stock Inicial", class: "form-label fw-bold text-dark" %>
+        <%= f.label :stock_quantity, "Stock Inicial", class: "form-label text-white fw-bold d-block" %>
         <%= f.input :stock_quantity, label: false, placeholder: "0", input_html: { class: "form-control-lg" } %>
       </div>
       <div class="col-md-4">
-        <%= f.label :minimum_stock, "Mínimo Alerta", class: "form-label fw-bold text-dark" %>
+        <%= f.label :minimum_stock, "Mínimo Alerta", class: "form-label text-white fw-bold d-block" %>
         <%= f.input :minimum_stock, label: false, placeholder: "2", input_html: { class: "form-control-lg" } %>
       </div>
     </div>
@@ -39,23 +39,23 @@
     <% if current_user.admin? %>
       <div class="row g-3 mb-3">
         <div class="col-md-6">
-          <%= f.label :cost_price, "Precio Costo ($)", class: "form-label fw-bold text-dark" %>
+          <%= f.label :cost_price, "Precio Costo ($)", class: "form-label text-white fw-bold d-block" %>
           <%= f.input :cost_price, label: false, placeholder: "Ej. 15000", input_html: { class: "form-control-lg" } %>
         </div>
         <div class="col-md-6">
-          <%= f.label :sale_price, "Precio Venta ($)", class: "form-label fw-bold text-dark" %>
+          <%= f.label :sale_price, "Precio Venta ($)", class: "form-label text-white fw-bold d-block" %>
           <%= f.input :sale_price, label: false, placeholder: "Ej. 25000", input_html: { class: "form-control-lg" } %>
         </div>
       </div>
     <% end %>
 
     <div class="mb-3">
-      <%= f.label :location, "Ubicación en Taller (Opcional)", class: "form-label fw-bold text-dark" %>
+      <%= f.label :location, "Ubicación en Taller (Opcional)", class: "form-label text-white fw-bold d-block" %>
       <%= f.input :location, label: false, placeholder: "Ej. Estante A - Nivel 2", input_html: { class: "form-control-lg" } %>
     </div>
 
     <div class="mb-3">
-      <%= f.label :description, "Descripción o Notas (Opcional)", class: "form-label fw-bold text-dark" %>
+      <%= f.label :description, "Descripción o Notas (Opcional)", class: "form-label text-white fw-bold d-block" %>
       <%= f.input :description, as: :text, label: false, placeholder: "Especificaciones...", input_html: { rows: 2, class: "form-control-lg" } %>
     </div>
 
