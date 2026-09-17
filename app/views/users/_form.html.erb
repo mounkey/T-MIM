@@ -1,0 +1,34 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h2 class="text-center mb-4"><%= @user.new_record? ? "Nuevo Usuario" : "Editar Usuario" %></h2>
+
+  <%= simple_form_for(@user, url: @user.new_record? ? users_path : user_path(@user), defaults: { label: false }) do |f| %>
+    <%= f.error_notification %>
+    <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+    <div class="mb-3">
+      <%= f.input :name, placeholder: "Nombre Completo", input_html: { class: "form-control-lg" } %>
+    </div>
+    <div class="mb-3">
+      <%= f.input :run, placeholder: "RUT (Ej. 12345678-9)", input_html: { class: "form-control-lg" } %>
+    </div>
+    <div class="mb-3">
+      <%= f.input :email, placeholder: "Email", input_html: { class: "form-control-lg" } %>
+    </div>
+    <div class="mb-3">
+      <%= f.input :role, collection: User.roles.keys.map { |r| [r.capitalize, r] }, include_blank: "Seleccionar Roles", input_html: { class: "form-select-lg text-muted" } %>
+    </div>
+
+    <% if @user.new_record? %>
+      <div class="mb-3">
+        <%= f.input :password, placeholder: "Contraseña", input_html: { class: "form-control-lg" } %>
+      </div>
+      <div class="mb-3">
+        <%= f.input :password_confirmation, placeholder: "Confirmar Contraseña", input_html: { class: "form-control-lg" } %>
+      </div>
+    <% end %>
+
+    <div class="mt-4 clearfix">
+      <%= f.button :submit, @user.persisted? ? "Actualizar" : "Guardar", class: "btn-submit-custom" %>
+    </div>
+  <% end %>
+<% end %>

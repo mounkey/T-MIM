@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+# Ensure gems are installed
+echo "Checking Ruby gems..."
+bundle check || bundle install
+
+# If running the rails server then create or migrate existing database
+if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+  ./bin/rails db:prepare
+fi
+
+# Ensure node modules are installed and CSS is built (if package.json exists)
+if [ -f "package.json" ]; then
+  echo "Installing Node dependencies and building CSS..."
+  npm install
+  npm run build:css
+fi
+
+# Remove a potentially pre-existing server.pid for Rails.
+rm -f /rails/tmp/pids/server.pid
+
+exec "${@}"

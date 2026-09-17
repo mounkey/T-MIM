@@ -1,0 +1,50 @@
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h2 class="text-center mb-4">Registrarse</h2>
+
+        <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+          <%= f.error_notification %>
+
+          <div class="form-inputs">
+            <%= f.input :email,
+                        required: true,
+                        autofocus: true,
+                        input_html: { autocomplete: "email" },
+                        label: "Correo Electrónico" %>
+
+            <%= f.input :name,
+                        required: true,
+                        label: "Nombre Completo",
+                        input_html: { autocomplete: "name" } %>
+
+            <%= f.input :run,
+                        required: true,
+                        label: "R.U.N",
+                        hint: "Ej: 12345678-9" %>
+
+            <%= f.input :password,
+                        required: true,
+                        hint: ("#{@minimum_password_length} caracteres mínimo" if @minimum_password_length),
+                        input_html: { autocomplete: "new-password" },
+                        label: "Contraseña" %>
+
+            <%= f.input :password_confirmation,
+                        required: true,
+                        input_html: { autocomplete: "new-password" },
+                        label: "Confirmar Contraseña" %>
+          </div>
+
+          <div class="form-actions d-grid gap-2 mt-4">
+            <%= f.button :submit, "Crear Cuenta", class: "btn btn-primary btn-lg" %>
+          </div>
+        <% end %>
+
+        <div class="mt-3 text-center">
+          <%= render "devise/shared/links" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

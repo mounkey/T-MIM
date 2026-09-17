@@ -1,0 +1,111 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h2 class="text-center mb-4"><%= @asset_category.new_record? ? "Nueva Categoría" : "Editar Categoría" %></h2>
+
+  <%= simple_form_for(@asset_category, defaults: { label: false }, html: { data: { turbo_frame: "modal_body" } }) do |f| %>
+
+    <ul class="nav nav-tabs mb-3" id="categoryTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">General</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="structure-tab" data-bs-toggle="tab" data-bs-target="#structure" type="button" role="tab" aria-controls="structure" aria-selected="false">Estructura</button>
+      </li>
+      <% if @asset_category.persisted? %>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="plans-tab" data-bs-toggle="tab" data-bs-target="#plans" type="button" role="tab" aria-controls="plans" aria-selected="false">Planes de Mantenimiento</button>
+        </li>
+      <% end %>
+    </ul>
+
+    <div class="tab-content" id="categoryTabContent">
+      <!-- General Tab -->
+      <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Nombre</label>
+          <%= f.input :name, placeholder: "Nombre (Ej. Maquinaria Pesada)", input_html: { class: "form-control-lg" } %>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Descripción</label>
+          <%= f.input :description, placeholder: "Descripción", as: :text, input_html: { rows: 2, class: "form-control" } %>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Icono</label>
+          <div class="d-flex gap-3 flex-wrap p-2 border rounded bg-light">
+            <% icons = ['fa-truck', 'fa-tools', 'fa-cogs', 'fa-hard-hat', 'fa-wrench', 'fa-clipboard-list', 'fa-truck-moving', 'fa-hammer', 'fa-box', 'fa-desktop'] %>
+            <% icons.each do |icon| %>
+              <div class="form-check">
+                <%= f.radio_button :icon, icon, class: "form-check-input", id: "icon_#{icon}" %>
+                <label class="form-check-label text-dark" for="icon_<%= icon %>">
+                  <i class="fas <%= icon %> fa-lg"></i>
+                </label>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Structure Tab -->
+      <div class="tab-pane fade" id="structure" role="tabpanel" aria-labelledby="structure-tab">
+        <div class="mb-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <label class="form-label fw-bold h5 mb-0"><i class="fas fa-sitemap"></i> Estructura de Mantenimiento</label>
+          </div>
+          <p class="text-muted small">Define los grupos y partes que componen este tipo de activo para la bitácora.</p>
+
+          <div data-controller="nested-form">
+            <template data-nested-form-target="template">
+              <%= f.simple_fields_for :components, Component.new, child_index: 'NEW_RECORD' do |component_f| %>
+                <%= render "component_fields", f: component_f %>
+              <% end %>
+            </template>
+
+            <%= f.simple_fields_for :components do |component_f| %>
+              <%= render "component_fields", f: component_f %>
+            <% end %>
+
+            <div data-nested-form-target="target"></div>
+
+            <button type="button" class="btn btn-secondary w-100" data-action="nested-form#add">
+              <i class="fas fa-plus-circle"></i> Agregar Grupo de Componentes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plans Tab (Placeholder/Existing) -->
+      <% if @asset_category.persisted? %>
+        <div class="tab-pane fade" id="plans" role="tabpanel" aria-labelledby="plans-tab">
+          <div class="mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+               <label class="form-label fw-bold h5 mb-0"><i class="fas fa-list-check"></i> Reglas de Mantenimiento</label>
+            </div>
+            <p class="text-muted small">Define las reglas preventivas (cambios, revisiones) para los componentes.</p>
+
+            <div data-controller="nested-form">
+              <template data-nested-form-target="template">
+                <%= f.simple_fields_for :maintenance_plans, MaintenancePlan.new, child_index: 'NEW_RECORD' do |plan_f| %>
+                  <%= render "maintenance_plan_fields", f: plan_f %>
+                <% end %>
+              </template>
+
+              <%= f.simple_fields_for :maintenance_plans do |plan_f| %>
+                <%= render "maintenance_plan_fields", f: plan_f %>
+              <% end %>
+
+              <div data-nested-form-target="target"></div>
+
+              <button type="button" class="btn btn-secondary w-100" data-action="nested-form#add">
+                <i class="fas fa-plus-circle"></i> Agregar Nueva Regla
+              </button>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="mt-4 clearfix">
+      <%= f.button :submit, @asset_category.persisted? ? "Actualizar" : "Guardar", class: "btn-submit-custom" %>
+    </div>
+  <% end %>
+<% end %>

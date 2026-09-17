@@ -1,0 +1,89 @@
+<% content_for :page_title, "Usuarios" %>
+
+<% if current_user.admin? %>
+  <!-- Admin View: GridView -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <div class="d-flex justify-content-end mb-3">
+        <%= link_to global_login_history_users_path, class: "btn btn-outline-info rounded-pill px-4 me-2" do %>
+          <i class="fas fa-eye me-2"></i> Auditoría Global
+        <% end %>
+        <%= link_to "Nuevo Usuario", new_user_path, class: "btn btn-primary rounded-pill px-4", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" %>
+      </div>
+
+      <div id="users_grid" class="table-responsive">
+        <table class="table table-hover align-middle" style="color: #333 !important;">
+          <thead class="table-light">
+            <tr>
+              <th class="text-dark">Nombre</th>
+              <th class="text-dark">RUT</th>
+              <th class="text-dark">Roles</th>
+              <th class="text-dark">Fecha Incorporación</th>
+              <th class="text-end text-dark">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @users.each do |user| %>
+              <tr>
+                <td class="text-dark"><%= user.name %></td>
+                <td class="text-dark"><%= user.run %></td>
+                <td class="text-dark"><%= user.role.capitalize %></td>
+                <td class="text-dark"><%= user.created_at.strftime("%d/%m/%Y") %></td>
+                <td class="text-end">
+                  <%= link_to edit_user_path(user), class: "action-icon edit", title: "Editar", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+                    <i class="fas fa-pencil-alt"></i>
+                  <% end %>
+                  <%= link_to login_history_user_path(user), class: "text-info me-2", title: "Historial de Accesos", style: "text-decoration:none;" do %>
+                    <i class="fas fa-history"></i>
+                  <% end %>
+                  <%= link_to change_password_user_path(user), class: "text-warning me-2", title: "Cambiar Contraseña", style: "text-decoration:none;", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+                    <i class="fas fa-key"></i>
+                  <% end %>
+                  <%= button_to user_path(user), method: :delete, class: "btn btn-link action-icon delete p-0 border-0", form: { style: "display:inline-block;" }, data: { turbo_confirm: "¿Estás seguro?" }, title: "Eliminar" do %>
+                    <i class="fas fa-trash"></i>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-center mt-3">
+        <%= paginate @users %>
+      </div>
+    </div>
+  </div>
+
+<% else %>
+  <!-- User View: Profile Card -->
+  <div class="d-flex justify-content-center">
+    <div class="card shadow-sm border-0" style="width: 100%; max-width: 500px;">
+      <div class="card-body text-center p-5">
+        <div class="mb-4">
+          <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-size: 2rem;">
+            <%= @user.name.first.upcase %>
+          </div>
+        </div>
+
+        <h3 class="fw-bold mb-1 text-dark"><%= @user.name %></h3>
+        <p class="text-muted mb-4"><%= @user.role.capitalize %></p>
+
+        <div class="text-start mb-4 px-4 text-dark">
+          <div class="mb-3">
+            <label class="small text-muted fw-bold">RUT</label>
+            <div class="fs-5"><%= @user.run %></div>
+          </div>
+          <div class="mb-3">
+            <label class="small text-muted fw-bold">Fecha de Incorporación</label>
+            <div class="fs-5"><%= @user.created_at.strftime("%d de %B de %Y") %></div>
+          </div>
+        </div>
+
+        <%= link_to change_password_user_path(@user), class: "btn btn-outline-primary rounded-pill px-4", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+          <i class="fas fa-key me-2"></i> Cambiar Contraseña
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

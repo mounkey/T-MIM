@@ -1,0 +1,62 @@
+<% content_for :page_title, "Suscripciones (Finanzas)" %>
+<div class="card bg-white rounded shadow-sm border-0 mb-4">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
+    <h4 class="mb-0 text-secondary"><i class="fas fa-file-invoice-dollar text-success me-2"></i> Control de Suscripciones</h4>
+    <%= link_to new_superadmin_invoice_path, class: "btn btn-success", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+      <i class="fas fa-plus"></i> Registrar Pago
+    <% end %>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">Empresa Cliente</th>
+            <th>Mes Cobrado</th>
+            <th>Fecha de Pago</th>
+            <th>Hora</th>
+            <th>Estado</th>
+            <th class="text-end pe-4">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @invoices.any? %>
+            <% @invoices.order(created_at: :desc).each do |invoice| %>
+              <tr class="<%= 'table-light opacity-75' unless invoice.account.active? %>">
+                <td class="ps-4 fw-bold">
+                  <%= link_to invoice.account.name, superadmin_account_path(invoice.account), class: "text-decoration-none text-primary" %>
+                </td>
+                <td><span class="badge bg-light text-dark border"><%= invoice.due_date&.strftime("%B %Y") || "-" %></span></td>
+                <td><%= invoice.paid_at&.strftime("%d/%m/%Y") || "-" %></td>
+                <td class="text-muted"><%= invoice.paid_at&.strftime("%H:%M") || "-" %></td>
+                <td>
+                  <% if invoice.status.to_s.downcase == 'pagado' || invoice.status.to_s.downcase == 'paid' %>
+                    <span class="badge bg-success">Pagado</span>
+                  <% else %>
+                    <span class="badge bg-danger">Pendiente / Fallido</span>
+                  <% end %>
+                </td>
+                <td class="text-end pe-4">
+                  <!-- Botón Bloquear Empresa -->
+                  <%= button_to toggle_status_superadmin_account_path(invoice.account), method: :patch, class: "btn btn-sm #{invoice.account.active ? 'btn-outline-warning' : 'btn-outline-success'} mx-1", form: { style: "display:inline-block;" }, title: (invoice.account.active ? "Bloquear Sistema al Cliente" : "Desbloquear Sistema") do %>
+                    <i class="fas #{invoice.account.active ? 'fa-ban' : 'fa-check-circle'}"></i>
+                  <% end %>
+                  <!-- Botón Editar Pago -->
+                  <%= link_to edit_superadmin_invoice_path(invoice), class: "btn btn-sm btn-outline-primary mx-1", title: "Editar Registro", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+                    <i class="fas fa-edit"></i>
+                  <% end %>
+                  <!-- Botón Borrar Pago -->
+                  <%= link_to superadmin_invoice_path(invoice), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro de eliminar este registro de pago?' }, class: 'btn btn-sm btn-outline-danger mx-1', title: 'Borrar Pago' do %>
+                    <i class='fas fa-trash'></i>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr><td colspan="6" class="text-center py-5 text-muted">No hay registros de suscripción en el sistema.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

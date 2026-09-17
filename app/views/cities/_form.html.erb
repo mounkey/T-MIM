@@ -1,0 +1,16 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h2 class="text-center mb-4"><%= @city.new_record? ? "Nueva Ciudad" : "Editar Ciudad" %></h2>
+
+  <%= simple_form_for(@city, defaults: { label: false }, html: { data: { turbo_frame: "modal_body" } }) do |f| %>
+    <div class="mb-3">
+      <%= f.association :region, prompt: "Seleccione Región", input_html: { class: "form-select-lg text-muted" } %>
+    </div>
+    <div class="mb-3">
+      <%= f.input :name, placeholder: "Nombre Ciudad (Ej. Santiago)", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mt-4 clearfix">
+      <%= f.button :submit, @city.persisted? ? "Actualizar" : "Guardar", class: "btn-submit-custom" %>
+    </div>
+  <% end %>
+<% end %>

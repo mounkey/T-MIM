@@ -1,0 +1,30 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h2 class="text-center mb-4 text-secondary"><i class="fas fa-city text-primary"></i> <%= @city.new_record? ? "Nueva Ciudad" : "Editar Ciudad" %></h2>
+<%= form_with(model: [:superadmin, city], data: { turbo_frame: "_top" }) do |form| %>
+  <% if city.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(city.errors.count, 'error') %> impidieron guardar este registro:</h4>
+      <ul>
+        <% city.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :name, class: "form-label fw-bold" %>
+    <%= form.text_field :name, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :region_id, class: "form-label fw-bold" %>
+    <%= form.collection_select :region_id, Region.all, :id, :name, { prompt: 'Seleccionar...' }, class: "form-select" %>
+  </div>
+
+  <div class="mt-4">
+    <%= form.submit "Guardar", class: "btn btn-primary px-4" %>
+  </div>
+<% end %>
+
+<% end %>

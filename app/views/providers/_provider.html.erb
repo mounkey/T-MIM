@@ -1,0 +1,42 @@
+<tr id="<%= dom_id provider %>">
+  <td class="text-dark">
+    <div class="d-flex align-items-center">
+      <div>
+        <div class="fw-bold"><%= provider.name %></div>
+        <div class="small text-muted"><%= provider.contact_name %></div>
+      </div>
+      <% unless provider.active? %>
+        <span class="badge bg-secondary ms-2">Inactivo</span>
+      <% end %>
+    </div>
+  </td>
+  <td class="text-dark"><%= provider.rut %></td>
+  <td class="text-dark"><%= provider.city&.name %></td>
+  <td class="text-dark">
+    <% (1..5).each do |i| %>
+      <i class="fas fa-cogs <%= i <= provider.rating ? 'text-warning' : 'text-muted opacity-25' %>"></i>
+    <% end %>
+  </td>
+  <td class="text-dark">
+    <div class="d-flex flex-wrap gap-1">
+      <% provider.tags.each do |tag| %>
+        <span class="badge" style="background-color: <%= tag.color %>; color: white;">
+          <%= tag.name %>
+        </span>
+      <% end %>
+    </div>
+  </td>
+  <td class="text-end">
+    <% if provider.website.present? %>
+      <a href="<%= provider.website %>" target="_blank" class="action-icon text-info me-2" title="Sitio Web">
+        <i class="fas fa-globe"></i>
+      </a>
+    <% end %>
+    <%= link_to edit_provider_path(provider), class: "action-icon edit", title: "Editar" do %>
+      <i class="fas fa-pencil-alt"></i>
+    <% end %>
+    <%= button_to provider_path(provider), method: :delete, class: "btn btn-link action-icon delete p-0 border-0", form: { style: "display:inline-block;" }, data: { turbo_confirm: "¿Estás seguro?" }, title: "Eliminar" do %>
+      <i class="fas fa-trash"></i>
+    <% end %>
+  </td>
+</tr>

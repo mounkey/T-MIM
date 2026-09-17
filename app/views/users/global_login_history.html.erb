@@ -1,0 +1,79 @@
+<div class="container py-4">
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="text-white mb-0">Auditoría Global de Accesos</h2>
+      <p class="text-white-50">Registro completo de sesiones para todos los usuarios de la empresa.</p>
+    </div>
+    <div class="col-auto">
+      <%= link_to users_path, class: "btn btn-outline-light" do %>
+        <i class="fas fa-users me-2"></i> Volver a Usuarios
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow border-0">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th class="ps-4" style="width: 20%;">Usuario</th>
+              <th style="width: 20%;">Fecha Ingreso</th>
+              <th style="width: 15%;">Fecha Salida</th>
+              <th style="width: 10%;">Duración</th>
+              <th style="width: 15%;">Dirección IP</th>
+              <th class="pe-4" style="width: 20%;">Navegador</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @login_histories.any? %>
+              <% @login_histories.each do |history| %>
+                <tr>
+                  <td class="ps-4">
+                    <div class="fw-bold text-dark"><%= history.user.name %></div>
+                    <small class="text-muted"><%= history.user.email %></small>
+                  </td>
+                  <td class="text-primary fw-medium">
+                    <%= l(history.sign_in_at, format: :long) %>
+                  </td>
+                  <td>
+                    <% if history.sign_out_at %>
+                      <%= l(history.sign_out_at, format: :long) %>
+                    <% else %>
+                      <span class="badge bg-success">Sesión Activa</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if history.sign_out_at %>
+                      <%= distance_of_time_in_words(history.sign_in_at, history.sign_out_at) %>
+                    <% else %>
+                      -
+                    <% end %>
+                  </td>
+                  <td>
+                    <span class="font-monospace text-muted"><%= history.ip_address %></span>
+                  </td>
+                  <td class="pe-4 text-muted small">
+                    <%= history.user_agent.truncate(50) if history.user_agent %>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="6" class="text-center py-5 text-muted">
+                  <i class="fas fa-user-shield fa-3x mb-3 text-secondary opacity-50"></i>
+                  <p>No hay registros de acceso en el sistema.</p>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card-footer bg-white py-3">
+      <div class="d-flex justify-content-center">
+        <%= paginate @login_histories %>
+      </div>
+    </div>
+  </div>
+</div>

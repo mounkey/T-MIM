@@ -1,0 +1,15 @@
+one:
+  user: one
+  account: one
+  sign_in_at: 2026-01-25 21:07:40
+  sign_out_at: 2026-01-25 21:07:40
+  ip_address: MyString
+  user_agent: MyString
+
+two:
+  user: two
+  account: one
+  sign_in_at: 2026-01-25 21:07:40
+  sign_out_at: 2026-01-25 21:07:40
+  ip_address: MyString
+  user_agent: MyString

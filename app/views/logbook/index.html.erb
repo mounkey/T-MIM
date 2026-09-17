@@ -1,0 +1,247 @@
+<% content_for :page_title, "Bitácora de Operaciones" %>
+
+<div class="container-fluid py-4">
+  <div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+      <h1 class="h3 text-white fw-bold"><i class="fas fa-clipboard-list me-2"></i> Bitácora</h1>
+      <%= link_to new_logbook_path, class: "btn btn-light text-primary fw-bold" do %>
+        <i class="fas fa-plus me-2"></i> Nueva Entrada
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <ul class="nav nav-tabs mb-4 border-bottom-0" id="logbookTabs" role="tablist">
+    <li class="nav-item me-2" role="presentation">
+      <button class="nav-link active fw-bold px-4 border rounded-top shadow-sm" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline" type="button" role="tab" aria-controls="timeline" aria-selected="true">
+        <i class="fas fa-stream me-2"></i> Línea de Tiempo
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link fw-bold px-4 border rounded-top shadow-sm" id="audit-tab" data-bs-toggle="tab" data-bs-target="#audit" type="button" role="tab" aria-controls="audit" aria-selected="false">
+        <i class="fas fa-search-dollar me-2"></i> Auditoría por Activos
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="logbookTabsContent">
+    <!-- Tab 1: Time Line -->
+    <div class="tab-pane fade show active" id="timeline" role="tabpanel" aria-labelledby="timeline-tab">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-light">
+                <tr>
+                  <th class="ps-4 py-3">Fecha</th>
+                  <th class="py-3">Maquinaria</th>
+                  <th class="py-3">Responsable</th>
+                  <th class="py-3">Contadores</th>
+                  <th class="py-3">Tareas</th>
+                  <th class="py-3">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @logbook_records.each do |record| %>
+                  <tr>
+                    <td class="ps-4 text-dark fw-bold"><%= l record.recorded_at, format: :short %></td>
+                    <td class="text-dark">
+                      <div class="fw-bold"><%= record.asset.name %></div>
+                      <span class="text-muted small"><%= record.asset.plate.presence || "S/P" %></span>
+                    </td>
+                    <td class="text-dark"><%= record.user.name %></td>
+                    <td>
+                      <% if record.logbook_entries.any? %>
+                        <% record.logbook_entries.each do |entry| %>
+                          <div class="small">
+                            <span class="fw-bold"><%= entry.meter.name %>:</span>
+                            <%= number_with_precision(entry.current_value, precision: 0) %> <%= entry.meter.unit %>
+                            <span class="text-success">(+<%= number_with_precision(entry.quantity, precision: 0) %>)</span>
+                          </div>
+                        <% end %>
+                      <% else %>
+                        <span class="text-muted small">-</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if record.maintenance_checks.any? %>
+                        <% issues = record.maintenance_checks.where.not(status: :ok).count %>
+                        <div class="d-flex flex-column gap-1">
+                          <span class="small fw-bold text-dark"><%= record.maintenance_checks.count %> Puntos Revisados</span>
+                          <% if issues > 0 %>
+                            <span class="badge bg-warning text-dark align-self-start"><%= issues %> Alertas</span>
+                          <% else %>
+                            <span class="badge bg-success align-self-start">Todo OK</span>
+                          <% end %>
+                        </div>
+                      <% else %>
+                        <span class="text-muted small">Sin inspección</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <%= link_to logbook_path(record),
+                          class: "btn btn-sm btn-outline-primary",
+                          title: "Ver Detalles",
+                          data: { turbo_frame: "modal_body", bs_toggle: "tooltip" },
+                          onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+                        <i class="fas fa-eye"></i>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+                 <% if @logbook_records.empty? %>
+                  <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                      <i class="fas fa-clipboard fa-2x mb-3 text-secondary"></i>
+                      <p>No hay registros en la bitácora.</p>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          <div class="d-flex justify-content-center py-3">
+            <%= paginate @logbook_records %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Asset Audit -->
+    <div class="tab-pane fade" id="audit" role="tabpanel" aria-labelledby="audit-tab">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+          <% if @audit_hierarchy.empty? %>
+            <div class="p-5 text-center text-muted">
+              <i class="fas fa-search-dollar fa-3x mb-3 text-secondary opacity-50"></i>
+              <p class="fs-5 mb-0">No hay activos registrados para auditar.</p>
+            </div>
+          <% else %>
+            <div class="accordion" id="auditAccordion">
+              <% @audit_hierarchy.each_with_index do |category, cat_index| %>
+                <!-- Level 1: Category -->
+                <div class="accordion-item border-0 border-bottom">
+                  <h2 class="accordion-header" id="auditHeadingCat<%= cat_index %>">
+                    <button class="accordion-button collapsed bg-light text-dark fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#auditCollapseCat<%= cat_index %>" aria-expanded="false" aria-controls="auditCollapseCat<%= cat_index %>">
+                      <i class="fas <%= category.icon %> me-2 text-muted"></i> <%= category.name %>
+                    </button>
+                  </h2>
+                  <div id="auditCollapseCat<%= cat_index %>" class="accordion-collapse collapse" aria-labelledby="auditHeadingCat<%= cat_index %>" data-bs-parent="#auditAccordion">
+                    <div class="accordion-body p-0">
+
+                      <!-- Level 2: Assets -->
+                      <div class="accordion accordion-flush" id="auditAssetsAccordion<%= cat_index %>">
+                        <% category.assets.each do |asset| %>
+                          <div class="accordion-item">
+                            <h2 class="accordion-header" id="auditHeadingAsset<%= asset.id %>">
+                              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#auditCollapseAsset<%= asset.id %>" aria-expanded="false" aria-controls="auditCollapseAsset<%= asset.id %>">
+                                <span class="fw-bold text-dark me-2"><%= asset.name %></span>
+                                <small class="text-muted"><%= asset.plate %></small>
+                              </button>
+                            </h2>
+                            <div id="auditCollapseAsset<%= asset.id %>" class="accordion-collapse collapse" aria-labelledby="auditHeadingAsset<%= asset.id %>" data-bs-parent="#auditAssetsAccordion<%= cat_index %>">
+                              <div class="accordion-body bg-light p-3">
+
+                                <!-- Level 3: Rules (Maintenance Plans) History -->
+                                <% plans = asset.asset_category.maintenance_plans.includes(:sub_component) %>
+                                <% if plans.any? %>
+                                  <% plans.each do |plan| %>
+                                    <div class="card mb-3 shadow-sm border-0">
+                                      <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                                        <div>
+                                          <div class="fw-bold text-primary"><%= plan.name %></div>
+                                          <div class="small text-muted"><%= plan.sub_component&.name || "General" %> | Cada <%= plan.frequency %> <%= plan.unit %></div>
+                                        </div>
+                                      </div>
+                                      <div class="card-body p-0">
+                                        <!-- History Table for this Plan -->
+                                        <%
+                                          # Use pre-fetched cache grouped by [asset_id, sub_component_id]
+                                          checks = @checks_cache[[asset.id, plan.sub_component_id]] || []
+                                        %>
+
+                                        <% if checks.any? %>
+                                          <table class="table table-sm table-hover mb-0">
+                                            <thead class="table-light">
+                                              <tr>
+                                                <th class="ps-3 small text-muted">Fecha Realización</th>
+                                                <th class="small text-muted">Contador</th>
+                                                <th class="small text-muted">Realizado por</th>
+                                                <th class="small text-muted text-center">Cumplimiento</th>
+                                                <th class="small text-muted text-end pe-3">Acciones</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              <% checks.each do |check| %>
+                                                <tr>
+                                                  <td class="ps-3"><%= l check.logbook_record.recorded_at, format: :short %></td>
+                                                  <td>
+                                                    <%
+                                                      # Try to find the meter reading at that time
+                                                      # This is approximate if multiple meters exist, picking the one matching plan unit would be best
+                                                      entry = check.logbook_record.logbook_entries.find { |e| e.meter.unit == plan.unit }
+                                                      val = entry ? number_with_precision(entry.current_value, precision: 0) : "-"
+                                                    %>
+                                                    <%= val %> <%= plan.unit %>
+                                                  </td>
+                                                  <td><%= check.logbook_record.user.name %></td>
+                                                  <td class="text-center">
+                                                    <% if check.status == 'ok' %>
+                                                      <span class="badge bg-success"><i class="fas fa-check"></i> OK</span>
+                                                    <% else %>
+                                                      <span class="badge bg-warning text-dark"><i class="fas fa-exclamation-triangle"></i> <%= check.status.humanize %></span>
+                                                    <% end %>
+                                                  </td>
+                                                  <td class="text-end pe-3">
+                                                    <%= link_to logbook_path(check.logbook_record),
+                                                        class: "btn btn-sm btn-outline-primary",
+                                                        title: "Ver Detalles",
+                                                        data: { turbo_frame: "modal_body", bs_toggle: "tooltip" },
+                                                        onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+                                                      <i class="fas fa-eye"></i>
+                                                    <% end %>
+                                                  </td>
+                                                </tr>
+                                              <% end %>
+                                            </tbody>
+                                          </table>
+                                        <% else %>
+                                          <div class="p-3 text-muted small fst-italic">Sin historial de ejecución para esta regla.</div>
+                                        <% end %>
+                                      </div>
+                                    </div>
+                                  <% end %>
+                                <% else %>
+                                  <div class="text-muted fst-italic">No hay reglas de mantenimiento configuradas para este activo.</div>
+                                <% end %>
+
+                              </div>
+                            </div>
+                          </div>
+                        <% end %>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .nav-tabs .nav-link {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-color: #dee2e6 #dee2e6 #fff;
+  }
+  .nav-tabs .nav-link.active {
+    color: #041C36;
+    background-color: #fff;
+    border-bottom-color: transparent;
+  }
+</style>

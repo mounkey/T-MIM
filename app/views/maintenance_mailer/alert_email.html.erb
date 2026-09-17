@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h2>Alerta de Mantenimiento</h2>
+    <p>Hola,</p>
+    <p>El activo <strong><%= @asset.name %></strong> requiere atención para la siguiente regla:</p>
+
+    <ul>
+      <li><strong>Sub-componente:</strong> <%= @status[:sub_component] %></li>
+      <li><strong>Regla:</strong> <%= @status[:plan_name] %></li>
+      <li><strong>Uso Actual:</strong> <%= @status[:current_usage] %> <%= @status[:unit] %></li>
+      <li><strong>Meta:</strong> <%= @status[:frequency] %> <%= @status[:unit] %></li>
+      <li><strong>Estado:</strong>
+        <% if @status[:status] == :red %>
+          <span style="color: red; font-weight: bold;">VENCIDO (<%= @status[:percentage] %>%)</span>
+        <% else %>
+          <span style="color: orange; font-weight: bold;">ADVERTENCIA (<%= @status[:percentage] %>%)</span>
+        <% end %>
+      </li>
+    </ul>
+
+    <p>Por favor, gestíone el mantenimiento a la brevedad.</p>
+    <p>Saludos,<br>Equipo MIM</p>
+  </body>
+</html>

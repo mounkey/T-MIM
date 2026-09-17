@@ -1,0 +1,124 @@
+<% content_for :page_title, "Nueva Entrada Bitácora" %>
+
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-9">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-0 py-3">
+           <h4 class="mb-0 fw-bold text-dark"><i class="fas fa-edit me-2 text-primary"></i> Registrar Actividad</h4>
+        </div>
+        <div class="card-body">
+
+          <!-- Asset Selection Form -->
+          <%= form_with url: new_logbook_path, method: :get, data: { turbo_frame: "logbook_form" }, class: "mb-4" do |f| %>
+            <div class="form-floating mb-3">
+              <%= f.select :asset_id, @assets_for_select, { prompt: "Seleccione Maquinaria...", selected: params[:asset_id] }, { class: "form-select form-select-lg", onchange: "this.form.requestSubmit()" } %>
+              <%= f.label :asset_id, "Maquinaria / Vehículo" %>
+            </div>
+          <% end %>
+
+          <!-- Logbook Form (loaded via Turbo) -->
+          <%= turbo_frame_tag "logbook_form" do %>
+            <% if @asset %>
+              <%= form_with url: logbook_index_path, method: :post, local: true do |f| %>
+                <%= hidden_field_tag :asset_id, @asset.id %>
+
+                <!-- 1. Meters Section -->
+                <div class="mb-4">
+                  <h5 class="mb-3 text-muted border-bottom pb-2"><i class="fas fa-tachometer-alt me-1"></i> Contadores</h5>
+                  <% @meters.each do |meter| %>
+                    <div class="row mb-3 align-items-center bg-light p-2 rounded mx-0">
+                      <div class="col-md-4">
+                        <label class="form-label fw-bold mb-0 text-dark"><%= meter.name %></label>
+                        <small class="d-block text-muted">Actual: <%= number_with_precision(meter.current_value, precision: 2) %> <%= meter.unit %></small>
+                      </div>
+                      <div class="col-md-8">
+                        <div class="input-group">
+                          <span class="input-group-text bg-white text-muted">Nueva Lectura</span>
+                          <%= number_field_tag "readings[#{meter.id}]", nil,
+                              class: "form-control form-control-lg",
+                              placeholder: "Min: #{meter.current_value}",
+                              min: meter.current_value,
+                              step: 0.01 %>
+                          <span class="input-group-text"><%= meter.unit %></span>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+
+                <!-- 2. Checklist Accordion Section -->
+                <% if @structure.present? %>
+                  <div class="mb-4">
+                    <h5 class="mb-3 text-muted border-bottom pb-2"><i class="fas fa-tasks me-1"></i> Tareas (Checklist)</h5>
+                    <div class="accordion" id="maintenanceAccordion">
+                      <% @structure.each_with_index do |component, index| %>
+                        <div class="accordion-item">
+                          <h2 class="accordion-header" id="heading<%= index %>">
+                            <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%= index %>" aria-expanded="false" aria-controls="collapse<%= index %>">
+                              <%= component.name %>
+                            </button>
+                          </h2>
+                          <div id="collapse<%= index %>" class="accordion-collapse collapse" aria-labelledby="heading<%= index %>" data-bs-parent="#maintenanceAccordion">
+                            <div class="accordion-body bg-light">
+                              <!-- Sub-components List -->
+                              <% component.sub_components.each do |part| %>
+                                <div class="card mb-2 border-0 shadow-sm">
+                                  <div class="card-body py-2 px-3 d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                      <i class="fas fa-check-circle text-muted me-2"></i>
+                                      <span class="fw-medium"><%= part.name %></span>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <!-- Radio Buttons for Status -->
+                                        <div class="btn-group" role="group" aria-label="Status for <%= part.name %>">
+                                          <%= radio_button_tag "checks[#{part.id}][status]", 'ok', false, class: "btn-check", id: "status_ok_#{part.id}" %>
+                                          <label class="btn btn-outline-success btn-sm" for="status_ok_#{part.id}">OK</label>
+
+                                          <%= radio_button_tag "checks[#{part.id}][status]", 'issue', false, class: "btn-check", id: "status_issue_#{part.id}" %>
+                                          <label class="btn btn-outline-warning btn-sm" for="status_issue_#{part.id}">Alerta</label>
+
+                                          <%= radio_button_tag "checks[#{part.id}][status]", 'fixed', false, class: "btn-check", id: "status_fixed_#{part.id}" %>
+                                          <label class="btn btn-outline-info btn-sm" for="status_fixed_#{part.id}">Reparado</label>
+                                        </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              <% end %>
+
+                              <!-- Smart Add Placeholder (Future Implementation) -->
+                              <div class="mt-2 text-end">
+                                <small class="text-muted fst-italic">¿Falta un componente? Agrégalo en Configuración.</small>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+
+                <div class="mb-4">
+                  <%= label_tag :remarks, "Observaciones Generales", class: "form-label text-muted fw-bold" %>
+                  <%= text_area_tag :remarks, nil, class: "form-control", rows: 3, placeholder: "Comentarios sobre el estado general..." %>
+                </div>
+
+                <div class="d-grid gap-2">
+                  <%= f.submit "Guardar Registro", class: "btn btn-primary btn-lg btn-submit-custom" %>
+                  <%= link_to "Cancelar", logbook_index_path, class: "btn btn-outline-secondary" %>
+                </div>
+              <% end %>
+            <% else %>
+              <div class="text-center py-5 text-muted">
+                <i class="fas fa-truck-moving fa-3x mb-3 text-secondary"></i>
+                <p class="h5">Seleccione una maquinaria para comenzar.</p>
+                <small>Se cargarán los medidores y puntos de inspección automáticamente.</small>
+              </div>
+            <% end %>
+          <% end %>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

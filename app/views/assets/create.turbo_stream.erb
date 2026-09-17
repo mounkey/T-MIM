@@ -1,0 +1,76 @@
+<%= turbo_stream.update "assets_grid" do %>
+  <div id="assets_grid" class="table-responsive">
+      <table class="table table-hover align-middle" style="color: #333 !important;">
+        <thead class="table-light">
+          <tr>
+            <th class="text-dark" style="width: 50px;">Est.</th>
+            <th class="text-dark">Nombre</th>
+            <th class="text-dark">Marca / Modelo</th>
+            <th class="text-dark">Ubicación</th>
+            <th class="text-dark">Categoría</th>
+            <th class="text-end text-dark">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @assets.each do |asset| %>
+            <tr>
+              <td class="text-center">
+                <% color_class = case asset.status
+                   when "operativa" then "text-success"
+                   when "en_mantencion" then "text-warning"
+                   when "fuera_de_servicio" then "text-danger"
+                   else "text-secondary"
+                   end %>
+                <i class="fas fa-circle <%= color_class %>" title="<%= asset.status_label %>"></i>
+              </td>
+              <td class="text-dark fw-bold">
+                 <%= asset.name %>
+                 <div class="small text-muted fw-normal"><%= asset.serial_number %></div>
+              </td>
+              <td class="text-dark">
+                <div><%= asset.make %></div>
+                <small class="text-muted"><%= asset.model %></small>
+              </td>
+              <td class="text-dark"><%= asset.location.presence || "-" %></td>
+              <td class="text-dark">
+                <span class="badge bg-light text-dark border"><%= asset.asset_category&.name %></span>
+                <% if asset.tag %>
+                  <span class="badge" style="background-color: <%= asset.tag.color %>;"><%= asset.tag.name %></span>
+                <% end %>
+              </td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <%= link_to edit_asset_path(asset), class: "btn btn-sm btn-link text-primary", title: "Editar", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+                    <i class="fas fa-pencil-alt"></i>
+                  <% end %>
+
+                  <%= link_to asset_path(asset), class: "btn btn-sm btn-link text-info", title: "Informe (Show)" do %>
+                    <i class="fas fa-file-alt"></i>
+                  <% end %>
+
+                  <button class="btn btn-sm btn-link text-muted" disabled title="Mantenimiento (Próximamente)">
+                    <i class="fas fa-tools"></i>
+                  </button>
+
+                  <%= button_to asset_path(asset), method: :delete, class: "btn btn-sm btn-link text-danger", form: { style: "display:inline-block;" }, data: { turbo_confirm: "¿Estás seguro de eliminar este activo?" }, title: "Eliminar" do %>
+                    <i class="fas fa-trash"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+           <% if @assets.empty? %>
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">No hay maquinaria registrada.</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+</div>
+<% end %>
+
+<%= turbo_stream.update "flash", partial: "shared/flash" %>
+
+<%= turbo_stream.append "modal_body" do %>
+  <div data-controller="modal-close"></div>
+<% end %>

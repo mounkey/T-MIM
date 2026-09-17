@@ -1,0 +1,114 @@
+<%= simple_form_for(@provider, url: @provider.new_record? ? providers_path : provider_path(@provider)) do |f| %>
+  <%= render 'shared/flash' %>
+
+  <div class="row g-3">
+      <!-- Datos de la Empresa -->
+      <div class="col-md-6">
+        <%= f.input :name, label: "Nombre Empresa", placeholder: "Ej: Mounkey SpA" %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :rut, label: "RUT", placeholder: "Ej: 76.322.346-9" %>
+      </div>
+
+      <!-- Contacto -->
+      <div class="col-md-6">
+        <%= f.input :contact_name, label: "Nombre Contacto", placeholder: "Ej: Juan Pablo Grover" %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :phone, label: "Teléfono", placeholder: "Ej: +56 9 1234 5678" %>
+      </div>
+
+      <div class="col-md-6">
+        <%= f.input :email, label: "Email", placeholder: "contacto@mounkey.cl" %>
+      </div>
+      <div class="col-md-6">
+         <%= f.input :website, label: "Sitio Web", placeholder: "https://www.mounkey.cl" %>
+      </div>
+
+      <!-- Dirección -->
+      <div class="col-12">
+        <%= f.input :address, label: "Dirección", placeholder: "Ej: Balmaceda 15" %>
+      </div>
+
+      <div class="col-md-6">
+        <%= f.input :region_id, collection: Region.all.order(:name), label: "Región",
+                    input_html: {
+                      data: {
+                        controller: "cascade-select",
+                        action: "change->cascade-select#update",
+                        cascade_select_url_value: cities_path,
+                        cascade_select_param_name_value: "region_id",
+                        cascade_select_target_frame_value: "cities_select"
+                      }
+                    } %>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label required">Ciudad</label>
+        <%= turbo_frame_tag "cities_select" do %>
+          <% cities = @provider.region ? @provider.region.cities.order(:name) : [] %>
+          <%= f.input_field :city_id, collection: cities, class: "form-select", prompt: "Seleccione Región primero" %>
+        <% end %>
+      </div>
+
+      <!-- Descripción -->
+      <div class="col-12">
+        <%= f.input :description, label: "Descripción", as: :text, input_html: { rows: 3 }, placeholder: "Ej: Servicios de informática y desarrollo..." %>
+      </div>
+
+      <!-- Rating (Cogs) -->
+      <div class="col-md-6">
+        <%= f.label :rating, "Calificación", class: "form-label" %>
+        <div class="rating-input d-flex gap-2">
+          <% (1..5).each do |rating| %>
+             <div class="form-check form-check-inline">
+               <%= f.radio_button :rating, rating, class: "form-check-input", id: "rating_#{rating}" %>
+               <label class="form-check-label text-warning" for="rating_#{rating}">
+                 <% rating.times do %>
+                   <i class="fas fa-cog"></i>
+                 <% end %>
+               </label>
+             </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Estado -->
+      <div class="col-md-6 d-flex align-items-center mt-4">
+        <div class="form-check form-switch">
+          <%= f.input_field :active, class: "form-check-input", role: "switch" %>
+          <%= f.label :active, "Proveedor Activo", class: "form-check-label" %>
+        </div>
+      </div>
+
+      <!-- Etiquetas -->
+      <div class="col-12 mt-3">
+        <%= f.label :tag_ids, "Etiquetas / Especialidades", class: "form-label mb-2" %>
+        <div class="d-flex flex-wrap gap-2">
+          <%= f.collection_check_boxes :tag_ids, Tag.all, :id, :name do |b| %>
+            <div class="position-relative">
+               <%= b.check_box(class: "btn-check") %>
+               <%= b.label(class: "btn btn-outline-secondary border-0 text-white d-flex align-items-center gap-2", style: "background-color: #{b.object.color}; opacity: 0.8;") do %>
+                 <i class="fas fa-check d-none check-icon"></i>
+                 <%= b.text %>
+               <% end %>
+            </div>
+          <% end %>
+        </div>
+        <style>
+          .btn-check:checked + .btn {
+            opacity: 1 !important;
+            box-shadow: 0 0 0 2px #041C36 inset;
+            font-weight: bold;
+          }
+          .btn-check:checked + .btn .check-icon {
+            display: inline-block !important;
+          }
+        </style>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+      <%= link_to "Cancelar", providers_path, class: "btn btn-secondary" %>
+      <%= f.button :submit, "Guardar", class: "btn btn-light fw-bold text-dark" %>
+    </div>
+<% end %>

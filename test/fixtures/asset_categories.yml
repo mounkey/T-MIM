@@ -1,0 +1,9 @@
+one:
+  name: "Vehiculos"
+  description: "Transporte"
+  account: one
+
+two:
+  name: "Generadores"
+  description: "Energia"
+  account: one

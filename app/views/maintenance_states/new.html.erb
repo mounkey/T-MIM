@@ -1,0 +1,88 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h3 class="mb-4">Registrar Mantenimiento</h3>
+
+  <div class="alert alert-info d-flex align-items-center mb-4">
+    <i class="fas fa-info-circle fa-2x me-3"></i>
+    <div>
+      <div class="fw-bold">Auditoría del Sistema</div>
+      <div class="small">Usuario: <%= current_user.name %> (<%= current_user.run %>)</div>
+      <div class="small">Fecha/Hora: <%= Time.current.strftime("%d/%m/%Y %H:%M:%S") %></div>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <strong>Máquina:</strong> <%= @asset.name %><br>
+    <strong>Regla:</strong> <%= @plan.name %> (<%= @plan.sub_component.name %>)
+  </div>
+
+  <%= form_with url: maintenance_states_path(asset_id: @asset.id, maintenance_plan_id: @plan.id), method: :post, data: { turbo_frame: "_top" } do |f| %>
+
+    <div class="mb-4">
+      <label class="form-label fw-bold">¿Quién realizó el trabajo físico?</label>
+      <%= f.collection_select :provider_id, Provider.all, :id, :name, { prompt: "Seleccione Proveedor (Opcional - Si es externo)" }, { class: "form-select", id: "provider_select" } %>
+      <div class="form-text">Dejar en blanco si fue realizado internamente por usted.</div>
+    </div>
+
+    <div class="mb-4 d-none" id="rating_container">
+      <label class="form-label fw-bold">Calificación del Servicio</label>
+      <div class="rating-input d-flex gap-2">
+        <% (1..5).each do |i| %>
+          <div class="form-check form-check-inline">
+            <%= f.radio_button :provider_rating, i, class: "form-check-input visually-hidden", id: "rating_#{i}" %>
+            <label class="form-check-label cursor-pointer" for="rating_#{i}" title="<%= i %> Estrellas">
+              <i class="fas fa-star fa-2x text-muted" id="star_<%= i %>"></i>
+            </label>
+          </div>
+        <% end %>
+      </div>
+      <div class="form-text">¿Qué tan satisfecho está con el trabajo realizado?</div>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :notes, "Notas / Observaciones", class: "form-label fw-bold" %>
+      <%= f.text_area :notes, rows: 3, class: "form-control", placeholder: "Detalles del trabajo realizado..." %>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <%= f.submit "Guardar Mantenimiento", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+
+  <script>
+    document.addEventListener("turbo:load", function() {
+      const providerSelect = document.getElementById("provider_select");
+      const ratingContainer = document.getElementById("rating_container");
+
+      // Simple logic to show rating only if provider is selected
+      if(providerSelect) {
+        providerSelect.addEventListener("change", function() {
+          if (this.value) {
+            ratingContainer.classList.remove("d-none");
+          } else {
+            ratingContainer.classList.add("d-none");
+          }
+        });
+      }
+
+      // Star Rating Logic
+      const stars = document.querySelectorAll(".rating-input .fa-star");
+      stars.forEach(star => {
+        star.addEventListener("click", function() {
+          const rating = this.id.split("_")[1];
+          // Update visual state
+          stars.forEach(s => {
+            const sRating = s.id.split("_")[1];
+            if (sRating <= rating) {
+              s.classList.remove("text-muted");
+              s.classList.add("text-warning");
+            } else {
+              s.classList.remove("text-warning");
+              s.classList.add("text-muted");
+            }
+          });
+        });
+      });
+    });
+  </script>
+<% end %>

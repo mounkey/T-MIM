@@ -1,0 +1,35 @@
+<%= turbo_stream.update "flash" do %>
+  <%= render partial: "shared/flash" %>
+<% end %>
+
+<%= turbo_stream.update "regions_grid" do %>
+  <table class="table table-hover align-middle" style="color: #333 !important;">
+    <thead class="table-light">
+      <tr>
+        <th class="text-dark">Nombre</th>
+        <th class="text-dark">Código</th>
+        <th class="text-end text-dark">Accion</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @regions.each do |region| %>
+        <tr>
+          <td class="text-dark"><%= region.name %></td>
+          <td class="text-dark"><%= region.code %></td>
+          <td class="text-end">
+            <%= link_to edit_region_path(region), class: "action-icon edit", title: "Editar", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+              <i class="fas fa-pencil-alt"></i>
+            <% end %>
+            <%= button_to region_path(region), method: :delete, class: "btn btn-link action-icon delete p-0 border-0", form: { style: "display:inline-block;" }, data: { turbo_confirm: "Advertencia: si elimina la región se borrarán las ciudades relacionadas. ¿Está seguro?" }, title: "Eliminar" do %>
+              <i class="fas fa-trash"></i>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<%= turbo_stream.append "modal_body" do %>
+  <div data-controller="modal-close"></div>
+<% end %>

@@ -1,0 +1,115 @@
+<% content_for :page_title, "Expediente de Empresa" %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="text-secondary"><i class="fas fa-folder-open text-primary me-2"></i> <%= @account.name %></h2>
+  <div>
+    <%= link_to edit_superadmin_account_path(@account), class: "btn btn-outline-primary me-2", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+      <i class="fas fa-edit"></i> Editar Información
+    <% end %>
+    <%= link_to superadmin_accounts_path, class: "btn btn-outline-secondary" do %>
+      <i class="fas fa-arrow-left"></i> Volver al Listado
+    <% end %>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Información Comercial -->
+  <div class="col-md-6 mb-4">
+    <div class="card bg-white rounded shadow-sm border-0 h-100">
+      <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="mb-0 text-primary"><i class="fas fa-building me-2"></i> Datos Comerciales</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-borderless mb-0">
+          <tbody>
+            <tr><th class="text-secondary" style="width: 40%;">Razón Social:</th><td class="fw-bold"><%= @account.razon_social.presence || "-" %></td></tr>
+            <tr><th class="text-secondary">Nombre de Fantasía:</th><td><%= @account.nombre_fantasia.presence || "-" %></td></tr>
+            <tr><th class="text-secondary">RUT:</th><td><%= @account.rut.presence || "-" %></td></tr>
+            <tr><th class="text-secondary">Email Comercial:</th><td><%= @account.email.presence || "-" %></td></tr>
+            <tr><th class="text-secondary">Dirección:</th><td><%= @account.direccion.presence || "-" %></td></tr>
+            <tr><th class="text-secondary">Región / Ciudad:</th><td><%= @account.region&.name || "-" %> / <%= @account.city&.name || "-" %></td></tr>
+            <tr>
+              <th class="text-secondary">Estado en Sistema:</th>
+              <td>
+                <% if @account.active? %>
+                  <span class="badge bg-success">Activa</span>
+                <% else %>
+                  <span class="badge bg-danger">Bloqueada</span>
+                <% end %>
+              </td>
+            </tr>
+            <tr><th class="text-secondary">Subdominio (URL):</th><td><a href="http://<%= @account.subdomain %>.mim.cl" target="_blank"><%= @account.subdomain %>.mim.cl</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Información de Contacto -->
+  <div class="col-md-6 mb-4">
+    <div class="card bg-white rounded shadow-sm border-0 h-100">
+      <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="mb-0 text-info"><i class="fas fa-user-tie me-2"></i> Contacto Administrativo</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-borderless mb-0">
+          <tbody>
+            <tr><th class="text-secondary" style="width: 40%;">Nombre Completo:</th><td class="fw-bold"><%= @account.contacto_nombre.presence || "-" %></td></tr>
+            <tr><th class="text-secondary">RUT Contacto:</th><td><%= @account.contacto_rut.presence || "-" %></td></tr>
+            <tr><th class="text-secondary">Cargo:</th><td><%= @account.contacto_cargo.presence || "-" %></td></tr>
+            <tr><th class="text-secondary">Email:</th><td><a href="mailto:<%= @account.contacto_email %>"><%= @account.contacto_email.presence || "-" %></a></td></tr>
+            <tr><th class="text-secondary">Teléfono:</th><td><%= @account.contacto_telefono.presence || "-" %></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bitácora de Pagos (Finanzas) -->
+<div class="card bg-white rounded shadow-sm border-0 mt-2">
+  <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+    <h5 class="mb-0 text-success"><i class="fas fa-file-invoice-dollar me-2"></i> Bitácora de Pagos (Finanzas)</h5>
+    <%= link_to new_superadmin_invoice_path(account_id: @account.id), class: "btn btn-success btn-sm", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+      <i class="fas fa-plus"></i> Registrar Pago
+    <% end %>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">Monto</th>
+            <th>Vencimiento</th>
+            <th>Fecha de Pago</th>
+            <th>Estado</th>
+            <th class="text-end pe-4">Recibo / ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @account.invoices.any? %>
+            <% @account.invoices.order(created_at: :desc).each do |invoice| %>
+              <tr>
+                <td class="ps-4 fw-bold text-success">$<%= invoice.amount %></td>
+                <td><%= invoice.due_date&.strftime("%d/%m/%Y") || "-" %></td>
+                <td><%= invoice.paid_at&.strftime("%d/%m/%Y") || "-" %></td>
+                <td>
+                  <% if invoice.status.to_s.downcase == 'pagado' || invoice.status.to_s.downcase == 'paid' %>
+                    <span class="badge bg-success">Pagado</span>
+                  <% else %>
+                    <span class="badge bg-warning text-dark"><%= invoice.status %></span>
+                  <% end %>
+                </td>
+                <td class="text-end pe-4">
+                  <span class="text-muted small">#<%= invoice.id.to_s[0..7] %></span>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr><td colspan="5" class="text-center py-5 text-muted">No hay registros de pago en la bitácora para esta empresa.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

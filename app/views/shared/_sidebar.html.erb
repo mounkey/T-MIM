@@ -1,0 +1,60 @@
+      <nav class="sidebar">
+        <!-- User Info (Top Left) -->
+        <div class="user-profile">
+          <div class="user-name"><%= current_user.name.presence || current_user.email %></div>
+          <div class="user-role"><%= current_user.role.capitalize if current_user.role %></div>
+        </div>
+
+        <!-- Logo -->
+        <div class="sidebar-logo">
+          <%= image_tag "logo.png", alt: "MIM Logo" %>
+          <div class="logo-text">Mantenimiento Inteligente Maquinaria</div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-menu">
+          <%= link_to authenticated_root_path, class: "nav-link #{'active' if current_page?(authenticated_root_path)}" do %>
+            <i class="fas fa-home icon-dashboard"></i> Dashboard
+          <% end %>
+
+          <%= link_to assets_path, class: "nav-link #{'active' if controller_name == 'assets'}" do %>
+            <i class="fas fa-truck icon-assets"></i> Maquinaria
+          <% end %>
+
+          <%= link_to logbook_index_path, class: "nav-link #{'active' if controller_name == 'logbook'}" do %>
+            <i class="fas fa-clipboard-list icon-logbook"></i> Bitácora
+          <% end %>
+
+          <%= link_to maintenance_path, class: "nav-link #{'active' if controller_name == 'maintenance'}" do %>
+            <i class="fas fa-tools icon-maintenance"></i> Mantenimiento
+          <% end %>
+
+          <%= link_to maintenance_plans_path, class: "nav-link #{'active' if controller_name == 'maintenance_plans'}" do %>
+            <i class="fas fa-clipboard-check icon-maintenance-plans"></i> Planes
+          <% end %>
+
+          <%= link_to providers_path, class: "nav-link #{'active' if controller_name == 'providers'}" do %>
+            <i class="fas fa-users-cog icon-providers"></i> Proveedores
+          <% end %>
+
+          <!-- Configuration Dropdown/Link -->
+          <a class="nav-link" data-bs-toggle="collapse" href="#configMenu" role="button" aria-expanded="<%= request.path.match?(/regions|cities|tags|asset_categories|users/) %>" aria-controls="configMenu">
+             <i class="fas fa-cog icon-config"></i> Configuración
+          </a>
+          <div class="collapse <%= 'show' if request.path.match?(/regions|cities|tags|asset_categories|users/) %>" id="configMenu">
+             <div class="ps-4">
+                 <%= link_to "Regiones", regions_path, class: "nav-link small py-1 #{'active' if current_page?(regions_path)}" %>
+                 <%= link_to "Ciudades", cities_path, class: "nav-link small py-1 #{'active' if current_page?(cities_path)}" %>
+                 <%= link_to "Etiquetas", tags_path, class: "nav-link small py-1 #{'active' if current_page?(tags_path)}" %>
+                 <%= link_to "Categorías", asset_categories_path, class: "nav-link small py-1 #{'active' if current_page?(asset_categories_path)}" %>
+                 <%= link_to "Usuarios", users_path, class: "nav-link small py-1 #{'active' if current_page?(users_path)}" %>
+             </div>
+          </div>
+        </div>
+
+        <!-- Footer Buttons -->
+        <div class="sidebar-footer">
+           <%= button_to "Cerrar Sesion", destroy_user_session_path, method: :delete, class: "btn-sidebar-action" %>
+           <%= link_to "Soporte", "#", class: "btn-sidebar-action" %>
+        </div>
+      </nav>

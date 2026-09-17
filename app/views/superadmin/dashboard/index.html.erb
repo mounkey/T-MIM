@@ -1,0 +1,31 @@
+<% content_for :page_title, "Bóveda Global SaaS" %>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card bg-white p-4 rounded shadow-sm border-0">
+      <h3 class="mb-4 text-secondary"><i class="fas fa-shield-alt text-primary"></i> Bienvenido, <%= current_super_admin.email %></h3>
+      <p class="text-muted">Estás dentro de la Bóveda del Sistema. Desde aquí tienes control absoluto (Multitenant apagado) sobre todas las empresas, finanzas y configuraciones de servidor.</p>
+      
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <div class="border rounded p-3 text-center">
+            <h1 class="display-4 text-primary"><%= Account.count %></h1>
+            <p class="text-muted mb-0">Empresas Activas</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded p-3 text-center">
+            <h1 class="display-4 text-success"><%= User.count %></h1>
+            <p class="text-muted mb-0">Usuarios Totales</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="border rounded p-3 text-center">
+            <h1 class="display-4 text-warning"><%= SuperAdmin.count %></h1>
+            <p class="text-muted mb-0">Super Administradores</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

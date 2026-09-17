@@ -1,0 +1,9 @@
+<%= turbo_stream.update "meters_list" do %>
+  <%= render partial: "meters/list", locals: { asset: @asset } %>
+<% end %>
+
+<%= turbo_stream.update "flash", partial: "shared/flash" %>
+
+<%= turbo_stream.append "modal_body" do %>
+  <div data-controller="modal-close"></div>
+<% end %>

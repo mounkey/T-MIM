@@ -1,0 +1,13 @@
+one:
+  recorded_at: 2023-10-27 10:00:00
+  notes: "Mantención regular"
+  asset: one
+  user: one
+  account: one
+
+two:
+  recorded_at: 2023-10-20 15:30:00
+  notes: "Reparación urgente"
+  asset: two
+  user: two
+  account: one

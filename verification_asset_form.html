@@ -1,0 +1,74 @@
+
+               <turbo-frame id="modal_body" src="http://localhost:3000/maquinaria/new" complete="">
+  <h4 class="mb-4 text-white">Nueva Maquinaria</h4>
+  <!-- BEGIN app/views/assets/_form.html.erb
+--><form class="simple_form p-1" id="new_asset" action="/maquinaria" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="oJUfGWeDp6A0IqT4Fpq4vuyg7WwKqs2J4seSwIiag8WeZKHSJuIfVOvSYlxp-1HAH6wfqT6n9wvBE-Mpil_2vA">
+
+  <div style="max-height: 60vh; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
+
+    <div class="mb-3">
+      <div class="mb-3 string required asset_name"><label class="form-label string required form-label" for="asset_name"><abbr title="required">*</abbr> Nombre</label><input class="form-control string required" required="required" placeholder="Ej. Excavadora 01" type="text" name="asset[name]" id="asset_name"></div>
+    </div>
+
+    <div class="mb-3">
+      <div class="mb-3 select required asset_status is-valid"><label class="form-label select required form-label" for="asset_status"><abbr title="required">*</abbr> Estado</label><select class="form-control is-valid select required" name="asset[status]" id="asset_status"><option selected="selected" value="operativa">Operativa</option>
+<option value="en_mantencion">En mantencion</option>
+<option value="fuera_de_servicio">Fuera de servicio</option></select></div>
+    </div>
+
+    <div class="mb-3">
+      <div class="mb-3 string optional asset_make"><label class="form-label string optional form-label" for="asset_make">Marca</label><input class="form-control string optional" type="text" name="asset[make]" id="asset_make"></div>
+    </div>
+
+    <div class="mb-3">
+      <div class="mb-3 string optional asset_model"><label class="form-label string optional form-label" for="asset_model">Modelo</label><input class="form-control string optional" type="text" name="asset[model]" id="asset_model"></div>
+    </div>
+
+    <div class="mb-3">
+      <div class="mb-3 integer optional asset_year"><label class="form-label integer optional form-label" for="asset_year">Año</label><input class="form-control numeric integer optional" type="number" step="1" name="asset[year]" id="asset_year"></div>
+    </div>
+
+    <div class="mb-3">
+      <div class="mb-3 string optional asset_plate"><label class="form-label string optional form-label" for="asset_plate">Patente</label><input class="form-control string optional" type="text" name="asset[plate]" id="asset_plate"></div>
+    </div>
+
+    <div class="mb-3">
+      <div class="mb-3 string optional asset_serial_number"><label class="form-label string optional form-label" for="asset_serial_number">Nº Serie</label><input class="form-control string optional" type="text" name="asset[serial_number]" id="asset_serial_number"></div>
+    </div>
+
+    <div class="mb-3">
+      <div class="mb-3 integer optional asset_odometer"><label class="form-label integer optional form-label" for="asset_odometer">Odómetro / Horómetro</label><input class="form-control numeric integer optional" type="number" step="1" name="asset[odometer]" id="asset_odometer"></div>
+    </div>
+
+    <div class="mb-3">
+      <div class="mb-3 string optional asset_location"><label class="form-label string optional form-label" for="asset_location">Ubicación Actual</label><input class="form-control string optional" placeholder="Ej. Obra Norte, Taller Central" type="text" name="asset[location]" id="asset_location"></div>
+    </div>
+
+    <div class="mb-3">
+      <div class="mb-3 select optional asset_asset_category"><label class="form-label select optional form-label" for="asset_asset_category_id">Categoría</label><select class="form-control select optional" name="asset[asset_category_id]" id="asset_asset_category_id"><option value="">Seleccione...</option>
+<option value="1">Maquinaria Pesada</option>
+<option value="2">Vehículos Menores</option>
+<option value="3">Herramientas Eléctricas</option>
+<option value="4">Equipos de Computación</option></select></div>
+    </div>
+
+    <div class="mb-3">
+      <div class="mb-3 select optional asset_tag"><label class="form-label select optional form-label" for="asset_tag_id">Etiqueta</label><select class="form-control select optional" name="asset[tag_id]" id="asset_tag_id"><option value="">Seleccione...</option>
+<option value="1">Hidráulica</option>
+<option value="2">Mecánica Diesel</option>
+<option value="3">Electrónica</option>
+<option value="4">Soldadura</option></select></div>
+    </div>
+
+    <div class="mb-3">
+      <div class="mb-3 text optional asset_description"><label class="form-label text optional form-label" for="asset_description">Descripción</label><textarea class="form-control text optional" rows="2" name="asset[description]" id="asset_description"></textarea></div>
+    </div>
+
+  </div>
+
+  <div class="modal-footer border-0 px-0 pb-0 mt-4">
+    <button type="button" class="btn btn-link text-white text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+    <input type="submit" name="commit" value="Guardar" class="btn btn btn-submit-custom" data-disable-with="Guardar">
+  </div>
+</form><!-- END app/views/assets/_form.html.erb -->
+</turbo-frame>

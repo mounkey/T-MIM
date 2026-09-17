@@ -1,0 +1,9 @@
+one:
+  name: "Default Account"
+  subdomain: "default"
+  active: true
+
+two:
+  name: "Secondary Account"
+  subdomain: "secondary"
+  active: true

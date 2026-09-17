@@ -1,0 +1,149 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <div class="modal-header border-0 pb-0">
+    <!-- Using text-white because the modal header background is often dark in this theme, or standard text-dark if white bg.
+         However, user reported "invisible", implying white-on-white or dark-on-dark.
+         Assuming the modal uses a dark background (common in this app's "Deep Blue" theme for some modals) or standard bootstrap.
+         Wait, previous code had text-dark. If it was invisible, the background might be dark blue.
+         Let's try removing the explicit color class to let Bootstrap/Theme decide, or switch to primary.
+         Actually, the safest bet for visibility on unknown backgrounds is usually standard body color unless it's a specific dark modal.
+         Given the user complaint "title invisible", and the app uses "Dark Blue" heavily, let's try a safe high-contrast color or standard class.
+         But wait, memory says "Modal forms ... distinct from standard #mainModal".
+         If the background is white (white card pattern), text-dark should work.
+         If it's dark blue, text-white.
+         Let's check layout. The layout is usually white modal body.
+         Maybe the header background is missing?
+         Let's stick to text-primary (Dark Blue in this app usually) to be safe and visible on white/light gray.
+    -->
+    <h5 class="modal-title fw-bold text-primary">Detalle de Bitácora</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+
+  <div class="modal-body">
+    <!-- Header Info -->
+    <div class="d-flex align-items-center mb-4 p-3 bg-light rounded">
+      <div class="me-3">
+        <div class="bg-white rounded-circle p-2 shadow-sm text-primary d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+          <i class="fas <%= @logbook_record.asset.asset_category&.icon || 'fa-truck' %> fa-lg"></i>
+        </div>
+      </div>
+      <div>
+        <h5 class="mb-0 fw-bold text-dark"><%= @logbook_record.asset.name %></h5>
+        <div class="small text-muted mt-1">
+          <div><i class="fas fa-calendar-alt me-2"></i><%= l @logbook_record.recorded_at, format: :long %></div>
+          <div class="mt-1"><i class="fas fa-user me-2"></i><%= @logbook_record.user.name %></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Semaphore / Status Indicator -->
+    <% issues_count = @logbook_record.maintenance_checks.where.not(status: :ok).count %>
+    <div class="mb-4">
+      <% if issues_count > 0 %>
+        <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center" role="alert">
+          <i class="fas fa-exclamation-triangle fa-2x me-3 text-warning"></i>
+          <div>
+            <h5 class="alert-heading fw-bold mb-0 text-dark">Atención Requerida</h5>
+            <p class="mb-0 text-dark small">Se detectaron <strong><%= issues_count %> alertas</strong> en la inspección técnica.</p>
+          </div>
+        </div>
+      <% else %>
+        <div class="alert alert-success border-0 shadow-sm d-flex align-items-center" role="alert">
+          <i class="fas fa-check-circle fa-2x me-3 text-success"></i>
+          <div>
+            <h5 class="alert-heading fw-bold mb-0 text-dark">Todo en Orden</h5>
+            <p class="mb-0 text-dark small">Inspección realizada sin novedades. Mantenimiento OK.</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Notes if any -->
+    <% if @logbook_record.notes.present? %>
+      <div class="mb-4">
+        <label class="small fw-bold text-muted text-uppercase">Notas Generales</label>
+        <div class="p-3 bg-white border rounded text-dark">
+          <%= @logbook_record.notes %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="row g-4">
+      <!-- Left Column: Meters -->
+      <div class="col-md-5">
+        <h6 class="fw-bold text-secondary mb-3"><i class="fas fa-tachometer-alt me-2"></i>Contadores</h6>
+        <% if @logbook_record.logbook_entries.any? %>
+          <div class="list-group shadow-sm">
+            <% @logbook_record.logbook_entries.each do |entry| %>
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-bold text-dark"><%= entry.meter.name %></div>
+                  <div class="small text-muted"><%= entry.meter.unit %></div>
+                </div>
+                <div class="text-end">
+                  <div class="fw-bold text-dark fs-5"><%= number_with_delimiter(entry.current_value.to_i) %></div>
+                  <% if entry.quantity > 0 %>
+                    <div class="badge bg-success rounded-pill">+<%= number_with_delimiter(entry.quantity.to_i) %></div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-muted small fst-italic">No se registraron cambios en contadores.</p>
+        <% end %>
+      </div>
+
+      <!-- Right Column: Inspection -->
+      <div class="col-md-7">
+        <h6 class="fw-bold text-secondary mb-3"><i class="fas fa-tasks me-2"></i>Tareas</h6>
+        <% if @logbook_record.maintenance_checks.any? %>
+          <div class="table-responsive border rounded shadow-sm">
+            <table class="table table-sm table-hover mb-0">
+              <thead class="bg-light">
+                <tr>
+                  <th class="ps-3 py-2 text-secondary small">Componente</th>
+                  <th class="py-2 text-secondary small">Estado</th>
+                  <th class="py-2 text-secondary small">Observación</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @logbook_record.maintenance_checks.each do |check| %>
+                  <tr>
+                    <td class="ps-3 align-middle">
+                      <div class="fw-bold text-dark small"><%= check.component.name %></div>
+                      <div class="text-muted small" style="font-size: 0.75rem;"><%= check.sub_component.name %></div>
+                    </td>
+                    <td class="align-middle">
+                      <% case check.status.to_sym %>
+                      <% when :ok %>
+                        <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                      <% when :warning %>
+                        <span class="badge bg-warning text-dark"><i class="fas fa-exclamation"></i></span>
+                      <% when :critical %>
+                        <span class="badge bg-danger"><i class="fas fa-times"></i></span>
+                      <% else %>
+                        <span class="badge bg-secondary"><%= check.status %></span>
+                      <% end %>
+                    </td>
+                    <td class="align-middle text-dark small">
+                      <%= check.notes.presence || "-" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <p class="text-muted small fst-italic">No se realizó inspección de componentes.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer border-0">
+    <%= link_to logbook_path(@logbook_record, format: :pdf), class: "btn btn-outline-primary fw-bold me-auto", target: "_blank", data: { turbo: false } do %>
+       <i class="fas fa-print me-2"></i> Imprimir Orden
+    <% end %>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+  </div>
+<% end %>

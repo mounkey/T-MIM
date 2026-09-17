@@ -1,0 +1,120 @@
+<% content_for :page_title, "Maquinaria" %>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    <!-- Top Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <!-- Search / Filter Form -->
+      <%= form_with url: assets_path, method: :get, data: { turbo_frame: "assets_grid", turbo_action: "advance" }, class: "d-flex gap-2 flex-grow-1 me-3" do |f| %>
+        <div class="position-relative flex-grow-1">
+          <i class="fas fa-search position-absolute top-50 translate-middle-y text-muted" style="left: 1rem;"></i>
+          <%= f.text_field :query, value: params[:query], placeholder: "Buscar por nombre, marca, modelo o serie...", class: "form-control rounded-pill ps-5", style: "padding-left: 3rem !important;" %>
+        </div>
+
+        <%= f.button "Buscar", class: "btn btn-outline-primary rounded-pill" %>
+
+        <!-- Optional Filters Dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-light border rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-filter"></i>
+          </button>
+          <ul class="dropdown-menu p-3" style="min-width: 250px;">
+            <li class="mb-2">
+              <label class="form-label small text-muted">Categoría</label>
+              <%= f.select :asset_category_id, AssetCategory.all.map { |c| [c.name, c.id] }, { include_blank: "Todas" }, { class: "form-select form-select-sm" } %>
+            </li>
+            <li class="mb-2">
+              <label class="form-label small text-muted">Etiqueta</label>
+              <%= f.select :tag_id, Tag.all.map { |t| [t.name, t.id] }, { include_blank: "Todas" }, { class: "form-select form-select-sm" } %>
+            </li>
+             <li>
+               <%= f.submit "Filtrar", class: "btn btn-sm btn-primary w-100" %>
+             </li>
+          </ul>
+        </div>
+      <% end %>
+
+      <!-- Action Buttons -->
+      <div class="d-flex gap-2">
+        <%= link_to new_asset_path, class: "btn btn-primary rounded-pill px-4", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+          <i class="fas fa-plus me-1"></i> Ingreso
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Data Grid -->
+    <%= turbo_frame_tag "assets_grid" do %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" style="color: #333 !important;">
+          <thead class="table-light">
+            <tr>
+              <th class="text-dark" style="width: 50px;">Est.</th>
+              <th class="text-dark">Nombre</th>
+              <th class="text-dark">Serie</th>
+              <th class="text-dark">Marca / Modelo</th>
+              <th class="text-dark">Ubicación</th>
+              <th class="text-dark">Categoría</th>
+              <th class="text-end text-dark">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @assets.each do |asset| %>
+              <tr>
+                <td class="text-center">
+                  <% color_class = case asset.status
+                     when "operativa" then "text-success"
+                     when "en_mantencion" then "text-warning"
+                     when "fuera_de_servicio" then "text-danger"
+                     else "text-secondary"
+                     end %>
+                  <i class="fas fa-circle <%= color_class %>" title="<%= asset.status_label %>"></i>
+                </td>
+                <td class="text-dark fw-bold">
+                   <%= asset.name %>
+                </td>
+                <td class="text-dark">
+                   <%= asset.serial_number %>
+                </td>
+                <td class="text-dark">
+                  <div><%= asset.make %></div>
+                  <small class="text-muted"><%= asset.model %></small>
+                </td>
+                <td class="text-dark"><%= asset.location.presence || "-" %></td>
+                <td class="text-dark">
+                  <span class="badge bg-light text-dark border"><%= asset.asset_category&.name %></span>
+                  <% if asset.tag %>
+                    <span class="badge" style="background-color: <%= asset.tag.color %>;"><%= asset.tag.name %></span>
+                  <% end %>
+                </td>
+                <td class="text-end">
+                  <div class="btn-group">
+                    <%= link_to edit_asset_path(asset), class: "btn btn-sm btn-link text-primary", title: "Editar", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+                      <i class="fas fa-pencil-alt"></i>
+                    <% end %>
+
+                    <%= link_to asset_path(asset), class: "btn btn-sm btn-link text-info", title: "Informe (Show)", data: { turbo_frame: "_top" } do %>
+                      <i class="fas fa-file-alt"></i>
+                    <% end %>
+
+                    <%= button_to asset_path(asset), method: :delete, class: "btn btn-sm btn-link text-danger", form: { style: "display:inline-block;" }, data: { turbo_confirm: "¿Estás seguro de eliminar este activo?" }, title: "Eliminar" do %>
+                      <i class="fas fa-trash"></i>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+             <% if @assets.empty? %>
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">No hay maquinaria registrada.</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-center mt-3">
+        <%= paginate @assets %>
+      </div>
+    <% end %>
+  </div>
+</div>

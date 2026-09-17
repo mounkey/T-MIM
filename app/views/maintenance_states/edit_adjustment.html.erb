@@ -1,0 +1,30 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h3 class="mb-4">Ajustar Contador de Mantenimiento</h3>
+
+  <div class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle"></i>
+    Estás editando manualmente el valor del último mantenimiento.
+    Esto recalculará el porcentaje de uso.
+  </div>
+
+  <div class="mb-3">
+    <strong>Máquina:</strong> <%= @asset.name %><br>
+    <strong>Regla:</strong> <%= @plan.name %> (<%= @plan.frequency %> <%= @plan.unit %>)
+  </div>
+
+  <%= form_with model: @state, url: update_adjustment_maintenance_states_path(asset_id: @asset.id, maintenance_plan_id: @plan.id), method: :patch, data: { turbo_frame: "_top" } do |f| %>
+
+    <div class="mb-3">
+      <%= f.label :last_performed_value, "Valor del último mantenimiento (#{@plan.unit})", class: "form-label fw-bold" %>
+      <%= f.number_field :last_performed_value, step: "0.1", class: "form-control" %>
+      <div class="form-text">
+        Ingresa el valor del odómetro/horómetro cuando se realizó esta tarea por última vez.
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <%= f.submit "Guardar Ajuste", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+<% end %>

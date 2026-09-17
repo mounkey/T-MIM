@@ -1,0 +1,101 @@
+<div class="pdf-header">
+  <div class="logo-text">MIM</div>
+  <div class="report-title">
+    Orden de Trabajo / Tarea<br>
+    <small style="font-size: 12px; color: #888;">Folio: #<%= @logbook_record.id %></small>
+  </div>
+</div>
+
+<div class="row mb-4 bg-light p-3 rounded">
+  <div class="col-6">
+    <h4 class="mb-1"><%= @logbook_record.asset.name %></h4>
+    <div class="text-muted"><%= @logbook_record.asset.make %> <%= @logbook_record.asset.model %></div>
+    <div class="small mt-1">Patente: <%= @logbook_record.asset.plate %></div>
+  </div>
+  <div class="col-6 text-end">
+    <div><strong>Fecha:</strong> <%= @logbook_record.recorded_at.strftime("%d/%m/%Y %H:%M") %></div>
+    <div><strong>Responsable:</strong> <%= @logbook_record.user.name %></div>
+    <% if @logbook_record.provider %>
+      <div class="mt-1"><strong>Proveedor:</strong> <%= @logbook_record.provider.name %></div>
+    <% end %>
+  </div>
+</div>
+
+<!-- LECTURAS -->
+<h6 class="border-bottom pb-2 mb-3 text-uppercase text-secondary">Lecturas de Medidores</h6>
+<% if @logbook_record.logbook_entries.any? %>
+  <table class="table table-sm table-bordered mb-4 w-50">
+    <thead class="table-light">
+      <tr>
+        <th>Medidor</th>
+        <th class="text-end">Valor Registrado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @logbook_record.logbook_entries.each do |entry| %>
+        <tr>
+          <td><%= entry.meter.name %></td>
+          <td class="text-end fw-bold"><%= number_with_precision(entry.current_value, precision: 0) %> <%= entry.meter.unit %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted fst-italic mb-4">No se registraron cambios en medidores.</p>
+<% end %>
+
+<!-- CHECKS -->
+<h6 class="border-bottom pb-2 mb-3 text-uppercase text-secondary">Detalle de Inspección / Tareas</h6>
+<% if @logbook_record.maintenance_checks.any? %>
+  <table class="table table-sm table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th style="width: 25%;">Sistema</th>
+        <th style="width: 25%;">Componente</th>
+        <th style="width: 15%;" class="text-center">Estado</th>
+        <th style="width: 35%;">Observaciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @logbook_record.maintenance_checks.each do |check| %>
+        <tr>
+          <td><%= check.component.name %></td>
+          <td><%= check.sub_component.name %></td>
+          <td class="text-center">
+            <%
+              status_map = { 0 => 'OK', 1 => 'Alerta', 2 => 'Fallo', 3 => 'Reparado' }
+              # Assuming enum or mapping. If it's stored as string or int, adjust.
+              # Checking db/schema or model logic. MaintenanceCheck usually has status.
+              # Let's assume raw value for now, capitalized.
+              status_text = check.status.to_s.humanize
+
+              badge_class = case check.status.to_s
+                when 'ok' then 'text-success'
+                when 'maintenance_required' then 'text-warning'
+                when 'broken' then 'text-danger fw-bold'
+                when 'fixed' then 'text-primary fw-bold'
+                else 'text-dark'
+              end
+            %>
+            <span class="<%= badge_class %>"><%= status_text %></span>
+          </td>
+          <td><%= check.notes.presence || "-" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted fst-italic">No hay tareas específicas registradas.</p>
+<% end %>
+
+<!-- NOTAS GENERALES -->
+<% if @logbook_record.notes.present? %>
+  <div class="mt-4 p-3 border rounded bg-light">
+    <strong>Notas Generales:</strong><br>
+    <%= @logbook_record.notes %>
+  </div>
+<% end %>
+
+<div class="pdf-footer">
+  <%= @logbook_record.id %> - Documento Generado por Sistema MIM
+</div>

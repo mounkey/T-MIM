@@ -1,0 +1,23 @@
+one:
+  name: "Camioneta 4x4"
+  model: "Hilux"
+  make: "Toyota"
+  year: 2023
+  serial_number: "SN123456"
+  plate: "AB-CD-12"
+  asset_category: one
+  tag: one
+  status: 0
+  account: one
+
+two:
+  name: "Generador Diesel"
+  model: "G300"
+  make: "Caterpillar"
+  year: 2022
+  serial_number: "SN654321"
+  plate: "GEN-01"
+  asset_category: two
+  tag: two
+  status: 1
+  account: one

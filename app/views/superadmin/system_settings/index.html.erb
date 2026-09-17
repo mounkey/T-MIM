@@ -1,0 +1,86 @@
+<% content_for :page_title, "Ajustes Globales (API)" %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="text-secondary"><i class="fas fa-cogs text-primary me-2"></i> Integraciones y APIs</h2>
+</div>
+
+<div class="row">
+  <!-- Tarjeta 1: Pasarela de Pagos FLOW -->
+  <div class="col-md-6 mb-4">
+    <div class="card bg-white rounded shadow-sm border-0 h-100">
+      <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
+        <i class="fas fa-money-check-alt text-primary fs-4 me-3"></i>
+        <h5 class="mb-0 text-primary">Pasarela de Pagos (Flow)</h5>
+      </div>
+      <div class="card-body p-4">
+        <p class="text-muted small mb-4">Configura aquí las llaves criptográficas entregadas por Flow.cl para procesar los cobros a tus clientes.</p>
+
+        <%= form_with url: update_multiple_superadmin_system_settings_path, method: :patch, local: true do |f| %>
+          <div class="mb-3">
+            <%= f.label "settings[FLOW_API_KEY]", "API Key Público", class: "form-label fw-bold" %>
+            <%= f.text_field "settings[FLOW_API_KEY]", value: @settings['FLOW_API_KEY']&.value, class: "form-control text-monospace", placeholder: "Ej: 9A5B-..." %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label "settings[FLOW_SECRET_KEY]", "Secret Key Privado", class: "form-label fw-bold" %>
+            <%= f.password_field "settings[FLOW_SECRET_KEY]", value: @settings['FLOW_SECRET_KEY']&.value, class: "form-control text-monospace", placeholder: "*****************" %>
+          </div>
+
+          <div class="mb-4">
+            <%= f.label "settings[FLOW_ENV]", "Entorno", class: "form-label fw-bold" %>
+            <%= f.select "settings[FLOW_ENV]", options_for_select([['Pruebas (Sandbox)', 'sandbox'], ['Producción (Real)', 'production']], @settings['FLOW_ENV']&.value), {}, class: "form-select" %>
+          </div>
+
+          <div class="text-end mt-auto">
+            <%= f.submit "Guardar Credenciales Flow", class: "btn btn-primary px-4" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tarjeta 2: Servidor de Correos SMTP -->
+  <div class="col-md-6 mb-4">
+    <div class="card bg-white rounded shadow-sm border-0 h-100">
+      <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
+        <i class="fas fa-envelope-open-text text-info fs-4 me-3"></i>
+        <h5 class="mb-0 text-info">Servidor de Correos (SMTP)</h5>
+      </div>
+      <div class="card-body p-4">
+        <p class="text-muted small mb-4">Configura el protocolo de red para enviar notificaciones automáticas y recuperaciones de contraseña.</p>
+
+        <%= form_with url: update_multiple_superadmin_system_settings_path, method: :patch, local: true do |f| %>
+          <div class="row">
+            <div class="col-md-8 mb-3">
+              <%= f.label "settings[SMTP_ADDRESS]", "Servidor (Host)", class: "form-label fw-bold" %>
+              <%= f.text_field "settings[SMTP_ADDRESS]", value: @settings['SMTP_ADDRESS']&.value, class: "form-control text-monospace", placeholder: "Ej: smtp.sendgrid.net" %>
+            </div>
+            <div class="col-md-4 mb-3">
+              <%= f.label "settings[SMTP_PORT]", "Puerto", class: "form-label fw-bold" %>
+              <%= f.text_field "settings[SMTP_PORT]", value: @settings['SMTP_PORT']&.value, class: "form-control", placeholder: "Ej: 587" %>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label "settings[SMTP_USER]", "Usuario de Correo", class: "form-label fw-bold" %>
+            <%= f.email_field "settings[SMTP_USER]", value: @settings['SMTP_USER']&.value, class: "form-control", placeholder: "Ej: apikey o correo@tudominio.com" %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label "settings[SMTP_PASSWORD]", "Contraseña (App Password)", class: "form-label fw-bold" %>
+            <%= f.password_field "settings[SMTP_PASSWORD]", value: @settings['SMTP_PASSWORD']&.value, class: "form-control", placeholder: "*****************" %>
+          </div>
+
+          <div class="mb-4">
+            <%= f.label "settings[SMTP_DOMAIN]", "Dominio Emisor", class: "form-label fw-bold" %>
+            <%= f.text_field "settings[SMTP_DOMAIN]", value: @settings['SMTP_DOMAIN']&.value, class: "form-control text-monospace", placeholder: "Ej: mim.cl" %>
+          </div>
+
+          <div class="text-end mt-auto">
+            <%= f.submit "Guardar Servidor SMTP", class: "btn btn-info text-white px-4" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

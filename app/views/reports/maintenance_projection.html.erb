@@ -1,0 +1,82 @@
+<div class="pdf-header">
+  <div class="logo-text">MIM</div>
+  <div class="report-title">
+    Proyección de Mantenimiento (60 Días)<br>
+    <small style="font-size: 12px; color: #888;">Estimación basada en uso promedio</small>
+  </div>
+</div>
+
+<div class="mb-4">
+  <strong>Fecha de Emisión:</strong> <%= Date.today.strftime("%d/%m/%Y") %><br>
+  <strong>Total Actividades Proyectadas:</strong> <%= @projections.count %>
+</div>
+
+<table class="table table-striped table-sm text-center align-middle">
+  <thead class="table-dark">
+    <tr>
+      <th class="text-start">Activo</th>
+      <th class="text-start">Tarea / Plan</th>
+      <th>Fecha Estimada</th>
+      <th>Días Restantes</th>
+      <th>Estado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if @projections.any? %>
+      <% @projections.each do |item| %>
+        <%
+           row_class = case item[:status]
+             when :overdue then "table-danger"
+             when :urgent then "table-warning"
+             else ""
+           end
+        %>
+        <tr class="<%= row_class %>">
+          <td class="text-start fw-bold">
+            <%= item[:asset].name %><br>
+            <small class="fw-normal text-muted"><%= item[:asset].plate %></small>
+          </td>
+          <td class="text-start">
+            <%= item[:plan].name %>
+            <div class="small text-muted"><%= item[:plan].sub_component.name %></div>
+          </td>
+          <td class="fw-bold fs-6">
+            <%= item[:due_date].strftime("%d/%m/%Y") %>
+          </td>
+          <td>
+            <% if item[:remaining_days] < 0 %>
+               <span class="text-danger fw-bold"><%= item[:remaining_days].abs %> días atrasado</span>
+            <% else %>
+               <%= item[:remaining_days] %> días
+            <% end %>
+          </td>
+          <td>
+            <% if item[:status] == :overdue %>
+              <span class="badge bg-danger text-white">Vencido</span>
+            <% elsif item[:status] == :urgent %>
+              <span class="badge bg-warning text-dark">Próximo</span>
+            <% else %>
+              <span class="badge bg-secondary text-white">Planificado</span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    <% else %>
+      <tr>
+        <td colspan="5" class="py-5 text-muted">
+           No hay mantenimientos proyectados para los próximos 60 días.
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="mt-4 p-3 bg-light border rounded small text-muted">
+  <strong>Nota Técnica:</strong>
+  Las fechas son estimaciones calculadas automáticamente basándose en el promedio de uso diario histórico de cada equipo.
+  La fecha real puede variar si cambia la intensidad de uso.
+</div>
+
+<div class="pdf-footer">
+  Mantenimiento Inteligente Maquinaria - Análisis Predictivo
+</div>

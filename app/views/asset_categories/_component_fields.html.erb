@@ -1,0 +1,38 @@
+<div class="nested-form-wrapper card mb-3 bg-light border" data-new-record="<%= f.object.new_record? %>">
+  <div class="card-body py-3">
+    <div class="d-flex align-items-center mb-3">
+      <%= f.hidden_field :_destroy %>
+      <div class="flex-grow-1">
+        <%= f.input :name, label: false, placeholder: "Nombre del Grupo (ej: Motor)", wrapper_html: { class: "mb-0" }, input_html: { class: "fw-bold text-primary" } %>
+      </div>
+      <div class="ms-2">
+        <button type="button" class="btn btn-danger btn-sm" data-action="nested-form#remove">
+          <i class="fas fa-trash"></i> Eliminar Grupo
+        </button>
+      </div>
+    </div>
+
+    <!-- Sub-Components Nested Form (Recursive) -->
+    <div class="ps-3 border-start" data-controller="nested-form">
+      <h6 class="text-muted small mb-2"><i class="fas fa-list-ul"></i> Sub-componentes (Partes)</h6>
+
+      <template data-nested-form-target="template">
+        <%= f.simple_fields_for :sub_components, SubComponent.new, child_index: 'NEW_SUB_RECORD' do |sub_f| %>
+          <%= render "sub_component_fields", f: sub_f %>
+        <% end %>
+      </template>
+
+      <%= f.simple_fields_for :sub_components do |sub_f| %>
+        <%= render "sub_component_fields", f: sub_f %>
+      <% end %>
+
+      <div data-nested-form-target="target"></div>
+
+      <button type="button" class="btn btn-outline-primary btn-sm mt-2"
+              data-action="nested-form#add"
+              data-nested-form-placeholder-value="NEW_SUB_RECORD">
+        <i class="fas fa-plus"></i> Agregar Parte
+      </button>
+    </div>
+  </div>
+</div>

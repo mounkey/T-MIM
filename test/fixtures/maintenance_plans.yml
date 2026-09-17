@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# This model initially had no columns defined. If you add columns to the
+# model remove the "{}" from the fixture names and add the columns immediately
+# below each fixture, per the syntax in the comments below
+#
+one:
+  name: Cambio de Aceite
+  frequency: 5000
+  unit: KM
+  sub_component: one
+  asset_category: one
+
+two:
+  name: Revision Frenos
+  frequency: 10000
+  unit: KM
+  sub_component: two
+  asset_category: one

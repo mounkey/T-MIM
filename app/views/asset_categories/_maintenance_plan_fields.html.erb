@@ -1,0 +1,48 @@
+<div class="nested-form-wrapper mb-3 p-3 border rounded bg-white shadow-sm" data-new-record="<%= f.object.new_record? %>">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h6 class="text-primary mb-0"><i class="fas fa-tools"></i> Definición de Regla</h6>
+    <%= f.hidden_field :_destroy %>
+    <button type="button" class="btn btn-outline-danger btn-sm" data-action="nested-form#remove" title="Eliminar Regla">
+      <i class="fas fa-trash"></i>
+    </button>
+  </div>
+
+  <div class="row g-2">
+    <!-- Row 1: Component -->
+    <div class="col-12">
+      <label class="form-label small text-muted">Aplica al Componente</label>
+      <%
+         # Collect all sub-components for the Select dropdown
+         # Since this form is for AssetCategory, we can access @asset_category via f.object.asset_category or explicitly use @asset_category if available in view context
+         # However, f.object is a MaintenancePlan.
+         # @asset_category is available from the parent view.
+         sub_components = @asset_category.components.flat_map(&:sub_components).map { |sc| ["#{sc.component.name} -> #{sc.name}", sc.id] }
+      %>
+      <%= f.association :sub_component,
+          collection: sub_components,
+          label: false,
+          prompt: "Seleccione Componente (Nivel 3)",
+          input_html: { class: "form-select-sm" } %>
+    </div>
+
+    <!-- Row 2: Name, Freq, Unit -->
+    <div class="col-md-6">
+      <label class="form-label small text-muted">Nombre Regla</label>
+      <%= f.input :name, label: false, placeholder: "Ej: Cambio Aceite", input_html: { class: "form-control-sm" } %>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small text-muted">Frecuencia</label>
+      <%= f.input :frequency, label: false, placeholder: "000", input_html: { class: "form-control-sm" } %>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small text-muted">Unidad</label>
+      <%= f.input :unit, label: false, collection: ['KM', 'Horas', 'Dias', 'Meses', 'Años'], include_blank: false, input_html: { class: "form-select-sm" } %>
+    </div>
+
+    <!-- Row 3: Details -->
+    <div class="col-12">
+      <label class="form-label small text-muted">Instrucciones / Tareas (Cualitativo)</label>
+      <%= f.input :details, label: false, as: :text, placeholder: "- Revisar fugas\n- Verificar color\n- Limpiar filtro", input_html: { rows: 3, class: "form-control-sm" } %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body { font-family: sans-serif; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background-color: #041C36; color: white; padding: 15px; text-align: center; border-radius: 5px 5px 0 0; }
+      .section { margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; }
+      .section-header { padding: 10px 15px; font-weight: bold; }
+      .bg-danger { background-color: #dc3545; color: white; }
+      .bg-warning { background-color: #ffc107; color: #333; }
+      .asset-list { width: 100%; border-collapse: collapse; }
+      .asset-list td { padding: 10px 15px; border-bottom: 1px solid #eee; }
+      .asset-list tr:last-child td { border-bottom: none; }
+      .footer { font-size: 0.8em; text-align: center; color: #777; margin-top: 30px; }
+      .btn { display: inline-block; padding: 8px 15px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9em; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Resumen de Mantenimiento</h1>
+        <p><%= Date.today.strftime("%d/%m/%Y") %></p>
+      </div>
+
+      <p>Hola,</p>
+      <p>A continuación se presenta el resumen del estado de la maquinaria para el día de hoy.</p>
+
+      <% if @critical_assets.any? %>
+        <div class="section">
+          <div class="section-header bg-danger">
+            🚨 Crítico - Mantenimiento Vencido (<%= @critical_assets.count %>)
+          </div>
+          <table class="asset-list">
+            <% @critical_assets.each do |item| %>
+              <tr>
+                <td>
+                  <strong><%= item[:asset].name %></strong>
+                  <br>
+                  <span style="font-size: 0.9em; color: #666;"><%= item[:plan].name %></span>
+                </td>
+                <td style="text-align: right;">
+                  <span style="color: #dc3545; font-weight: bold;"><%= item[:status][:target] %></span>
+                </td>
+              </tr>
+            <% end %>
+          </table>
+        </div>
+      <% end %>
+
+      <% if @warning_assets.any? %>
+        <div class="section">
+          <div class="section-header bg-warning">
+            ⚠️ Advertencia - Próximo a Vencer (<%= @warning_assets.count %>)
+          </div>
+          <table class="asset-list">
+            <% @warning_assets.each do |item| %>
+              <tr>
+                <td>
+                  <strong><%= item[:asset].name %></strong>
+                  <br>
+                  <span style="font-size: 0.9em; color: #666;"><%= item[:plan].name %></span>
+                </td>
+                <td style="text-align: right;">
+                  <span style="color: #d63384; font-weight: bold;"><%= item[:status][:target] %></span>
+                </td>
+              </tr>
+            <% end %>
+          </table>
+        </div>
+      <% end %>
+
+      <% if @critical_assets.empty? && @warning_assets.empty? %>
+        <div style="text-align: center; padding: 30px; background-color: #f8f9fa; border-radius: 5px;">
+          <h3 style="color: #198754;">¡Todo en orden!</h3>
+          <p>No hay alertas pendientes para el día de hoy.</p>
+        </div>
+      <% end %>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <!-- root_url requires host configuration in test env which might be missing, using string fallback or helper check -->
+        <a href="<%= defined?(root_url) ? root_url : 'http://localhost:3000' %>" class="btn">Ir al Dashboard</a>
+      </div>
+
+      <div class="footer">
+        <p>Mantenimiento Inteligente de Maquinaria (MIM)</p>
+      </div>
+    </div>
+  </body>
+</html>

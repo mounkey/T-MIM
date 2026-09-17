@@ -1,0 +1,41 @@
+<% content_for :page_title, "Ciudades" %>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    <div class="d-flex justify-content-end mb-3">
+      <%= link_to "Nuevo", new_city_path, class: "btn btn-primary rounded-pill px-4", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" %>
+    </div>
+
+    <div id="cities_grid" class="table-responsive">
+      <table class="table table-hover align-middle" style="color: #333 !important;">
+        <thead class="table-light">
+          <tr>
+            <th class="text-dark">Nombre</th>
+            <th class="text-dark">Región</th>
+            <th class="text-end text-dark">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @cities.each do |city| %>
+            <tr>
+              <td class="text-dark"><%= city.name %></td>
+              <td class="text-dark"><%= city.region.name %></td>
+              <td class="text-end">
+                <%= link_to edit_city_path(city), class: "action-icon edit", title: "Editar", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+                  <i class="fas fa-pencil-alt"></i>
+                <% end %>
+                <%= button_to city_path(city), method: :delete, class: "btn btn-link action-icon delete p-0 border-0", form: { style: "display:inline-block;" }, data: { turbo_confirm: "¿Estás seguro?" }, title: "Eliminar" do %>
+                  <i class="fas fa-trash"></i>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-3">
+      <%= paginate @cities %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,21 @@
+one:
+  name: Proveedor Uno
+  rut: 12.345.678-9
+  contact_name: Contacto Uno
+  rating: 1
+  active: false
+  website: MyString
+  city: one
+  region: one
+  account: one
+
+two:
+  name: Proveedor Dos
+  rut: 98.765.432-1
+  contact_name: Contacto Dos
+  rating: 1
+  active: false
+  website: MyString
+  city: two
+  region: two
+  account: one

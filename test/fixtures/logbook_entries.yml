@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  logbook_record: one
+  meter: one
+  user: one
+  previous_value: 100.0
+  current_value: 110.0
+  quantity: 10.0
+  remarks: "Routine check"
+
+two:
+  logbook_record: two
+  meter: two
+  user: two
+  previous_value: 200.0
+  current_value: 220.0
+  quantity: 20.0
+  remarks: "Everything OK"

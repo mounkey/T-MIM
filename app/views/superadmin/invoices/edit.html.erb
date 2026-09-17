@@ -1,0 +1,13 @@
+<%= turbo_frame_tag "modal_body" do %>
+
+<div class="card bg-white rounded shadow-sm border-0 mb-4">
+  <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between">
+    <h4 class="mb-0 text-secondary">Actualizar Invoices</h4>
+    <%= link_to "Volver", [:superadmin, :invoices], class: "btn btn-outline-secondary btn-sm" %>
+  </div>
+  <div class="card-body">
+    <%= render "form", invoice: @invoice %>
+  </div>
+</div>
+
+<% end %>

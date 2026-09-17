@@ -1,0 +1,14 @@
+<div id="flash">
+  <% if notice %>
+    <div class="alert alert-info alert-dismissible fade show bg-transparent text-white border-white" role="alert">
+      <%= notice %>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% end %>
+  <% if alert %>
+    <div class="alert alert-danger alert-dismissible fade show bg-transparent text-white border-white" role="alert">
+      <%= alert %>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% end %>
+</div>

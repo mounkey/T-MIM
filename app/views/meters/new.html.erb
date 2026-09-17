@@ -1,0 +1,19 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <div class="modal-header">
+    <h5 class="modal-title" id="mainModalLabel">
+      <%= @meter.new_record? ? "Nuevo Medidor" : "Editar Medidor" %>
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+  <div class="modal-body">
+    <%= simple_form_for [@asset, @meter], html: { data: { turbo_frame: "modal_body" } } do |f| %>
+      <%= f.input :name, label: "Nombre", placeholder: "Ej. Odómetro, Horómetro Grúa" %>
+      <%= f.input :unit, label: "Unidad", placeholder: "Ej. KM, Horas, Ciclos" %>
+      <%= f.input :current_value, label: "Lectura Actual" %>
+
+      <div class="d-grid mt-4">
+        <%= f.submit "Guardar", class: "btn btn-submit-custom btn-lg w-100" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

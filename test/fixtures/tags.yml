@@ -1,0 +1,9 @@
+one:
+  name: "Electrico"
+  description: "Electricidad"
+  color: "#FF0000"
+
+two:
+  name: "Mecanico"
+  description: "Mecanica"
+  color: "#00FF00"

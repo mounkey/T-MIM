@@ -1,0 +1,89 @@
+<div class="row mb-4">
+  <div class="col-md-8">
+    <h2 class="text-white">Biblioteca de Planes de Mantenimiento</h2>
+    <p class="text-white-50">Gestione centralizadamente las reglas de mantenimiento para toda su flota.</p>
+  </div>
+  <div class="col-md-4 text-end">
+    <%= link_to maintenance_projection_report_path(format: :pdf), class: "btn btn-outline-light me-2", target: "_blank" do %>
+      <i class="fas fa-file-pdf me-2"></i> Proyección PDF
+    <% end %>
+    <%= link_to new_maintenance_plan_path, class: "btn btn-primary" do %>
+      <i class="fas fa-plus-circle me-2"></i> Nuevo Plan Global
+    <% end %>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <!-- Search -->
+    <%= form_with url: maintenance_plans_path, method: :get, class: "row g-3 mb-4", data: { turbo_frame: "plans_table", controller: "search" } do |f| %>
+      <div class="col-md-12 position-relative">
+        <i class="fas fa-search position-absolute text-muted" style="top: 12px; left: 15px;"></i>
+        <%= f.text_field :query, value: params[:query], class: "form-control ps-5", placeholder: "Buscar por plan, categoría, componente o sistema...", data: { action: "input->search#submit" } %>
+      </div>
+    <% end %>
+
+    <!-- Table -->
+    <%= turbo_frame_tag "plans_table" do %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" style="width: 20%;">Categoría (Activo)</th>
+              <th scope="col" style="width: 20%;">Sistema / Componente</th>
+              <th scope="col" style="width: 30%;">Regla de Mantenimiento</th>
+              <th scope="col" style="width: 15%;">Frecuencia</th>
+              <th scope="col" class="text-end" style="width: 15%;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @maintenance_plans.any? %>
+              <% @maintenance_plans.each do |plan| %>
+                <tr>
+                  <td>
+                    <span class="badge bg-dark text-white">
+                      <%= plan.asset_category&.name || plan.sub_component&.component&.asset_category&.name || "Global" %>
+                    </span>
+                  </td>
+                  <td class="text-dark">
+                    <% if plan.sub_component %>
+                       <div class="fw-bold"><%= plan.sub_component.component.name %></div>
+                       <div class="small text-muted"><i class="fas fa-angle-right"></i> <%= plan.sub_component.name %></div>
+                    <% else %>
+                       <span class="text-muted">General</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <div class="fw-bold text-primary"><%= plan.name %></div>
+                    <small class="text-muted"><%= plan.details&.truncate(60) %></small>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-dark border">
+                      <%= plan.frequency %> <%= plan.unit %>
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-secondary" disabled title="Edición en desarrollo">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="5" class="text-center py-5 text-muted">
+                  <i class="fas fa-clipboard-check fa-3x mb-3 text-secondary opacity-50"></i>
+                  <p>No se encontraron planes de mantenimiento.</p>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-center mt-3">
+        <%= paginate @maintenance_plans %>
+      </div>
+    <% end %>
+  </div>
+</div>

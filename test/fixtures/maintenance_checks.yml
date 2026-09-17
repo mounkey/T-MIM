@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  logbook_record: one
+  component: one
+  sub_component: one
+  status: 1
+  notes: MyText
+
+two:
+  logbook_record: two
+  component: two
+  sub_component: two
+  status: 1
+  notes: MyText

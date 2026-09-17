@@ -1,0 +1,30 @@
+<div class="row row-cols-1 row-cols-md-2 g-3">
+  <% asset.meters.each do |meter| %>
+    <div class="col" id="<%= dom_id(meter) %>">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="card-title mb-0 fw-bold text-dark"><%= meter.name %></h6>
+            <span class="badge bg-secondary"><%= meter.unit %></span>
+          </div>
+          <h3 class="display-6 text-primary mb-0"><%= number_with_precision(meter.current_value, precision: 0) %></h3>
+          <small class="text-muted">Valor Actual</small>
+        </div>
+        <div class="card-footer bg-white border-0 text-end">
+          <%= link_to edit_asset_meter_path(asset, meter),
+              class: "btn btn-sm btn-outline-primary",
+              onclick: 'new bootstrap.Modal(document.getElementById("mainModal")).show()',
+              data: { turbo_frame: "modal_body" } do %>
+            <i class="fas fa-edit"></i>
+          <% end %>
+
+          <%= link_to asset_meter_path(asset, meter),
+              data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro de eliminar este medidor?" },
+              class: "btn btn-sm btn-outline-danger" do %>
+            <i class="fas fa-trash"></i>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

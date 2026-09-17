@@ -1,0 +1,35 @@
+<%= turbo_stream.update "flash" do %>
+  <%= render partial: "shared/flash" %>
+<% end %>
+
+<%= turbo_stream.update "asset_categories_grid" do %>
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th class="text-end">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @asset_categories.each do |category| %>
+        <tr>
+          <td><%= category.name %></td>
+          <td><%= category.description %></td>
+          <td class="text-end">
+            <%= link_to edit_asset_category_path(category), class: "text-primary me-2", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+              <i class="fas fa-pencil-alt"></i>
+            <% end %>
+            <%= button_to asset_category_path(category), method: :delete, class: "btn btn-link text-danger p-0 border-0", form: { style: "display:inline-block;" }, data: { turbo_confirm: "¿Estás seguro?" } do %>
+              <i class="fas fa-trash"></i>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<%= turbo_stream.append "modal_body" do %>
+  <div data-controller="modal-close"></div>
+<% end %>

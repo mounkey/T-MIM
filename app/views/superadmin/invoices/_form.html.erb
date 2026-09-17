@@ -1,0 +1,47 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h2 class="text-center mb-4 text-secondary"><i class="fas fa-file-invoice-dollar text-success"></i> <%= @invoice.new_record? ? "Registrar Pago" : "Editar Pago" %></h2>
+
+  <%= form_with(model: [:superadmin, @invoice], data: { turbo_frame: "_top" }) do |form| %>
+    <% if @invoice.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@invoice.errors.count, 'error') %> impidieron guardar:</h4>
+        <ul class="mb-0">
+          <% @invoice.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="row">
+      <div class="col-md-12 mb-3">
+        <%= form.label :account_id, "Empresa (Cliente)", class: "form-label fw-bold" %>
+        <%= form.collection_select :account_id, Account.order(:name), :id, :name, { prompt: 'Seleccionar...' }, class: "form-select" %>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <%= form.label :due_date, "Mes a Cobrar", class: "form-label fw-bold" %>
+        <%= form.date_field :due_date, class: "form-control" %>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <%= form.label :amount, "Monto Cobrado ($)", class: "form-label fw-bold" %>
+        <%= form.number_field :amount, class: "form-control" %>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <%= form.label :paid_at, "Fecha y Hora de Pago", class: "form-label fw-bold" %>
+        <%= form.datetime_field :paid_at, class: "form-control" %>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <%= form.label :status, "Estado", class: "form-label fw-bold" %>
+        <%= form.select :status, [['Pagado', 'Pagado'], ['Pendiente', 'Pendiente'], ['Fallido', 'Fallido']], {}, class: "form-select" %>
+      </div>
+    </div>
+
+    <div class="mt-4 text-center">
+      <%= form.submit "Guardar Registro", class: "btn btn-success px-5 rounded-pill" %>
+    </div>
+  <% end %>
+<% end %>

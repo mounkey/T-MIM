@@ -1,0 +1,7 @@
+<% if params[:region_id] %>
+  <%= turbo_frame_tag "cities_select" do %>
+    <%= select_tag "provider[city_id]", options_from_collection_for_select(@cities, "id", "name"), class: "form-select", id: "provider_city_id", prompt: "Seleccione Ciudad" %>
+  <% end %>
+<% else %>
+  <%= render "index_grid" %>
+<% end %>

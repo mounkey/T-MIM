@@ -1,0 +1,38 @@
+<% content_for :page_title, "Ciudades Base" %>
+<div class="card bg-white rounded shadow-sm border-0 mb-4">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
+    <h4 class="mb-0 text-secondary"><i class="fas fa-map-marker-alt text-primary me-2"></i> Ciudades (Globales)</h4>
+    <%= link_to new_superadmin_city_path, class: "btn btn-primary", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+      <i class="fas fa-plus"></i> Nueva Ciudad
+    <% end %>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">Nombre de la Ciudad</th>
+            <th>Región a la que Pertenece</th>
+            <th class="text-end pe-4">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @cities.any? %>
+            <% @cities.each do |city| %>
+              <tr>
+                <td class="ps-4 fw-bold"><%= city.name %></td>
+                <td><%= city.region&.name || 'Sin Región' %></td>
+                <td class="text-end pe-4">
+                  <%= link_to edit_superadmin_city_path(city), class: "btn btn-sm btn-outline-primary mx-1", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %><i class="fas fa-edit"></i><% end %>
+                  <%= link_to superadmin_city_path(city), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro de eliminar este registro?' }, class: 'btn btn-sm btn-outline-danger mx-1', title: 'Eliminar' do %><i class='fas fa-trash'></i><% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr><td colspan="3" class="text-center py-4 text-muted">No hay ciudades.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

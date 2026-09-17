@@ -1,0 +1,30 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h2 class="text-center mb-4 text-secondary"><i class="fas fa-map-marker-alt text-primary"></i> <%= @region.new_record? ? "Nueva Región" : "Editar Región" %></h2>
+<%= form_with(model: [:superadmin, region], data: { turbo_frame: "_top" }) do |form| %>
+  <% if region.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(region.errors.count, 'error') %> impidieron guardar este registro:</h4>
+      <ul>
+        <% region.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :name, class: "form-label fw-bold" %>
+    <%= form.text_field :name, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :code, class: "form-label fw-bold" %>
+    <%= form.text_field :code, class: "form-control" %>
+  </div>
+
+  <div class="mt-4">
+    <%= form.submit "Guardar", class: "btn btn-primary px-4" %>
+  </div>
+<% end %>
+
+<% end %>

@@ -1,0 +1,173 @@
+<% content_for :page_title, "Estado de #{@asset_category.name}" %>
+
+<div class="container-fluid text-white">
+  <div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center">
+        <% if @asset_category.icon.present? %>
+          <i class="fas <%= @asset_category.icon %> fa-3x me-3"></i>
+        <% end %>
+        <div>
+          <h2 class="mb-0">Estado de <%= @asset_category.name %></h2>
+          <small class="text-white-50"><%= @asset_category.assets.count %> equipos registrados</small>
+        </div>
+      </div>
+      <div>
+        <%= link_to new_asset_path(asset: { asset_category_id: @asset_category.id }), class: "btn btn-success me-2" do %>
+          <i class="fas fa-plus"></i> Ingresar Nuevo Activo
+        <% end %>
+        <%= link_to authenticated_root_path, class: "btn btn-outline-light" do %>
+          <i class="fas fa-arrow-left"></i> Volver al Dashboard
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% if @asset_category.assets.any? %>
+    <div class="accordion" id="assetsAccordion">
+      <% @asset_category.assets.each_with_index do |asset, asset_index| %>
+        <div class="accordion-item bg-dark border-secondary mb-3">
+          <h2 class="accordion-header" id="heading<%= asset.id %>">
+            <button class="accordion-button <%= 'collapsed' unless asset_index == 0 %> bg-secondary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%= asset.id %>" aria-expanded="<%= asset_index == 0 %>" aria-controls="collapse<%= asset.id %>">
+              <div class="d-flex w-100 justify-content-between align-items-center me-3">
+                <span class="fw-bold">
+                  <%= asset.name %>
+                  <% if asset.plate.present? %>
+                    <span class="badge bg-light text-dark ms-2"><%= asset.plate %></span>
+                  <% end %>
+                </span>
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-info text-dark me-3"><%= asset.tag&.name || 'Sin Etiqueta' %></span>
+                  <!-- Placeholder for Status Light -->
+                  <i class="fas fa-circle text-success me-3" title="Operativo"></i>
+
+                  <!-- Asset Actions -->
+                  <div class="btn-group" role="group">
+                    <%= link_to edit_asset_path(asset), class: "btn btn-sm btn-outline-light", title: "Editar Activo" do %>
+                      <i class="fas fa-edit"></i>
+                    <% end %>
+                    <%= link_to asset_path(asset), data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este activo?" }, class: "btn btn-sm btn-outline-danger", title: "Eliminar Activo" do %>
+                      <i class="fas fa-trash"></i>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </button>
+          </h2>
+          <div id="collapse<%= asset.id %>" class="accordion-collapse collapse <%= 'show' if asset_index == 0 %>" aria-labelledby="heading<%= asset.id %>" data-bs-parent="#assetsAccordion">
+            <div class="accordion-body bg-dark text-white p-4">
+
+              <!-- Detailed Status Table (Level 2) -->
+              <% components_map = @hierarchy[asset.id] %>
+              <% if components_map.any? %>
+                <div class="table-responsive bg-white rounded shadow-sm border">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                      <tr>
+                        <th class="ps-4 text-secondary small text-uppercase py-2" style="width: 30%;">Componente / Regla</th>
+                        <th class="text-secondary small text-uppercase py-2" style="width: 25%;">Estado</th>
+                        <th class="text-secondary small text-uppercase py-2 text-center" style="width: 15%;">Semáforo</th>
+                        <th class="text-secondary small text-uppercase py-2" style="width: 30%;">Tareas / Progreso</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% components_map.each do |component_name, tasks| %>
+                        <!-- Component Header Row -->
+                        <tr class="table-light">
+                          <td colspan="4" class="ps-4 py-1 fw-bold text-secondary small"><i class="fas fa-cogs me-1"></i> <%= component_name %></td>
+                        </tr>
+                        <% tasks.each do |task| %>
+                          <% status = task[:status_details] %>
+                          <tr>
+                            <td class="ps-4">
+                              <div class="fw-bold text-dark"><%= status[:plan_name] %></div>
+                              <div class="small text-muted"><%= status[:sub_component] %></div>
+                            </td>
+                            <td>
+                              <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 6px;">
+                                  <div class="progress-bar <%= status[:color_class] %>" role="progressbar" style="width: <%= [status[:percentage], 100].min %>%;" aria-valuenow="<%= status[:percentage] %>" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <span class="badge rounded-pill <%= status[:color_class] %>" style="width: 50px;"><%= status[:percentage] %>%</span>
+                              </div>
+                            </td>
+                            <td class="text-center">
+                              <% if status[:color_class] == 'bg-danger' %>
+                                <span class="badge bg-danger text-white rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2">
+                                  <i class="fas fa-exclamation-triangle"></i>
+                                  <span>Urgente</span>
+                                </span>
+                              <% elsif status[:color_class] == 'bg-warning' || status[:color_class] == 'bg-orange' %>
+                                <span class="badge bg-warning text-dark rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2">
+                                  <i class="fas fa-hard-hat"></i>
+                                  <span>Precaución</span>
+                                </span>
+                              <% else %>
+                                <span class="badge bg-success text-white rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2">
+                                  <i class="fas fa-thumbs-up"></i>
+                                  <span>Todo OK</span>
+                                </span>
+                              <% end %>
+                            </td>
+                            <td>
+                              <!-- Counters & Due Date -->
+                              <div class="fw-bold text-dark fs-6"><%= status[:details] %></div>
+                              <div class="small text-muted mb-2"><%= status[:target] %></div>
+
+                              <!-- Instructions (Collapsible) -->
+                              <% if task[:plan].details.present? %>
+                                <% lines = task[:plan].details.split("\n") %>
+                                <% if lines.any? %>
+                                  <div class="small text-dark fst-italic">
+                                    <%= lines.first %>
+                                    <% if lines.size > 1 %>
+                                      <% unique_id = "details_#{asset.id}_#{task[:plan].id}" %>
+                                      <a class="text-decoration-none ms-1" data-bs-toggle="collapse" href="#<%= unique_id %>" role="button" aria-expanded="false" aria-controls="<%= unique_id %>">
+                                        (+)
+                                      </a>
+                                      <div class="collapse mt-1" id="<%= unique_id %>">
+                                        <% lines[1..-1].each do |line| %>
+                                          <div><%= line %></div>
+                                        <% end %>
+                                      </div>
+                                    <% end %>
+                                  </div>
+                                <% end %>
+                              <% end %>
+                            </td>
+                          </tr>
+                        <% end %>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              <% else %>
+                <div class="alert alert-dark border-secondary d-flex align-items-center" role="alert">
+                  <i class="fas fa-info-circle me-3"></i>
+                  <div>
+                    No hay planes de mantenimiento configurados para mostrar.
+                    <%= link_to "Configurar Estructura", edit_asset_category_path(@asset_category), class: "alert-link" %>
+                  </div>
+                </div>
+              <% end %>
+
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="alert alert-light d-flex align-items-center justify-content-between p-4" role="alert">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-info-circle fa-2x me-3"></i>
+        <div>
+          <h5 class="alert-heading">No hay activos registrados</h5>
+          <p class="mb-0">Comienza registrando el primer equipo para esta categoría.</p>
+        </div>
+      </div>
+      <%= link_to new_asset_path(asset: { asset_category_id: @asset_category.id }), class: "btn btn-primary" do %>
+        <i class="fas fa-plus"></i> Ingresar Primer Activo
+      <% end %>
+    </div>
+  <% end %>
+</div>

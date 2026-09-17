@@ -1,0 +1,58 @@
+<%= simple_form_for(@asset,
+    url: @asset.persisted? ? asset_path(@asset) : assets_path,
+    defaults: { label: false },
+    html: { class: "p-1", data: { turbo_frame: "_top" } }) do |f| %>
+
+    <div class="mb-3">
+      <%= f.input :name, placeholder: "Nombre (Ej. Excavadora 01)", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :status, collection: Asset.statuses.keys.map { |k| [k.humanize, k] }, include_blank: false, input_html: { class: "form-select-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :make, placeholder: "Marca", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :model, placeholder: "Modelo", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :year, placeholder: "Año", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :commission_date, as: :date, html5: true, label: "Fecha de Puesta en Marcha", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :plate, placeholder: "Patente", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :serial_number, placeholder: "Nº Serie", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :location, placeholder: "Ubicación Actual (Ej. Obra Norte)", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.association :asset_category, prompt: "Seleccione Categoría", input_html: { class: "form-select-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.association :tag, prompt: "Seleccione Etiqueta", input_html: { class: "form-select-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.input :description, as: :text, placeholder: "Descripción", input_html: { rows: 2, class: "form-control-lg" } %>
+    </div>
+
+    <div class="mt-4 clearfix">
+      <%= f.button :submit, @asset.persisted? ? "Actualizar" : "Guardar", class: "btn-submit-custom" %>
+    </div>
+
+<% end %>

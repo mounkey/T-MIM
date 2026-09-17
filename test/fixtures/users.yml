@@ -1,0 +1,15 @@
+one:
+  email: "admin@example.com"
+  name: "Admin User"
+  role: 1
+  run: "11.111.111-1"
+  encrypted_password: <%= User.new.send(:password_digest, 'password123') %>
+  account: one
+
+two:
+  email: "user@example.com"
+  name: "Regular User"
+  role: 0
+  run: "22.222.222-2"
+  encrypted_password: <%= User.new.send(:password_digest, 'password123') %>
+  account: one

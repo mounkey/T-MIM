@@ -1,0 +1,19 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h2 class="text-center mb-4"><%= @tag.new_record? ? "Nueva Etiqueta" : "Editar Etiqueta" %></h2>
+
+  <%= simple_form_for(@tag, defaults: { label: false }, html: { data: { turbo_frame: "modal_body" } }) do |f| %>
+    <div class="mb-3">
+      <%= f.input :name, placeholder: "Nombre (Ej. Hidráulica)", input_html: { class: "form-control-lg" } %>
+    </div>
+
+    <!-- Color picker needs a label or context since placeholder doesn't work well on color inputs -->
+    <div class="mb-3 d-flex align-items-center bg-white rounded-pill px-3 py-2">
+      <span class="text-muted flex-grow-1">Color de Etiqueta</span>
+      <%= f.input :color, as: :color, label: false, input_html: { class: "form-control form-control-color border-0 p-0", style: "width: 40px; height: 40px;" } %>
+    </div>
+
+    <div class="mt-4 clearfix">
+      <%= f.button :submit, @tag.persisted? ? "Actualizar" : "Guardar", class: "btn-submit-custom" %>
+    </div>
+  <% end %>
+<% end %>

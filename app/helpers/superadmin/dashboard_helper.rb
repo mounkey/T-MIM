@@ -1,0 +1,2 @@
+module Superadmin::DashboardHelper
+end

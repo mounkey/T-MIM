@@ -1,0 +1,11 @@
+one:
+  asset: one
+  name: "Odometer"
+  unit: "KM"
+  current_value: 100.0
+
+two:
+  asset: two
+  name: "Hour Meter"
+  unit: "Hours"
+  current_value: 50.0
