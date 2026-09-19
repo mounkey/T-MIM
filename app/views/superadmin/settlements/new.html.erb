@@ -1,0 +1,41 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-header bg-white border-0 py-3">
+        <h4 class="mb-0 fw-bold text-dark"><i class="fas fa-cut me-2 text-warning"></i> Generar Nuevo Corte Quincenal</h4>
+        <p class="text-muted small mb-0">Agrupa todas las ventas recaudadas por Flow de un taller en un período específico para emitir el pago.</p>
+      </div>
+      <div class="card-body p-4">
+        <%= form_with model: [:superadmin, @settlement], local: true do |f| %>
+          
+          <div class="mb-4">
+            <label class="form-label fw-bold">Seleccionar Taller / Empresa</label>
+            <%= f.collection_select :account_id, @accounts, :id, :name, { prompt: "-- Seleccionar Empresa --" }, { class: "form-select form-select-lg", required: true } %>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Fecha Inicio Período</label>
+              <%= f.date_field :period_start, value: @default_start, class: "form-control", required: true %>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Fecha Fin Período</label>
+              <%= f.date_field :period_end, value: @default_end, class: "form-control", required: true %>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold">Notas u Observaciones del Corte</label>
+            <%= f.text_area :notes, rows: 3, class: "form-control", placeholder: "Detalle adicional para el comprobante de liquidación..." %>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <%= link_to "Cancelar", superadmin_settlements_path, class: "btn btn-outline-secondary" %>
+            <%= f.submit "Calcular y Generar Liquidación", class: "btn btn-warning btn-lg px-4 fw-bold" %>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

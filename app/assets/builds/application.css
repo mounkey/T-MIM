@@ -11868,7 +11868,7 @@ body {
 .sidebar {
   background-color: #ffffff;
   color: #333333;
-  width: 280px;
+  width: 260px;
   position: fixed;
   left: 0;
   top: 0;
@@ -11876,14 +11876,14 @@ body {
   z-index: 100;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 1.25rem 1rem;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   transition: transform 0.3s ease-in-out;
 }
 
 .main-content {
-  margin-left: 280px;
+  margin-left: 260px;
   background-color: #041C36;
   min-height: 100vh;
   padding: 2rem;
@@ -11904,63 +11904,62 @@ body {
   }
 }
 .user-profile {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 .user-profile .user-name {
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 1.05rem;
   color: #333333;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.1rem;
 }
 .user-profile .user-role {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #666;
 }
 
 .sidebar-logo {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 .sidebar-logo img {
-  max-width: 100%;
+  width: 100%;
+  max-width: 210px;
   height: auto;
-  max-height: 80px;
-}
-.sidebar-logo .logo-text {
-  font-size: 0.8rem;
-  color: #666;
-  margin-top: 0.5rem;
+  max-height: 110px;
+  object-fit: contain;
 }
 
 .nav-menu {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  color: #555;
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
+  gap: 14px;
+  color: #334155;
+  padding: 0.75rem 1rem;
+  border-radius: 9px;
   transition: all 0.2s;
-  font-weight: 500;
-}
-.nav-link:hover {
-  background-color: #f0f0f0;
-  color: #333333;
-}
-.nav-link.active {
-  background-color: #eef2ff;
-  color: #041C36;
+  font-size: 1.1rem;
   font-weight: 600;
 }
+.nav-link:hover {
+  background-color: #f1f5f9;
+  color: #041C36;
+  transform: translateX(4px);
+}
+.nav-link.active {
+  background-color: #e0e7ff;
+  color: #041C36;
+  font-weight: 700;
+}
 .nav-link i {
-  width: 24px;
+  width: 26px;
   text-align: center;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
 }
 
 .icon-dashboard {
@@ -12088,7 +12087,7 @@ body {
 .btn-floating-new {
   position: fixed;
   bottom: 2rem;
-  left: calc(280px + 2rem);
+  left: calc(260px + 2rem);
   background-color: white;
   color: #333333;
   border-radius: 50px;

@@ -1,0 +1,120 @@
+<div class="row align-items-center mb-4">
+  <div class="col-md-6">
+    <h2 class="text-white fw-bold mb-1"><i class="fas fa-file-invoice-dollar me-2 text-warning"></i> Liquidaciones Quincenales</h2>
+    <p class="text-white-50 mb-0">Control centralizado de fondos Flow, comisiones T-MIM y pagos a talleres.</p>
+  </div>
+  <div class="col-md-6 text-end">
+    <%= link_to new_superadmin_settlement_path, class: "btn btn-warning btn-lg shadow-sm fw-bold" do %>
+      <i class="fas fa-cut me-1"></i> Generar Corte Quincenal
+    <% end %>
+  </div>
+</div>
+
+<!-- 3 KPI Cards Superadmin -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm bg-white p-3 rounded-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="text-muted small text-uppercase fw-bold">Recaudación Total Flow</span>
+          <h3 class="fw-bold text-dark mb-0 mt-1">$<%= number_with_delimiter(@total_flow_collected.to_i) %></h3>
+          <small class="text-primary"><i class="fas fa-globe me-1"></i> Pagos online de toda la red</small>
+        </div>
+        <div class="rounded-circle bg-light p-3 text-primary d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+          <i class="fas fa-money-bill-wave fa-2x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm bg-white p-3 rounded-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="text-muted small text-uppercase fw-bold">Comisiones Ganadas T-MIM</span>
+          <h3 class="fw-bold text-success mb-0 mt-1">$<%= number_with_delimiter(@total_platform_earnings.to_i) %></h3>
+          <small class="text-muted"><i class="fas fa-percentage me-1"></i> Fee plataforma (3% + IVA)</small>
+        </div>
+        <div class="rounded-circle bg-light p-3 text-success d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+          <i class="fas fa-chart-pie fa-2x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm bg-white p-3 rounded-3 border-start border-warning border-4">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="text-muted small text-uppercase fw-bold">Pendiente de Transferir</span>
+          <h3 class="fw-bold text-warning mb-0 mt-1">$<%= number_with_delimiter(@pending_payouts_total.to_i) %></h3>
+          <small class="text-muted"><i class="fas fa-clock me-1"></i> Saldo neto por pagar a talleres</small>
+        </div>
+        <div class="rounded-circle bg-light p-3 text-warning d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+          <i class="fas fa-hand-holding-usd fa-2x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabla de Liquidaciones -->
+<div class="card border-0 shadow-sm bg-white rounded-3">
+  <div class="card-header bg-white border-0 py-3">
+    <h5 class="fw-bold text-dark mb-0">Historial de Cortes y Liquidaciones Quincenales</h5>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3">Folio</th>
+            <th>Taller / Empresa</th>
+            <th>Período</th>
+            <th class="text-end">Bruto Flow</th>
+            <th class="text-end">Costo Flow</th>
+            <th class="text-end">Comisión T-MIM</th>
+            <th class="text-end">Neto a Transferir</th>
+            <th class="text-center">Estado</th>
+            <th class="text-end pe-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @settlements.any? %>
+            <% @settlements.each do |s| %>
+              <% badge = s.status_badge %>
+              <tr>
+                <td class="ps-3 fw-bold text-primary">
+                  <%= link_to superadmin_settlement_path(s), class: "text-decoration-none" do %>
+                    <%= s.folio %>
+                  <% end %>
+                </td>
+                <td class="fw-bold text-dark"><%= s.account.nombre_fantasia.presence || s.account.name %></td>
+                <td class="small text-muted"><%= s.period_start.strftime("%d/%m/%Y") %> al <%= s.period_end.strftime("%d/%m/%Y") %></td>
+                <td class="text-end fw-semibold text-dark">$<%= number_with_delimiter(s.total_collected.to_i) %></td>
+                <td class="text-end text-muted">-$<%= number_with_delimiter(s.total_gateway_fees.to_i) %></td>
+                <td class="text-end text-success">-$<%= number_with_delimiter(s.total_platform_fees.to_i) %></td>
+                <td class="text-end fw-bold text-primary fs-6">$<%= number_with_delimiter(s.net_payout.to_i) %></td>
+                <td class="text-center">
+                  <span class="badge <%= badge[:class] %>"><%= badge[:label] %></span>
+                </td>
+                <td class="text-end pe-3">
+                  <%= link_to superadmin_settlement_path(s), class: "btn btn-sm btn-outline-primary", title: "Ver Detalle y Transferir" do %>
+                    <i class="fas fa-eye me-1"></i> Ver Detalle
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="9" class="text-center py-5 text-muted">
+                <i class="fas fa-folder-open fa-3x mb-3 text-secondary opacity-50"></i>
+                <p class="mb-0">No se han generado liquidaciones quincenales aún.</p>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

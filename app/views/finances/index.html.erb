@@ -1,0 +1,258 @@
+<div class="container-fluid py-3">
+  <!-- Header -->
+  <div class="row align-items-center mb-4">
+    <div class="col-md-6">
+      <h2 class="text-white fw-bold mb-1"><i class="fas fa-cash-register me-2 text-success"></i> Finanzas y Recaudación</h2>
+      <p class="text-white-50 mb-0">Control de ventas, abonos presenciales, pasarela Flow y liquidaciones.</p>
+    </div>
+    <div class="col-md-6 text-end">
+      <%= link_to liquidaciones_finances_path, class: "btn btn-outline-light btn-lg me-2" do %>
+        <i class="fas fa-file-invoice-dollar me-1 text-warning"></i> Mis Liquidaciones Flow
+      <% end %>
+      <%= link_to new_finance_path, class: "btn btn-success btn-lg shadow-sm" do %>
+        <i class="fas fa-plus-circle me-1"></i> Nueva Venta Presencial
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 3 Top Cards (KPIs) -->
+  <div class="row g-3 mb-4">
+    <!-- Card 1: Ventas Totales -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm bg-white rounded-3 h-100 p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small text-uppercase fw-bold">Ventas Totales del Mes</span>
+            <h3 class="fw-bold text-dark mb-0 mt-1">$<%= number_with_delimiter(@total_sales.to_i) %></h3>
+            <small class="text-success"><i class="fas fa-chart-line me-1"></i> Presencial + Flow Online</small>
+          </div>
+          <div class="rounded-circle bg-light p-3 text-primary d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+            <i class="fas fa-wallet fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Comisiones Retenidas -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm bg-white rounded-3 h-100 p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small text-uppercase fw-bold">Comisiones Retenidas</span>
+            <h3 class="fw-bold text-danger mb-0 mt-1">$<%= number_with_delimiter(@total_commission.to_i) %></h3>
+            <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Solo sobre cobros Flow Online</small>
+          </div>
+          <div class="rounded-circle bg-light p-3 text-danger d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+            <i class="fas fa-percentage fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Neto por Recibir -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm bg-white rounded-3 h-100 p-3 border-start border-success border-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small text-uppercase fw-bold">Neto por Recibir (Flow)</span>
+            <h3 class="fw-bold text-success mb-0 mt-1">$<%= number_with_delimiter(@net_to_receive.to_i) %></h3>
+            <small class="text-muted"><i class="fas fa-calendar-check me-1"></i> Próxima Liquidación Quincenal</small>
+          </div>
+          <div class="rounded-circle bg-light p-3 text-success d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+            <i class="fas fa-hand-holding-usd fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Grid / Dashboard Table -->
+  <div class="card border-0 shadow-sm bg-white rounded-3">
+    <div class="card-header bg-white border-0 py-3">
+      <div class="row align-items-center g-2">
+        <!-- Filter Tabs -->
+        <div class="col-md-7 d-flex gap-2 flex-wrap">
+          <%= link_to "Todos", finances_path, class: "btn btn-sm #{params[:channel].blank? && params[:status].blank? ? 'btn-primary' : 'btn-outline-secondary'}" %>
+          <%= link_to "🌐 Solo Flow", finances_path(channel: 'flow'), class: "btn btn-sm #{params[:channel] == 'flow' ? 'btn-primary' : 'btn-outline-secondary'}" %>
+          <%= link_to "🏢 Solo Presencial", finances_path(channel: 'local'), class: "btn btn-sm #{params[:channel] == 'local' ? 'btn-primary' : 'btn-outline-secondary'}" %>
+          <div class="vr mx-1"></div>
+          <%= link_to "Pagados", finances_path(status: 'paid'), class: "btn btn-sm #{params[:status] == 'paid' ? 'btn-success text-white' : 'btn-outline-success'}" %>
+          <%= link_to "Abonados", finances_path(status: 'partial'), class: "btn btn-sm #{params[:status] == 'partial' ? 'btn-warning text-dark' : 'btn-outline-warning'}" %>
+          <%= link_to "Sin Pago", finances_path(status: 'unpaid'), class: "btn btn-sm #{params[:status] == 'unpaid' ? 'btn-danger text-white' : 'btn-outline-danger'}" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-3">N° Folio</th>
+              <th>Fecha</th>
+              <th>Vehículo / Cliente</th>
+              <th>Estado Mecánico</th>
+              <th class="text-end">Mano Obra</th>
+              <th class="text-end">Repuestos <i class="fas fa-info-circle text-muted" title="Doble clic para ver detalle"></i></th>
+              <th class="text-end">Total / Saldo</th>
+              <th class="text-center">Estado Pago</th>
+              <th class="text-end pe-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @orders.any? %>
+              <% @orders.each do |order| %>
+                <% f_badge = order.financial_status_badge %>
+                <% m_badge = order.mechanical_status_badge %>
+                <tr>
+                  <td class="ps-3 fw-bold text-primary">
+                    <%= link_to finance_path(order), class: "text-decoration-none" do %>
+                      <%= order.folio_number %>
+                    <% end %>
+                  </td>
+                  <td class="small text-muted">
+                    <%= order.created_at.strftime("%d/%m/%Y %H:%M") %>
+                  </td>
+                  <td>
+                    <% if order.asset %>
+                      <div class="fw-bold text-dark"><%= order.asset.plate %> - <%= order.asset.name %></div>
+                    <% end %>
+                    <small class="text-muted">
+                      <%= order.client&.name || "Cliente General" %>
+                    </small>
+                  </td>
+                  <td>
+                    <span class="badge <%= m_badge[:class] %>">
+                      <%= m_badge[:label] %>
+                    </span>
+                    <% if order.mechanical_status == 'in_progress' %>
+                      <%= button_to finish_work_finance_path(order), method: :patch, class: "btn btn-xs btn-outline-success ms-1 py-0 px-1", title: "Marcar como Finalizado" do %>
+                        <i class="fas fa-check"></i>
+                      <% end %>
+                    <% end %>
+                  </td>
+                  <td class="text-end fw-semibold text-secondary">
+                    $<%= number_with_delimiter(order.labor_amount.to_i) %>
+                  </td>
+                  <!-- Repuestos interactivo con doble clic / clic -->
+                  <td class="text-end" style="cursor: pointer;" ondblclick="openPartsModal('<%= parts_detail_finance_path(order) %>')" onclick="openPartsModal('<%= parts_detail_finance_path(order) %>')">
+                    <span class="badge bg-light text-dark border p-2" title="Doble clic para ver repuestos">
+                      $<%= number_with_delimiter(order.parts_amount.to_i) %> <i class="fas fa-boxes ms-1 text-muted"></i>
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <div class="fw-bold text-dark">$<%= number_with_delimiter(order.total_amount.to_i) %></div>
+                    <% if order.balance_due > 0 %>
+                      <small class="text-danger fw-bold">Falta: $<%= number_with_delimiter(order.balance_due.to_i) %></small>
+                    <% else %>
+                      <small class="text-success fw-bold">Saldado</small>
+                    <% end %>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge <%= f_badge[:class] %> px-2 py-1">
+                      <%= f_badge[:label] %>
+                    </span>
+                  </td>
+                  <td class="text-end pe-3">
+                    <div class="btn-group btn-group-sm">
+                      <%= link_to finance_path(order), class: "btn btn-outline-secondary", title: "Ver Detalles y Abonos" do %>
+                        <i class="fas fa-eye"></i>
+                      <% end %>
+                      <%= link_to edit_finance_path(order), class: "btn btn-outline-secondary", title: "Editar Venta" do %>
+                        <i class="fas fa-edit"></i>
+                      <% end %>
+                      <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#abonoModal_<%= order.id %>" title="Registrar Abono">
+                        <i class="fas fa-hand-holding-usd"></i>
+                      </button>
+                      <%= link_to "#", class: "btn btn-outline-success", title: "Compartir Link Flow WhatsApp", onclick: "shareFlowLink('#{order.payment_token}', '#{order.asset&.plate}', #{order.balance_due})" do %>
+                        <i class="fab fa-whatsapp"></i>
+                      <% end %>
+                      <%= link_to print_pdf_finance_path(order, format: :pdf), target: "_blank", class: "btn btn-outline-danger", title: "Comprobante PDF" do %>
+                        <i class="fas fa-file-pdf"></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Modal para registrar Abono rápido -->
+                <div class="modal fade" id="abonoModal_<%= order.id %>" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <%= form_with url: add_payment_finance_path(order), method: :post, local: true do |f| %>
+                        <div class="modal-header">
+                          <h5 class="modal-title fw-bold text-dark">Registrar Abono - <%= order.folio_number %></h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="alert alert-info py-2 small">
+                            <strong>Saldo Pendiente:</strong> $<%= number_with_delimiter(order.balance_due.to_i) %>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label fw-bold">Monto del Abono ($)</label>
+                            <%= number_field_tag :amount, order.balance_due > 0 ? order.balance_due : nil, class: "form-control form-control-lg", required: true, step: 1, min: 1 %>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label fw-bold">Medio de Pago</label>
+                            <%= select_tag :payment_channel, options_for_select([
+                              ["Efectivo (Caja)", "cash"],
+                              ["Tarjeta (Máquina POS / Transbank)", "pos_local"],
+                              ["Transferencia Bancaria (Taller)", "transfer_local"],
+                              ["Flow (Online / Webpay)", "flow_online"]
+                            ]), class: "form-select" %>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Notas / Observación</label>
+                            <%= text_field_tag :notes, nil, class: "form-control", placeholder: "Ej: Anticipo para repuestos..." %>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                          <%= f.submit "Guardar Abono", class: "btn btn-success" %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="9" class="text-center py-5 text-muted">
+                  <i class="fas fa-cash-register fa-3x mb-3 text-secondary opacity-50"></i>
+                  <p class="mb-0">No se encontraron registros de ventas o finanzas.</p>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Universal para Repuestos (Doble Clic) -->
+<div class="modal fade" id="partsDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" id="partsDetailContent">
+      <!-- Cargado vía JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+  function openPartsModal(url) {
+    fetch(url)
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('partsDetailContent').innerHTML = html;
+        var myModal = new bootstrap.Modal(document.getElementById('partsDetailModal'));
+        myModal.show();
+      });
+  }
+
+  function shareFlowLink(token, plate, balance) {
+    const url = window.location.origin + "/pagar/" + token;
+    const msg = `Hola! Adjuntamos el link de pago para su vehículo patente ${plate}. Saldo pendiente: $${balance.toLocaleString('es-CL')}. Link: ${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+</script>

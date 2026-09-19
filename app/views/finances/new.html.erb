@@ -1,0 +1,117 @@
+<div class="container py-4" style="max-width: 900px;">
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-0 py-3">
+      <h4 class="mb-0 fw-bold text-dark"><i class="fas fa-cart-plus me-2 text-success"></i> Nueva Venta Presencial (Caja)</h4>
+      <p class="text-muted small mb-0">Registre un servicio, mano de obra y repuestos de bodega directamente en el taller.</p>
+    </div>
+    <div class="card-body p-4">
+      <%= form_with model: @payment_order, url: finances_path, local: true do |f| %>
+        
+        <!-- Fecha automática y Vehículo -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Fecha del Registro</label>
+            <input type="text" class="form-control bg-light" value="<%= Time.current.strftime('%d/%m/%Y %H:%M') %> (Hoy)" readonly>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Vehículo / Maquinaria</label>
+            <%= f.collection_select :asset_id, @assets, :id, :name, { prompt: "-- Seleccionar Vehículo (Patente) --" }, { class: "form-select", required: true, id: "assetSelect" } %>
+          </div>
+        </div>
+
+        <!-- Estado Mecánico Inicial -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">Estado del Trabajo</label>
+          <%= f.select :mechanical_status, [
+            ["Diagnóstico / Recepción", "diagnosis"],
+            ["En Reparación / Trabajo", "in_progress"],
+            ["Trabajo Finalizado", "completed"]
+          ], {}, class: "form-select" %>
+        </div>
+
+        <!-- Costos Mano de Obra y Descuento -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Mano de Obra / Servicio ($)</label>
+            <%= f.number_field :labor_amount, class: "form-control form-control-lg", placeholder: "0", id: "laborInput", oninput: "calcTotal()", min: 0 %>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Descuento ($)</label>
+            <%= f.number_field :discount_amount, class: "form-control form-control-lg", placeholder: "0", id: "discountInput", oninput: "calcTotal()", min: 0 %>
+          </div>
+        </div>
+
+        <!-- Repuestos de Bodega -->
+        <div class="mb-4">
+          <label class="form-label fw-bold"><i class="fas fa-boxes me-1"></i> Repuestos e Insumos de Bodega</label>
+          <div id="parts-wrapper">
+            <div class="row g-2 mb-2 align-items-center bg-light p-2 rounded part-row">
+              <div class="col-md-6">
+                <%= select_tag "parts[][warehouse_item_id]", options_from_collection_for_select(@warehouse_items, :id, :display_name), prompt: "-- Seleccionar Repuesto --", class: "form-select part-select", onchange: "calcParts()" %>
+              </div>
+              <div class="col-md-3">
+                <input type="number" name="parts[][quantity]" class="form-control part-qty" placeholder="Cant." min="0.1" step="0.1" value="1" oninput="calcParts()">
+              </div>
+              <div class="col-md-3 text-end">
+                <span class="fw-bold text-dark part-subtotal">$0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Totalizador en tiempo real -->
+        <div class="alert alert-primary d-flex justify-content-between align-items-center py-3">
+          <span class="fs-5 fw-bold">Total a Pagar Calculado:</span>
+          <span class="fs-3 fw-bold" id="totalDisplay">$0</span>
+        </div>
+
+        <!-- Pago / Abono Inicial en Caja -->
+        <div class="card bg-light border-0 p-3 mb-4">
+          <h5 class="fw-bold text-dark mb-3"><i class="fas fa-hand-holding-usd me-1"></i> Abono / Pago Inmediato en Caja</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Monto a Cobrar Ahora ($)</label>
+              <input type="number" name="initial_payment_amount" class="form-control" placeholder="Monto abonado o total" min="0">
+              <small class="text-muted">Dejar en $0 o vacío si el cliente pagará al retirar.</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Medio de Pago</label>
+              <%= select_tag :initial_payment_channel, options_for_select([
+                ["Efectivo (Caja)", "cash"],
+                ["Tarjeta (Máquina POS / Transbank)", "pos_local"],
+                ["Transferencia Bancaria (Taller)", "transfer_local"],
+                ["Flow (Online / Webpay)", "flow_online"]
+              ]), class: "form-select" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-bold">Observaciones / Descripción del Trabajo</label>
+          <%= f.text_area :notes, rows: 3, class: "form-control", placeholder: "Detalle de los trabajos o acuerdos con el cliente..." %>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <%= link_to "Cancelar", finances_path, class: "btn btn-outline-secondary" %>
+          <%= f.submit "Guardar Venta y Generar OT", class: "btn btn-success btn-lg px-4" %>
+        </div>
+
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  function calcTotal() {
+    let labor = parseFloat(document.getElementById('laborInput').value) || 0;
+    let discount = parseFloat(document.getElementById('discountInput').value) || 0;
+    let parts = window.currentPartsTotal || 0;
+    let total = Math.max(0, labor + parts - discount);
+    document.getElementById('totalDisplay').innerText = "$" + total.toLocaleString('es-CL');
+  }
+
+  function calcParts() {
+    // Cálculo de repuestos
+    calcTotal();
+  }
+</script>

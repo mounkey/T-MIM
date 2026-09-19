@@ -1,79 +1,47 @@
-# Estado del Proyecto - Sistema MIM (Mantenimiento Inteligente Maquinaria)
-Fecha: Actualizado al 25 de Enero, 2026
+# Estado del Proyecto - T-MIM (Talleres y Mantención Inteligente)
+Fecha: Actualizado al 18 de Septiembre, 2026
 
-## 1. Resumen Funcional Actual
+## 1. Resumen de Fases y Progreso
 
-El sistema se encuentra en una etapa avanzada de desarrollo con la mayoría de sus módulos core operativos y desplegados.
-
-### Módulos Implementados y Operativos
-
-1.  **Gestión de Usuarios:**
-    *   Login seguro con roles (Administrador y Usuario).
-    *   Vistas diferenciadas: Dashboard administrativo vs Perfil de usuario.
-
-2.  **Activos y Maquinaria:**
-    *   Inventario completo (Marca, Modelo, Patente).
-    *   **Jerarquía Flexible:** Categorías -> Componentes -> Subcomponentes.
-    *   Gestión de múltiples medidores (Horómetros, Odómetros) por activo.
-    *   **Historial de Vida:** Reporte PDF completo de intervenciones.
-
-3.  **Proveedores (Providers):**
-    *   Gestión completa de proveedores (CRUD).
-    *   Asignación de "Tags" (Habilidades/Especialidades) para filtrar proveedores por capacidades.
-
-4.  **Bitácora (Logbook):**
-    *   Registro de visitas técnicas y tareas.
-    *   Captura de lecturas de medidores.
-    *   Checklist dinámico basado en la estructura de componentes del activo.
-    *   **Orden de Trabajo:** Generación de reportes PDF de las tareas realizadas (Soporte Español configurado y codificación UTF-8 corregida).
-
-5.  **Planes de Mantenimiento:**
-    *   **Biblioteca Centralizada:** Nuevo módulo con "Wizard" de creación paso a paso (Categoría -> Componente -> Regla).
-    *   Asignación dinámica a componentes.
-    *   **Proyección:** Reporte PDF de mantenimientos futuros basado en uso promedio diario.
-    *   Dashboard de semáforos para control de vencimientos (Tiempo y Uso).
-
-6.  **Motor de Alertas (Alert Engine):**
-    *   Tarea programada diaria (`maintenance:daily_check`) que evalúa el estado de toda la flota.
-    *   Envío automático de correos de resumen a administradores con ítems críticos y advertencias.
+```
+[ Fase 0: Setup & Fork ✅ ] ➔ [ Fase 1: Clientes & Vehículos ✅ ] ➔ [ Fase 2: Bodega & Kardex ✅ ] ➔ [ Fase 3: Finanzas, Abonos & Liquidaciones Flow ✅ ] ➔ [ Fase 4: Reportes & QA ⏳ ]
+```
 
 ---
 
-## 2. Estado Técnico
+## 2. Módulos Implementados
 
-| Componente | Estado | Notas |
-| :--- | :--- | :--- |
-| **Rails Core** | Estable | Versión 8.2.0.alpha. Configuración sólida. |
-| **Base de Datos** | Estable | PostgreSQL. Migraciones y Seeds robustos. |
-| **Frontend** | Pulido | Bootstrap 5, Diseño "White Cards", Modals responsivos. Contrastes corregidos en modo oscuro. |
-| **PDF** | Robusto | Grover configurado con fuentes locales (Docker), UTF-8 forzado y timeouts ajustados para estabilidad. |
-| **Background Jobs** | Activo | Rake Tasks para mantenimiento diario. |
+### ✅ Fase 0: Aislamiento e Infraestructura
+* Base de datos independiente `tmim_development` en puerto `5433` (Web en `3001`).
+* Logo corporativo oficial integrado.
 
----
+### ✅ Fase 1: Clientes y Vehículos
+* Modelo `Client` multitenant y relación con `Asset`.
+* Vistas adaptadas con diseño automotriz.
 
-## 3. Hoja de Ruta (Roadmap)
+### ✅ Fase 2: Bodega, Kardex y Reservas
+* Modelos `WarehouseItem` y `StockMovement`.
+* Stock Físico, Reservado y Disponible.
+* Kardex y consumo directo de repuestos en la Bitácora/OT.
 
-### Corto Plazo (Próxima Sesión)
-1.  **Arquitectura SaaS / Enterprise:** Discusión y planificación sobre la adaptación del sistema para modelo Software as a Service (Tenancy, Suscripciones, etc.) o despliegue Enterprise.
-2.  **Pruebas (Testing):** Implementación de suite de pruebas automatizadas (Unitarias, Integración, E2E) para asegurar estabilidad antes de escalamiento.
-
-### Futuro
-*   **Refinamiento de UX:** Continuar puliendo detalles visuales.
-*   **Expansión de Reportes:** Costos, Disponibilidad de Flota.
-*   **Perezoso Express:** (Proyecto futuro mencionado por el usuario).
-
----
-
-## 4. Bitácora de Cambios (Sesión Actual)
-
-**Correcciones de Infraestructura (PDF):**
-*   **Fuentes en Docker:** Se instalaron paquetes de fuentes (`fonts-liberation`, etc.) en el Dockerfile para solucionar el renderizado de símbolos en lugar de texto.
-*   **Codificación UTF-8:** Se implementó `force_encoding("UTF-8")` y `<meta charset="UTF-8">` en los layouts de PDF para corregir problemas con tildes y caracteres especiales en Español.
-*   **Estabilidad:** Se configuró Grover con `wait_until: 'domcontentloaded'` y timeout extendido (60s) para evitar caídas por lentitud en la carga de assets externos (CDN).
-
-**Correcciones de Interfaz (UI):**
-*   **Visibilidad en Modo Oscuro:** Se corrigieron los títulos y botones invisibles en las vistas de "Planes de Mantenimiento" y "Bitácora" ajustando las clases de color (`text-white`, `btn-outline-light`) para contrastar con el fondo azul oscuro corporativo.
-*   **Layout PDF:** Se estandarizaron los templates de PDF (`.html.erb`) para asegurar compatibilidad total con el motor de renderizado.
+### ✅ Fase 3: Finanzas, Recaudación, Abonos y Liquidaciones Quincenales
+1. **Lado Taller / Empresa (`/finanzas`):**
+   * **Control en Dos Ejes:** Estado Mecánico (*Diagnóstico, Reparación, Finalizado, Entregado*) vs Estado Financiero (*Sin Pago, Abonado, Pagado Total*).
+   * **Dashboard de Finanzas:** 3 Tarjetas KPIs (Ventas del Mes, Comisiones Retenidas Flow, Neto por Recibir).
+   * **Grid de Órdenes:** Folio único (`OT-0001`), saldos en tiempo real y modal interactivo de repuestos (clic/doble clic).
+   * **Abonos Rápidos:** Registro de pagos presenciales (Caja, POS, Transferencia) y Flow Online.
+   * **Comprobante PDF:** Generación de comprobante con los datos del taller (nombre, dirección, fono y email) y pie de página sutil provisto por T-MIM.
+2. **Lado Superadmin / Matriz Recaudadora (`/superadmin/liquidaciones`):**
+   * **Billetera Central Flow:** Monitoreo global de recaudación online de toda la red de talleres.
+   * **Comisiones Ganadas T-MIM:** Cálculo de ganancias por fee de plataforma.
+   * **Generador de Cortes Quincenales:** Agrupa automáticamente los pagos Flow no liquidados por taller y rango de fechas.
+   * **Nómina de Transferencias:** Registro del código de transferencia bancaria y paso a estado `Transferido`.
+   * **Dashboard Superadmin:** Métricas en tiempo real de empresas, recaudación y saldo pendiente de liquidar.
 
 ---
-*Este documento reemplaza versiones anteriores y debe ser considerado la fuente de verdad actual.*
+
+## 3. Próximos Pasos (Fase 4: Reportes, QA y Demo Comercial)
+* [ ] Informe de Stock y Bodega en PDF (Kardex, valoración de inventario, stock bajo).
+* [ ] Mantenedores de Categorías de Repuestos y Unidades de Medida en Configuración.
+* [ ] Hoja de Vida del Auto en PDF como comprobante de entrega.
+* [ ] Seeds demo para presentaciones comerciales.

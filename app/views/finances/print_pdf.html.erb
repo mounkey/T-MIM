@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #333; line-height: 1.4; margin: 20px; }
+    .header { border-bottom: 2px solid #041C36; padding-bottom: 10px; margin-bottom: 20px; }
+    .title { font-size: 20px; font-weight: bold; color: #041C36; }
+    .meta-table, .data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .meta-table td { padding: 4px; }
+    .data-table th, .data-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    .data-table th { background-color: #f8f9fa; }
+    .text-end { text-align: right; }
+    .fw-bold { font-weight: bold; }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+    .bg-success { background-color: #d1e7dd; color: #0f5132; }
+    .bg-warning { background-color: #fff3cd; color: #664d03; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <table style="width: 100%;">
+      <tr>
+        <td>
+          <div class="title" style="margin-bottom: 3px;"><%= @payment_order.account.nombre_fantasia.presence || @payment_order.account.razon_social.presence || @payment_order.account.name %></div>
+          <div style="color: #444; font-size: 12px; margin-bottom: 2px;">
+            <%= @payment_order.account.direccion.presence || "Casa Matriz / Taller Principal" %><%= @payment_order.account.city ? ", #{@payment_order.account.city.name}" : "" %>
+          </div>
+          <div style="color: #555; font-size: 12px;">
+            <%= @payment_order.account.contacto_telefono.present? ? "Fono: #{@payment_order.account.contacto_telefono}" : "" %>
+            <%= @payment_order.account.contacto_telefono.present? && @payment_order.account.email.present? ? " | " : "" %>
+            <%= @payment_order.account.email.present? ? "Email: #{@payment_order.account.email}" : "" %>
+          </div>
+        </td>
+        <td class="text-end" style="vertical-align: top;">
+          <div style="font-size: 17px; font-weight: bold; color: #041C36;">ORDEN DE SERVICIO: <%= @payment_order.folio_number %></div>
+          <div style="color: #666; font-size: 12px; margin-top: 4px;">Fecha Emisión: <%= @payment_order.created_at.strftime('%d/%m/%Y %H:%M') %></div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <table class="meta-table">
+    <tr>
+      <td style="width: 50%;">
+        <strong>Vehículo:</strong> <%= @payment_order.asset&.plate %> - <%= @payment_order.asset&.name %><br>
+        <strong>Marca / Modelo:</strong> <%= @payment_order.asset&.make %> <%= @payment_order.asset&.model %><br>
+        <strong>Estado Trabajo:</strong> <%= @payment_order.mechanical_status_badge[:label] %>
+      </td>
+      <td style="width: 50%;">
+        <strong>Cliente:</strong> <%= @payment_order.client&.name || "Cliente General" %><br>
+        <strong>Teléfono:</strong> <%= @payment_order.client&.phone || "-" %><br>
+        <strong>Estado Financiero:</strong> <%= @payment_order.financial_status_badge[:label] %>
+      </td>
+    </tr>
+  </table>
+
+  <h3>Desglose de Costos</h3>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Concepto / Ítem</th>
+        <th class="text-end">Monto</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Mano de Obra y Servicios Especializados</td>
+        <td class="text-end">$<%= number_with_delimiter(@payment_order.labor_amount.to_i) %></td>
+      </tr>
+      <tr>
+        <td>Repuestos e Insumos de Bodega</td>
+        <td class="text-end">$<%= number_with_delimiter(@payment_order.parts_amount.to_i) %></td>
+      </tr>
+      <% if @payment_order.discount_amount > 0 %>
+        <tr>
+          <td style="color: red;">Descuento Aplicado</td>
+          <td class="text-end" style="color: red;">-$<%= number_with_delimiter(@payment_order.discount_amount.to_i) %></td>
+        </tr>
+      <% end %>
+      <tr style="background-color: #f0f4f8; font-weight: bold;">
+        <td>TOTAL TRABAJO:</td>
+        <td class="text-end">$<%= number_with_delimiter(@payment_order.total_amount.to_i) %></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Historial de Abonos y Pagos</h3>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Medio de Pago</th>
+        <th>Detalle</th>
+        <th class="text-end">Monto Pagado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @payment_order.payments.any? %>
+        <% @payment_order.payments.each do |p| %>
+          <tr>
+            <td><%= p.recorded_at.strftime('%d/%m/%Y %H:%M') %></td>
+            <td><%= p.payment_channel_label %></td>
+            <td><%= p.notes.presence || "-" %></td>
+            <td class="text-end">$<%= number_with_delimiter(p.amount.to_i) %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="4" style="text-align: center; color: #777;">Sin abonos registrados.</td>
+        </tr>
+      <% end %>
+      <tr style="font-weight: bold; background-color: #e8f5e9;">
+        <td colspan="3">TOTAL ABONADO:</td>
+        <td class="text-end">$<%= number_with_delimiter(@payment_order.total_paid.to_i) %></td>
+      </tr>
+      <tr style="font-weight: bold; background-color: <%= @payment_order.balance_due > 0 ? '#ffebee' : '#f1f8e9' %>;">
+        <td colspan="3">SALDO PENDIENTE:</td>
+        <td class="text-end">$<%= number_with_delimiter(@payment_order.balance_due.to_i) %></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <% if @payment_order.notes.present? %>
+    <div style="margin-top: 15px; padding: 8px; border: 1px solid #ddd; background: #fafafa;">
+      <strong>Observaciones:</strong> <%= @payment_order.notes %>
+    </div>
+  <% end %>
+
+  <div style="margin-top: 50px; padding-top: 10px; border-top: 1px solid #eee; text-align: center; font-size: 10px; color: #999;">
+    Documento emitido por <%= @payment_order.account.nombre_fantasia.presence || @payment_order.account.name %> &bull; Plataforma tecnológica provista por <strong>T-MIM</strong> (Talleres y Mantención Inteligente)
+  </div>
+</body>
+</html>

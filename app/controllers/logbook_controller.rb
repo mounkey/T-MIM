@@ -152,9 +152,20 @@ class LogbookController < ApplicationController
           notes: "#{action_type == 'reserve' ? 'Reserva' : 'Instalación'} para #{@asset.name} (#{@asset.plate.presence || 'S/P'})"
         )
       end
+
+      # Crear automáticamente la Orden de Cobro / Trabajo en Finanzas
+      payment_order = PaymentOrder.create!(
+        account: current_account,
+        logbook_record: record,
+        asset: @asset,
+        client: @asset.client,
+        mechanical_status: :in_progress,
+        notes: "Orden generada desde Bitácora de Operaciones"
+      )
+      payment_order.update_parts_amount_from_logbook!
     end
 
-    redirect_to logbook_index_path, notice: "Bitácora actualizada correctamente."
+    redirect_to logbook_index_path, notice: "Bitácora y Orden de Finanzas creadas correctamente."
   rescue ActiveRecord::RecordInvalid => e
     flash.now[:alert] = "Error al guardar: #{e.record.errors.full_messages.join(', ')}"
     @meters = @asset.meters

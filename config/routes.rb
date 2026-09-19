@@ -6,6 +6,11 @@ Rails.application.routes.draw do
       end
     end
     resources :invoices
+    resources :settlements, path: "liquidaciones" do
+      member do
+        patch :mark_as_paid
+      end
+    end
     resources :super_admins
     resources :cities
     resources :regions
@@ -59,6 +64,18 @@ Rails.application.routes.draw do
   end
 
   resources :logbook, only: [:index, :new, :create, :show], path: "bitacora"
+  resources :finances, only: [:index, :show, :new, :create, :edit, :update], path: "finanzas" do
+    collection do
+      get :liquidaciones
+      get "liquidaciones/:settlement_id", to: "finances#show_liquidacion", as: :show_liquidacion
+    end
+    member do
+      get :parts_detail
+      post :add_payment
+      get :print_pdf
+      patch :finish_work
+    end
+  end
   resources :maintenance_plans, only: [:index, :new, :create], path: "planes_mantenimiento" do
     collection do
       get :components

@@ -26,7 +26,11 @@
           <% end %>
 
           <%= link_to superadmin_invoices_path, class: "nav-link #{'active' if controller_name == 'invoices'}" do %>
-            <i class="fas fa-file-invoice-dollar icon-logbook"></i> Finanzas / Pagos
+            <i class="fas fa-file-invoice-dollar icon-logbook"></i> Facturas SaaS
+          <% end %>
+
+          <%= link_to superadmin_settlements_path, class: "nav-link #{'active' if controller_name == 'settlements'}" do %>
+            <i class="fas fa-money-check-alt text-warning"></i> Liquidaciones Flow
           <% end %>
 
           <!-- Configuration Dropdown/Link -->

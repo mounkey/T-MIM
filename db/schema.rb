@@ -10,13 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_09_17_130000) do
+ActiveRecord::Schema[8.2].define(version: 2026_09_18_232946) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
 
   create_table "accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.boolean "active"
+    t.string "bank_account_holder_name"
+    t.string "bank_account_holder_rut"
+    t.string "bank_account_number"
+    t.string "bank_account_type"
+    t.string "bank_name"
     t.uuid "city_id"
     t.string "contacto_cargo"
     t.string "contacto_email"
@@ -204,6 +209,53 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_17_130000) do
     t.index ["asset_id"], name: "index_meters_on_asset_id"
   end
 
+  create_table "payment_orders", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.uuid "asset_id"
+    t.uuid "client_id"
+    t.datetime "created_at", null: false
+    t.decimal "discount_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.string "folio_number"
+    t.decimal "labor_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.uuid "logbook_record_id"
+    t.integer "mechanical_status", default: 0, null: false
+    t.text "notes"
+    t.decimal "parts_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.string "payment_token"
+    t.decimal "total_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "folio_number"], name: "index_payment_orders_on_account_id_and_folio_number"
+    t.index ["account_id", "mechanical_status"], name: "index_payment_orders_on_account_id_and_mechanical_status"
+    t.index ["account_id"], name: "index_payment_orders_on_account_id"
+    t.index ["asset_id"], name: "index_payment_orders_on_asset_id"
+    t.index ["client_id"], name: "index_payment_orders_on_client_id"
+    t.index ["logbook_record_id"], name: "index_payment_orders_on_logbook_record_id"
+    t.index ["payment_token"], name: "index_payment_orders_on_payment_token", unique: true
+  end
+
+  create_table "payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.decimal "amount", precision: 12, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.decimal "flow_fee", precision: 12, scale: 2, default: "0.0", null: false
+    t.string "flow_order_id"
+    t.decimal "net_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.string "notes"
+    t.integer "payment_channel", default: 0, null: false
+    t.uuid "payment_order_id", null: false
+    t.decimal "platform_fee", precision: 12, scale: 2, default: "0.0", null: false
+    t.datetime "recorded_at", null: false
+    t.uuid "settlement_id"
+    t.datetime "updated_at", null: false
+    t.uuid "user_id"
+    t.index ["account_id", "payment_channel"], name: "index_payments_on_account_id_and_payment_channel"
+    t.index ["account_id", "recorded_at"], name: "index_payments_on_account_id_and_recorded_at"
+    t.index ["account_id"], name: "index_payments_on_account_id"
+    t.index ["payment_order_id"], name: "index_payments_on_payment_order_id"
+    t.index ["settlement_id"], name: "index_payments_on_settlement_id"
+    t.index ["user_id"], name: "index_payments_on_user_id"
+  end
+
   create_table "providers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.boolean "active"
@@ -235,6 +287,26 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_17_130000) do
     t.datetime "created_at", null: false
     t.string "name"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "settlements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.text "bank_details_snapshot"
+    t.datetime "created_at", null: false
+    t.decimal "net_payout", precision: 12, scale: 2, default: "0.0", null: false
+    t.text "notes"
+    t.date "period_end", null: false
+    t.date "period_start", null: false
+    t.integer "status", default: 0, null: false
+    t.decimal "total_collected", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "total_gateway_fees", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "total_platform_fees", precision: 12, scale: 2, default: "0.0", null: false
+    t.string "transfer_reference"
+    t.datetime "transferred_at"
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "period_start", "period_end"], name: "idx_on_account_id_period_start_period_end_4fc5ff3bdc"
+    t.index ["account_id"], name: "index_settlements_on_account_id"
+    t.index ["status"], name: "index_settlements_on_status"
   end
 
   create_table "stock_movements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -383,8 +455,17 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_17_130000) do
   add_foreign_key "maintenance_states", "maintenance_plans"
   add_foreign_key "meters", "accounts"
   add_foreign_key "meters", "assets"
+  add_foreign_key "payment_orders", "accounts"
+  add_foreign_key "payment_orders", "assets"
+  add_foreign_key "payment_orders", "clients"
+  add_foreign_key "payment_orders", "logbook_records"
+  add_foreign_key "payments", "accounts"
+  add_foreign_key "payments", "payment_orders"
+  add_foreign_key "payments", "settlements"
+  add_foreign_key "payments", "users"
   add_foreign_key "providers", "cities"
   add_foreign_key "providers", "regions"
+  add_foreign_key "settlements", "accounts"
   add_foreign_key "stock_movements", "accounts"
   add_foreign_key "stock_movements", "assets"
   add_foreign_key "stock_movements", "logbook_records"

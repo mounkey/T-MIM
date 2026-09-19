@@ -1,0 +1,47 @@
+<div class="modal-header">
+  <h5 class="modal-title fw-bold text-dark"><i class="fas fa-boxes text-primary me-2"></i> Desglose de Repuestos e Insumos</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body p-0">
+  <table class="table table-sm table-striped mb-0">
+    <thead class="table-light">
+      <tr>
+        <th class="ps-3">Repuesto / Ítem</th>
+        <th class="text-center">Cant.</th>
+        <th class="text-end">Precio Unit.</th>
+        <th class="text-end pe-3">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @movements.present? && @movements.any? %>
+        <% total_rep = 0 %>
+        <% @movements.each do |mov| %>
+          <% item = mov.warehouse_item %>
+          <% next unless item %>
+          <% sub = mov.quantity * (item.sale_price || 0) %>
+          <% total_rep += sub %>
+          <tr>
+            <td class="ps-3 fw-bold text-dark"><%= item.name %> <small class="text-muted">(<%= item.sku.presence || '-' %>)</small></td>
+            <td class="text-center"><%= mov.quantity %> <%= item.unit.presence || 'Unid' %></td>
+            <td class="text-end text-muted">$<%= number_with_delimiter(item.sale_price.to_i) %></td>
+            <td class="text-end pe-3 fw-bold text-dark">$<%= number_with_delimiter(sub.to_i) %></td>
+          </tr>
+        <% end %>
+        <tr class="table-primary fw-bold">
+          <td colspan="3" class="ps-3 text-uppercase">Total Repuestos:</td>
+          <td class="text-end pe-3">$<%= number_with_delimiter(total_rep.to_i) %></td>
+        </tr>
+      <% else %>
+        <tr>
+          <td colspan="4" class="text-center py-4 text-muted">
+            <i class="fas fa-box-open fa-2x mb-2 text-secondary opacity-50"></i>
+            <p class="mb-0">No se registraron repuestos de bodega en esta orden.</p>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+</div>

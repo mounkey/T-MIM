@@ -1,0 +1,52 @@
+<div class="container py-4" style="max-width: 800px;">
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-0 py-3">
+      <h4 class="mb-0 fw-bold text-dark"><i class="fas fa-edit me-2 text-primary"></i> Editar Orden <%= @payment_order.folio_number %></h4>
+    </div>
+    <div class="card-body p-4">
+      <%= form_with model: @payment_order, url: finance_path(@payment_order), method: :patch, local: true do |f| %>
+        
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Vehículo</label>
+            <%= f.collection_select :asset_id, @assets, :id, :name, {}, { class: "form-select" } %>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Estado Mecánico</label>
+            <%= f.select :mechanical_status, [
+              ["Diagnóstico / Recepción", "diagnosis"],
+              ["En Reparación / Trabajo", "in_progress"],
+              ["Trabajo Finalizado", "completed"],
+              ["Entregado", "delivered"]
+            ], {}, { class: "form-select" } %>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Mano de Obra ($)</label>
+            <%= f.number_field :labor_amount, class: "form-control", step: 1, min: 0 %>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Repuestos ($)</label>
+            <%= f.number_field :parts_amount, class: "form-control", step: 1, min: 0 %>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Descuento ($)</label>
+            <%= f.number_field :discount_amount, class: "form-control", step: 1, min: 0 %>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-bold">Observaciones / Notas</label>
+          <%= f.text_area :notes, rows: 3, class: "form-control" %>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <%= link_to "Cancelar", finances_path, class: "btn btn-outline-secondary" %>
+          <%= f.submit "Actualizar Orden", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
