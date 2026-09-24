@@ -1,11 +1,9 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  key: MyString
-  value: MyText
-  description: MyString
+  key: setting_key_one
+  value: "value_one"
+  description: "First setting description"
 
 two:
-  key: MyString
-  value: MyText
-  description: MyString
+  key: setting_key_two
+  value: "value_two"
+  description: "Second setting description"

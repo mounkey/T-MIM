@@ -89,12 +89,12 @@
             <td><strong><%= c.component&.name %></strong></td>
             <td><%= c.sub_component&.name %></td>
             <td class="text-center">
-              <% case c.status %>
-              <% when 0 %> OK / Óptimo
-              <% when 1 %> Requiere Mantención
-              <% when 2 %> Reemplazado
-              <% else %> Inspeccionado
-              <% end %>
+              <%= case c.status
+                  when 0 then "OK / Óptimo"
+                  when 1 then "Requiere Mantención"
+                  when 2 then "Reemplazado"
+                  else "Inspeccionado"
+                  end %>
             </td>
             <td><%= c.notes.presence || "-" %></td>
           </tr>

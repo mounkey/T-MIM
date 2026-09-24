@@ -2,8 +2,10 @@ one:
   name: "Electrico"
   description: "Electricidad"
   color: "#FF0000"
+  account: one
 
 two:
   name: "Mecanico"
   description: "Mecanica"
   color: "#00FF00"
+  account: one

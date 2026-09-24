@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_09_18_232946) do
+ActiveRecord::Schema[8.2].define(version: 2026_09_24_194500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -195,6 +195,17 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_18_232946) do
     t.index ["account_id"], name: "index_maintenance_states_on_account_id"
     t.index ["asset_id"], name: "index_maintenance_states_on_asset_id"
     t.index ["maintenance_plan_id"], name: "index_maintenance_states_on_maintenance_plan_id"
+  end
+
+  create_table "measurement_units", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "abbreviation", null: false
+    t.uuid "account_id", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_measurement_units_on_account_id"
+    t.index ["name", "account_id"], name: "index_measurement_units_on_name_and_account_id", unique: true
   end
 
   create_table "meters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -406,6 +417,17 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_18_232946) do
     t.index ["run", "account_id"], name: "index_users_on_run_and_account_id", unique: true
   end
 
+  create_table "warehouse_categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "icon"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_warehouse_categories_on_account_id"
+    t.index ["name", "account_id"], name: "index_warehouse_categories_on_name_and_account_id", unique: true
+  end
+
   create_table "warehouse_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.string "category", default: "General"
@@ -453,6 +475,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_18_232946) do
   add_foreign_key "maintenance_states", "accounts"
   add_foreign_key "maintenance_states", "assets"
   add_foreign_key "maintenance_states", "maintenance_plans"
+  add_foreign_key "measurement_units", "accounts"
   add_foreign_key "meters", "accounts"
   add_foreign_key "meters", "assets"
   add_foreign_key "payment_orders", "accounts"
@@ -478,5 +501,6 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_18_232946) do
   add_foreign_key "tags", "accounts"
   add_foreign_key "user_login_histories", "accounts"
   add_foreign_key "user_login_histories", "users"
+  add_foreign_key "warehouse_categories", "accounts"
   add_foreign_key "warehouse_items", "accounts"
 end
