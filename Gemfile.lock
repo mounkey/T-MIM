@@ -116,8 +116,8 @@ GEM
     bcrypt_pbkdf (1.1.1-x86_64-darwin)
     bigdecimal (3.3.1)
     bindex (0.8.1)
-    bootsnap (1.19.0)
-      msgpack (~> 1.2)
+    bootsnap (1.26.0)
+      msgpack (~> 1.5)
     brakeman (7.1.1)
       racc
     builder (3.3.0)
@@ -237,7 +237,7 @@ GEM
       logger
     mini_mime (1.1.5)
     minitest (5.26.2)
-    msgpack (1.8.0)
+    msgpack (1.8.5)
     net-imap (0.5.12)
       date
       net-protocol
