@@ -48,6 +48,8 @@ Rails.application.routes.draw do
   resources :cities
   resources :asset_categories
   resources :tags
+  resources :warehouse_categories, path: "configuracion_bodega_categorias"
+  resources :measurement_units, path: "configuracion_bodega_metricas"
   resources :providers, path: "proveedores"
 
   resources :clients, path: "clientes"

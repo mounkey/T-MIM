@@ -1,0 +1,19 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h3 class="text-center mb-4 text-white"><%= @category.new_record? ? "Nueva Categoría de Bodega" : "Editar Categoría" %></h3>
+
+  <%= simple_form_for(@category, defaults: { label: false }, html: { data: { turbo_frame: "modal_body" } }) do |f| %>
+    <div class="mb-3">
+      <label class="form-label text-white small fw-bold">Nombre de la Categoría *</label>
+      <%= f.input :name, placeholder: "Ej. Lubricantes, Embragues, Filtros...", input_html: { class: "form-control form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label text-white small fw-bold">Descripción (Opcional)</label>
+      <%= f.input :description, as: :text, placeholder: "Breve detalle de los repuestos incluidos en esta categoría...", input_html: { class: "form-control", rows: 3 } %>
+    </div>
+
+    <div class="mt-4 clearfix">
+      <%= f.button :submit, @category.persisted? ? "Actualizar Categoría" : "Guardar Categoría", class: "btn-submit-custom" %>
+    </div>
+  <% end %>
+<% end %>

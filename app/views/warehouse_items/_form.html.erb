@@ -10,6 +10,9 @@
       <%= f.input :name, label: false, placeholder: "Ej. Aceite Sintético 5W30, Filtro de Aire...", input_html: { class: "form-control-lg" } %>
     </div>
 
+    <% available_categories = (WarehouseCategory.order(:name).pluck(:name) + ["General", "Lubricantes", "Filtros", "Frenos", "Suspensión y Dirección", "Eléctrico e Iluminación", "Neumáticos y Ruedas", "Motor y Transmisión"]).uniq %>
+    <% available_units = (MeasurementUnit.order(:name).pluck(:name) + ["Unidad", "Litro", "Bidón (5L)", "Tambor (200L)", "Juego / Kit", "Par", "Metro", "Kilogramo", "Hora"]).uniq %>
+
     <div class="row g-3 mb-3">
       <div class="col-md-6">
         <%= f.label :sku, "Código / SKU (Opcional)", class: "form-label text-white fw-bold d-block" %>
@@ -17,14 +20,14 @@
       </div>
       <div class="col-md-6">
         <%= f.label :category, "Categoría", class: "form-label text-white fw-bold d-block" %>
-        <%= f.input :category, label: false, collection: ["General", "Lubricantes", "Filtros", "Frenos", "Suspensión", "Eléctrico", "Neumáticos"], include_blank: false, input_html: { class: "form-select-lg" } %>
+        <%= f.input :category, label: false, collection: available_categories, include_blank: false, input_html: { class: "form-select-lg" } %>
       </div>
     </div>
 
     <div class="row g-3 mb-3">
       <div class="col-md-4">
         <%= f.label :unit, "Unidad de Medida", class: "form-label text-white fw-bold d-block" %>
-        <%= f.input :unit, label: false, collection: ["Unidad", "Litro", "Galón", "Juego", "Kit", "Metro"], include_blank: false, input_html: { class: "form-select-lg" } %>
+        <%= f.input :unit, label: false, collection: available_units, include_blank: false, input_html: { class: "form-select-lg" } %>
       </div>
       <div class="col-md-4">
         <%= f.label :stock_quantity, "Stock Inicial", class: "form-label text-white fw-bold d-block" %>

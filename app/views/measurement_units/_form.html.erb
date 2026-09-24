@@ -1,0 +1,24 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h3 class="text-center mb-4 text-white"><%= @unit.new_record? ? "Nueva Métrica / Unidad de Medida" : "Editar Unidad de Medida" %></h3>
+
+  <%= simple_form_for(@unit, defaults: { label: false }, html: { data: { turbo_frame: "modal_body" } }) do |f| %>
+    <div class="mb-3">
+      <label class="form-label text-white small fw-bold">Nombre Completo *</label>
+      <%= f.input :name, placeholder: "Ej. Litro, Unidad, Bidón (5L), Juego / Kit...", input_html: { class: "form-control form-control-lg" } %>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label text-white small fw-bold">Abreviatura / Símbolo Corto *</label>
+      <%= f.input :abbreviation, placeholder: "Ej. L, un, kit, bidón, par, m, kg...", input_html: { class: "form-control" } %>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label text-white small fw-bold">Descripción (Opcional)</label>
+      <%= f.input :description, as: :text, placeholder: "Para qué tipo de insumos o repuestos se usa...", input_html: { class: "form-control", rows: 3 } %>
+    </div>
+
+    <div class="mt-4 clearfix">
+      <%= f.button :submit, @unit.persisted? ? "Actualizar Unidad" : "Guardar Unidad", class: "btn-submit-custom" %>
+    </div>
+  <% end %>
+<% end %>

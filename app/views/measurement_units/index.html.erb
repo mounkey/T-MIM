@@ -1,0 +1,57 @@
+<% content_for :page_title, "Métricas y Unidades de Medida" %>
+
+<div class="card shadow-sm border-0 bg-white">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h5 class="fw-bold text-dark mb-1"><i class="fas fa-ruler-combined text-primary me-2"></i>Métricas y Unidades de Medida</h5>
+        <p class="text-muted small mb-0">Configura las unidades utilizadas para registrar compras, inventario físico y consumos de insumos en bodega.</p>
+      </div>
+      <%= link_to new_measurement_unit_path, class: "btn btn-primary rounded-pill px-4 shadow-sm", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+        <i class="fas fa-plus me-1"></i> Nueva Unidad / Métrica
+      <% end %>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" style="color: #333 !important;">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3 text-dark">Nombre de la Unidad</th>
+            <th class="text-center text-dark">Abreviatura / Símbolo</th>
+            <th class="text-dark">Descripción de Uso</th>
+            <th class="text-end pe-3 text-dark">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @units.any? %>
+            <% @units.each do |unit| %>
+              <tr>
+                <td class="ps-3 fw-bold text-dark"><%= unit.name %></td>
+                <td class="text-center">
+                  <span class="badge bg-primary px-3 py-1 fs-6"><%= unit.abbreviation %></span>
+                </td>
+                <td class="text-muted"><%= unit.description.presence || "-" %></td>
+                <td class="text-end pe-3">
+                  <%= link_to edit_measurement_unit_path(unit), class: "btn btn-sm btn-outline-primary me-1", title: "Editar", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+                    <i class="fas fa-pencil-alt"></i>
+                  <% end %>
+                  <%= button_to measurement_unit_path(unit), method: :delete, class: "btn btn-sm btn-outline-danger", form: { style: "display:inline-block;" }, data: { turbo_confirm: "¿Estás seguro de eliminar esta unidad de medida?" } do %>
+                    <i class="fas fa-trash"></i>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="4" class="text-center py-4 text-muted">No hay unidades de medida registradas.</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-3">
+      <%= paginate @units %>
+    </div>
+  </div>
+</div>

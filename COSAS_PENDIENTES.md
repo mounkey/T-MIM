@@ -16,10 +16,12 @@
   * Cronología completa de entradas a taller y órdenes de servicio.
   * Generación en formato PDF profesional.
 
-## Configuración del Sistema (Pendiente)
-* [ ] **Administrador de Categorías de Bodega y Unidades de Medida:**
-  * Crear CRUD / Mantenedor en Configuración para crear y editar Categorías de Repuestos personalizadas.
-  * Crear CRUD / Mantenedor en Configuración para Unidades de Medida personalizadas (Litros, Unidades, Horas, etc.).
+## Configuración del Sistema (Completada ✅)
+* [x] **Administrador de Categorías de Bodega y Unidades de Medida:**
+  * CRUD y Mantenedor de Categorías de Repuestos e Insumos en Configuración.
+  * CRUD y Mantenedor de Métricas y Unidades de Medida en Configuración.
+  * Menú lateral jerarquizado por áreas: Lugar (Regiones, Ciudades), Vehículos (Categorías, Etiquetas), Bodega (Categorías, Métricas) y Acceso (Usuarios).
+  * Formularios de repuestos de bodega integrados dinámicamente con estas métricas y categorías.
 
 ---
-*Archivo de seguimiento de tareas y requerimientos.*
+*¡Todos los requerimientos principales y pendientes se encuentran 100% completados!*
