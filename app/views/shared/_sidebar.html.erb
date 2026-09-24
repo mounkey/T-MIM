@@ -36,6 +36,10 @@
             <i class="fas fa-cash-register text-success"></i> Finanzas
           <% end %>
 
+          <%= link_to reports_path, class: "nav-link #{'active' if controller_name == 'reports'}" do %>
+            <i class="fas fa-chart-line text-info"></i> Reportes
+          <% end %>
+
           <%= link_to maintenance_path, class: "nav-link #{'active' if controller_name == 'maintenance'}" do %>
             <i class="fas fa-tools icon-maintenance"></i> Mantenimiento
           <% end %>

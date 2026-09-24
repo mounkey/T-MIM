@@ -1,0 +1,241 @@
+<% content_for :page_title, "Historial Completo de Vida - #{@asset.plate.presence || @asset.name}" %>
+
+<div class="container-fluid pb-5">
+  <!-- Actions Header Card -->
+  <div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-body p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <%= link_to reports_path, class: "btn btn-sm btn-outline-secondary" do %>
+            <i class="fas fa-arrow-left"></i>
+          <% end %>
+          <h4 class="fw-bold text-dark mb-0">Hoja de Vida Integral y Registro Histórico</h4>
+        </div>
+        <p class="text-muted mb-0 small">Historial consolidado de todas las intervenciones, mantenimientos, repuestos y costos del vehículo.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <%= link_to vehicle_latest_repair_report_path(@asset), class: "btn btn-outline-primary" do %>
+          <i class="fas fa-wrench me-1"></i> Ver Última Reparación
+        <% end %>
+        <%= link_to vehicle_full_history_report_path(@asset, format: :pdf), class: "btn btn-dark shadow-sm", target: "_blank" do %>
+          <i class="fas fa-file-pdf me-1"></i> Descargar Historial PDF
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary KPI Cards for Vehicle Life Cycle -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card shadow-sm border-0 p-3 h-100 bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-uppercase text-muted fw-bold mb-1 small">Total Intervenciones</h6>
+            <h3 class="fw-bold mb-0 text-dark"><%= @total_interventions %></h3>
+          </div>
+          <div class="bg-light rounded-circle p-3 text-primary">
+            <i class="fas fa-tools fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card shadow-sm border-0 p-3 h-100 bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-uppercase text-muted fw-bold mb-1 small">Inversión Acumulada</h6>
+            <h3 class="fw-bold mb-0 text-dark">$<%= number_with_delimiter(@total_spent.to_i) %></h3>
+          </div>
+          <div class="bg-light rounded-circle p-3 text-success">
+            <i class="fas fa-dollar-sign fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card shadow-sm border-0 p-3 h-100 bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-uppercase text-muted fw-bold mb-1 small">Repuestos Reemplazados</h6>
+            <h3 class="fw-bold mb-0 text-dark"><%= @total_parts_count.to_i %> <span class="fs-6 text-muted fw-normal">unidades</span></h3>
+          </div>
+          <div class="bg-light rounded-circle p-3 text-info">
+            <i class="fas fa-cogs fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card shadow-sm border-0 p-3 h-100 bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-uppercase text-muted fw-bold mb-1 small">Estado Operativo</h6>
+            <h4 class="fw-bold mb-0 text-<%= @asset.status == 'operativa' ? 'success' : 'warning' %>"><%= @asset.status_label.upcase %></h4>
+          </div>
+          <div class="bg-light rounded-circle p-3 text-<%= @asset.status == 'operativa' ? 'success' : 'warning' %>">
+            <i class="fas fa-shield-alt fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vehicle Identification Card -->
+  <div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+      <h5 class="fw-bold text-dark mb-0"><i class="fas fa-id-card text-primary me-2"></i>Ficha Técnica del Vehículo y Propietario</h5>
+      <span class="badge bg-light text-dark border"><i class="fas fa-barcode me-1"></i><%= @asset.plate.presence || "S/N" %></span>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-6 col-md-3">
+          <small class="text-muted d-block">Vehículo / Modelo</small>
+          <strong class="text-dark"><%= @asset.make %> <%= @asset.model %> (<%= @asset.year %>)</strong>
+        </div>
+        <div class="col-6 col-md-3">
+          <small class="text-muted d-block">N° Serie / Chasis</small>
+          <code><%= @asset.serial_number.presence || "-" %></code>
+        </div>
+        <div class="col-6 col-md-3">
+          <small class="text-muted d-block">Cliente / Propietario</small>
+          <strong class="text-dark"><%= @asset.client&.name || "Cliente General" %></strong>
+          <% if @asset.client&.phone.present? %>
+            <small class="text-muted">(<%= @asset.client.phone %>)</small>
+          <% end %>
+        </div>
+        <div class="col-6 col-md-3">
+          <small class="text-muted d-block">Medidor Actual</small>
+          <% @asset.meters.each do |meter| %>
+            <span class="badge bg-secondary me-1"><%= meter.name %>: <%= number_with_delimiter(meter.current_value.to_i) %> <%= meter.unit %></span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chronological Logbook Timeline / Table Card -->
+  <div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-dark mb-0"><i class="fas fa-stream text-primary me-2"></i>Cronología de Servicios y Mantenimientos Realizados</h5>
+      <small class="text-muted">Registro completo de ingresos a taller ordenados cronológicamente.</small>
+    </div>
+    <div class="card-body p-0 table-responsive">
+      <table class="table table-hover align-middle mb-0" style="color: #333 !important;">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4 text-dark">Fecha</th>
+            <th class="text-dark">Lectura Medidor</th>
+            <th class="text-dark">Trabajo Realizado / Tarea</th>
+            <th class="text-dark">Mecánico / Proveedor</th>
+            <th class="text-center text-dark">Repuestos Instalados</th>
+            <th class="text-end pe-4 text-dark">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @logbook_records.any? %>
+            <% @logbook_records.each do |record| %>
+              <% parts_count = record.stock_movements.where(movement_type: :exit).sum(:quantity) %>
+              <tr>
+                <td class="ps-4 fw-bold"><%= record.recorded_at.strftime("%d/%m/%Y %H:%M") %></td>
+                <td>
+                  <% if record.logbook_entries.any? %>
+                    <% record.logbook_entries.each do |entry| %>
+                      <span class="badge bg-light text-dark border"><%= entry.meter&.name %>: <%= number_with_delimiter(entry.current_value.to_i) %> <%= entry.meter&.unit %></span>
+                    <% end %>
+                  <% else %>
+                    <span class="text-muted">-</span>
+                  <% end %>
+                </td>
+                <td>
+                  <div><%= record.notes.presence || "Mantenimiento / Servicio General" %></div>
+                  <% if record.maintenance_checks.any? %>
+                    <small class="text-muted"><i class="fas fa-check-circle text-success me-1"></i><%= record.maintenance_checks.count %> puntos revisados</small>
+                  <% end %>
+                </td>
+                <td>
+                  <div><strong><%= record.user&.name %></strong></div>
+                  <% if record.provider %>
+                    <small class="text-muted"><i class="fas fa-building me-1"></i><%= record.provider.name %></small>
+                  <% end %>
+                </td>
+                <td class="text-center">
+                  <% if parts_count > 0 %>
+                    <span class="badge bg-info text-dark px-2 py-1"><%= parts_count.to_i %> unidades</span>
+                  <% else %>
+                    <span class="text-muted">-</span>
+                  <% end %>
+                </td>
+                <td class="text-end pe-4">
+                  <%= link_to logbook_path(record), class: "btn btn-sm btn-outline-secondary" do %>
+                    <i class="fas fa-eye"></i> Detalle
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="fas fa-history fa-3x mb-3 text-secondary opacity-50"></i>
+                <p class="h6">No hay registros de bitácora para este vehículo.</p>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Associated Payment Orders History Card -->
+  <div class="card shadow-sm border-0 bg-white">
+    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-dark mb-0"><i class="fas fa-receipt text-primary me-2"></i>Historial de Órdenes de Trabajo y Cobros (OTs)</h5>
+      <small class="text-muted">Resumen de costos y pagos emitidos para este vehículo.</small>
+    </div>
+    <div class="card-body p-0 table-responsive">
+      <table class="table table-hover align-middle mb-0" style="color: #333 !important;">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4 text-dark">Folio OT</th>
+            <th class="text-dark">Fecha Emisión</th>
+            <th class="text-dark">Estado Mecánico</th>
+            <th class="text-dark">Estado Financiero</th>
+            <th class="text-end text-dark">M. Obra</th>
+            <th class="text-end text-dark">Repuestos</th>
+            <th class="text-end text-dark">Total OT</th>
+            <th class="text-end pe-4 text-dark">Saldo Pendiente</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @payment_orders.any? %>
+            <% @payment_orders.each do |order| %>
+              <tr>
+                <td class="ps-4 fw-bold text-primary"><%= order.folio_number %></td>
+                <td><%= order.created_at.strftime("%d/%m/%Y") %></td>
+                <td><span class="badge <%= order.mechanical_status_badge[:class] %>"><%= order.mechanical_status_badge[:label] %></span></td>
+                <td><span class="badge <%= order.financial_status_badge[:class] %>"><%= order.financial_status_badge[:label] %></span></td>
+                <td class="text-end text-muted">$<%= number_with_delimiter(order.labor_amount.to_i) %></td>
+                <td class="text-end text-muted">$<%= number_with_delimiter(order.parts_amount.to_i) %></td>
+                <td class="text-end fw-bold text-dark">$<%= number_with_delimiter(order.total_amount.to_i) %></td>
+                <td class="text-end pe-4 fw-bold <%= order.balance_due > 0 ? 'text-danger' : 'text-success' %>">
+                  $<%= number_with_delimiter(order.balance_due.to_i) %>
+                </td>
+              </tr>
+            <% end %>
+            <tr style="font-weight: bold; background-color: #f8f9fa;">
+              <td colspan="6" class="ps-4">TOTAL ACUMULADO HISTÓRICO:</td>
+              <td class="text-end">$<%= number_with_delimiter(@total_spent.to_i) %></td>
+              <td class="text-end pe-4 text-success">$<%= number_with_delimiter((@total_spent - @total_paid).to_i) %></td>
+            </tr>
+          <% else %>
+            <tr>
+              <td colspan="8" class="text-center py-4 text-muted">Sin órdenes de cobro registradas.</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

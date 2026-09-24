@@ -90,7 +90,13 @@ Rails.application.routes.draw do
     end
   end
   get "mantenimiento", to: "maintenance#index", as: :maintenance
+  
+  # Reportes e Informes
+  get "reportes", to: "reports#index", as: :reports
+  get "reportes/inventario", to: "reports#inventory", as: :inventory_report
   get "reportes/proyeccion", to: "reports#maintenance_projection", as: :maintenance_projection_report
+  get "vehiculos/:id/reporte_ultima_reparacion", to: "reports#vehicle_latest_repair", as: :vehicle_latest_repair_report
+  get "vehiculos/:id/reporte_historial", to: "reports#vehicle_full_history", as: :vehicle_full_history_report
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check

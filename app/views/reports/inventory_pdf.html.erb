@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #333; line-height: 1.3; margin: 15px; }
+    .header { border-bottom: 2px solid #041C36; padding-bottom: 10px; margin-bottom: 15px; }
+    .title { font-size: 18px; font-weight: bold; color: #041C36; }
+    .data-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    .data-table th, .data-table td { border: 1px solid #ddd; padding: 5px 6px; text-align: left; }
+    .data-table th { background-color: #f2f5f8; font-weight: bold; color: #041C36; }
+    .text-end { text-align: right; }
+    .text-center { text-align: center; }
+    .fw-bold { font-weight: bold; }
+    .kpi-card { background: #f8f9fa; border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 4px; }
+    .badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; }
+    .bg-success { background-color: #d1e7dd; color: #0f5132; }
+    .bg-warning { background-color: #fff3cd; color: #664d03; }
+    .bg-danger { background-color: #f8d7da; color: #842029; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <table style="width: 100%;">
+      <tr>
+        <td>
+          <div class="title"><%= @account.nombre_fantasia.presence || @account.razon_social.presence || @account.name %></div>
+          <div style="color: #555; font-size: 11px;">
+            <%= @account.direccion.presence || "Casa Matriz / Taller Principal" %><%= @account.city ? ", #{@account.city.name}" : "" %>
+            <%= @account.contacto_telefono.present? ? " &bull; Fono: #{@account.contacto_telefono}" : "" %>
+          </div>
+        </td>
+        <td class="text-end" style="vertical-align: top;">
+          <div style="font-size: 15px; font-weight: bold; color: #041C36; text-transform: uppercase;">INFORME DE STOCK Y BODEGA</div>
+          <div style="color: #666; font-size: 10px; margin-top: 2px;">Fecha Emisión: <%= Time.current.strftime('%d/%m/%Y %H:%M') %></div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- KPI Totals Summary Table -->
+  <table style="width: 100%; margin-bottom: 15px; border-collapse: separate; border-spacing: 5px;">
+    <tr>
+      <td style="width: 25%;" class="kpi-card">
+        <div style="font-size: 9px; text-transform: uppercase; color: #666;">Inversión Total (Costo)</div>
+        <div style="font-size: 14px; font-weight: bold; color: #041C36;">$<%= number_with_delimiter(@total_cost_valuation.to_i) %></div>
+      </td>
+      <td style="width: 25%;" class="kpi-card">
+        <div style="font-size: 9px; text-transform: uppercase; color: #666;">Proyección Venta</div>
+        <div style="font-size: 14px; font-weight: bold; color: #0d6efd;">$<%= number_with_delimiter(@total_sale_valuation.to_i) %></div>
+      </td>
+      <td style="width: 25%;" class="kpi-card">
+        <div style="font-size: 9px; text-transform: uppercase; color: #666;">Margen Bruto Proyectado</div>
+        <div style="font-size: 14px; font-weight: bold; color: #198754;">+$<%= number_with_delimiter(@estimated_profit.to_i) %></div>
+      </td>
+      <td style="width: 25%;" class="kpi-card">
+        <div style="font-size: 9px; text-transform: uppercase; color: #666;">Unidades / Alertas</div>
+        <div style="font-size: 12px; font-weight: bold;">
+          <%= @total_units.to_i %> unid. (<%= @total_skus %> SKUs)<br>
+          <span style="color: red; font-size: 10px;"><%= @low_stock_count %> bajo stock / <%= @out_of_stock_count %> agotados</span>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <h4 style="margin: 0 0 6px 0; color: #041C36; font-size: 12px; text-transform: uppercase;">Detalle Valorizado de Artículos e Insumos</h4>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width: 12%;">SKU / Cód.</th>
+        <th style="width: 28%;">Descripción del Repuesto</th>
+        <th style="width: 12%;">Categoría</th>
+        <th class="text-center" style="width: 8%;">Físico</th>
+        <th class="text-center" style="width: 8%;">Disp.</th>
+        <th class="text-end" style="width: 10%;">Costo Unit.</th>
+        <th class="text-end" style="width: 11%;">Total Costo</th>
+        <th class="text-end" style="width: 11%;">Total Venta</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @warehouse_items.any? %>
+        <% @warehouse_items.each do |item| %>
+          <% item_total_cost = (item.stock_quantity * (item.cost_price || 0)) %>
+          <% item_total_sale = (item.stock_quantity * (item.sale_price || 0)) %>
+          <tr>
+            <td><%= item.sku.presence || "-" %></td>
+            <td>
+              <strong><%= item.name %></strong>
+              <% if item.location.present? %>
+                <small style="color: #777;">(Ubic: <%= item.location %>)</small>
+              <% end %>
+            </td>
+            <td><%= item.category %></td>
+            <td class="text-center fw-bold"><%= item.stock_quantity %></td>
+            <td class="text-center" style="color: <%= item.available_stock <= item.minimum_stock ? 'red' : 'green' %>;">
+              <%= item.available_stock %>
+            </td>
+            <td class="text-end">$<%= number_with_delimiter(item.cost_price.to_i) %></td>
+            <td class="text-end fw-bold">$<%= number_with_delimiter(item_total_cost.to_i) %></td>
+            <td class="text-end">$<%= number_with_delimiter(item_total_sale.to_i) %></td>
+          </tr>
+        <% end %>
+        <tr style="font-weight: bold; background-color: #f0f4f8;">
+          <td colspan="3">TOTALES VALORIZADOS GENERALES:</td>
+          <td class="text-center"><%= @total_units.to_i %></td>
+          <td class="text-center"><%= @total_available_units.to_i %></td>
+          <td>-</td>
+          <td class="text-end">$<%= number_with_delimiter(@total_cost_valuation.to_i) %></td>
+          <td class="text-end">$<%= number_with_delimiter(@total_sale_valuation.to_i) %></td>
+        </tr>
+      <% else %>
+        <tr>
+          <td colspan="8" class="text-center" style="color: #777; padding: 15px;">No hay repuestos registrados en bodega.</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <h4 style="margin: 15px 0 6px 0; color: #041C36; font-size: 12px; text-transform: uppercase;">Últimos Movimientos de Kardex (Muestreo Reciente)</h4>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width: 15%;">Fecha</th>
+        <th style="width: 25%;">Repuesto</th>
+        <th style="width: 15%;">Movimiento</th>
+        <th class="text-center" style="width: 10%;">Cantidad</th>
+        <th style="width: 15%;">Vehículo</th>
+        <th style="width: 20%;">Detalle / Notas</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @recent_movements.any? %>
+        <% @recent_movements.each do |mov| %>
+          <tr>
+            <td><%= mov.created_at.strftime("%d/%m/%Y %H:%M") %></td>
+            <td><%= mov.warehouse_item&.name %></td>
+            <td><%= mov.type_label %></td>
+            <td class="text-center fw-bold"><%= mov.quantity %> <%= mov.warehouse_item&.unit %></td>
+            <td><%= mov.asset ? (mov.asset.plate.presence || mov.asset.name) : "-" %></td>
+            <td><%= mov.notes.presence || "-" %></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="6" class="text-center" style="color: #777;">Sin movimientos registrados.</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 30px; padding-top: 8px; border-top: 1px solid #eee; text-align: center; font-size: 9px; color: #888;">
+    Documento emitido por <%= @account.nombre_fantasia.presence || @account.name %> &bull; Plataforma <strong>T-MIM</strong> (Talleres y Mantención Inteligente)
+  </div>
+</body>
+</html>

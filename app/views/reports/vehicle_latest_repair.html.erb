@@ -1,0 +1,282 @@
+<% content_for :page_title, "Informe de Última Reparación - #{@asset.plate.presence || @asset.name}" %>
+
+<div class="container-fluid pb-5">
+  <!-- Action Bar -->
+  <div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-body p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <%= link_to reports_path, class: "btn btn-sm btn-outline-secondary" do %>
+            <i class="fas fa-arrow-left"></i>
+          <% end %>
+          <h4 class="fw-bold text-dark mb-0">Informe Técnico de Reparación Actual / Última</h4>
+        </div>
+        <p class="text-muted mb-0 small">Hoja de servicio de la intervención más reciente, repuestos aplicados y estado financiero.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <%= link_to vehicle_full_history_report_path(@asset), class: "btn btn-outline-dark" do %>
+          <i class="fas fa-history me-1"></i> Ver Historial Completo
+        <% end %>
+        <%= link_to vehicle_latest_repair_report_path(@asset, format: :pdf), class: "btn btn-primary shadow-sm", target: "_blank" do %>
+          <i class="fas fa-file-pdf me-1"></i> Descargar PDF
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vehicle & Client Overview Grid -->
+  <div class="row g-4 mb-4">
+    <!-- Vehicle Info Card -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm border-0 h-100 bg-white">
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold text-dark mb-0"><i class="fas fa-car text-primary me-2"></i>Datos del Vehículo</h5>
+          <span class="badge bg-light text-dark border"><%= @asset.asset_category&.name || "Vehículo" %></span>
+        </div>
+        <div class="card-body p-4">
+          <table class="table table-sm table-borderless mb-0" style="color: #333 !important;">
+            <tbody>
+              <tr>
+                <td class="text-muted" style="width: 40%;">Vehículo / Nombre:</td>
+                <td class="fw-bold"><%= @asset.name %></td>
+              </tr>
+              <tr>
+                <td class="text-muted">Patente / Placa:</td>
+                <td><span class="badge bg-dark text-white fs-6"><%= @asset.plate.presence || "S/N" %></span></td>
+              </tr>
+              <tr>
+                <td class="text-muted">Marca / Modelo:</td>
+                <td class="fw-bold"><%= @asset.make %> <%= @asset.model %> (<%= @asset.year %>)</td>
+              </tr>
+              <tr>
+                <td class="text-muted">N° Serie / Chasis:</td>
+                <td><code><%= @asset.serial_number.presence || "-" %></code></td>
+              </tr>
+              <tr>
+                <td class="text-muted">Lectura Medidores:</td>
+                <td>
+                  <% if @asset.meters.any? %>
+                    <% @asset.meters.each do |meter| %>
+                      <span class="badge bg-secondary me-1"><%= meter.name %>: <%= number_with_delimiter(meter.current_value.to_i) %> <%= meter.unit %></span>
+                    <% end %>
+                  <% else %>
+                    <span class="text-muted">Sin medidores registrados</span>
+                  <% end %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client & Work Order Overview Card -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm border-0 h-100 bg-white">
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold text-dark mb-0"><i class="fas fa-user-check text-primary me-2"></i>Cliente y Orden de Trabajo</h5>
+          <% if @payment_order %>
+            <span class="badge <%= @payment_order.mechanical_status_badge[:class] %> fs-6"><%= @payment_order.mechanical_status_badge[:label] %></span>
+          <% end %>
+        </div>
+        <div class="card-body p-4">
+          <table class="table table-sm table-borderless mb-0" style="color: #333 !important;">
+            <tbody>
+              <tr>
+                <td class="text-muted" style="width: 40%;">Propietario / Cliente:</td>
+                <td class="fw-bold"><%= @asset.client&.name || "Cliente General" %></td>
+              </tr>
+              <tr>
+                <td class="text-muted">RUT Cliente:</td>
+                <td><%= @asset.client&.rut.presence || "-" %></td>
+              </tr>
+              <tr>
+                <td class="text-muted">Teléfono / Contacto:</td>
+                <td><%= @asset.client&.phone.presence || "-" %></td>
+              </tr>
+              <tr>
+                <td class="text-muted">Folio de Atención:</td>
+                <td><strong class="text-primary"><%= @payment_order&.folio_number || "Sin Folio" %></strong></td>
+              </tr>
+              <tr>
+                <td class="text-muted">Fecha de Ingreso:</td>
+                <td><%= (@payment_order&.created_at || @logbook_record&.recorded_at || @asset.updated_at).strftime("%d/%m/%Y %H:%M") %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Details & Maintenance Checks -->
+  <div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+      <h5 class="fw-bold text-dark mb-0"><i class="fas fa-clipboard-check text-primary me-2"></i>Diagnóstico Técnico e Intervenciones Realizadas</h5>
+      <small class="text-muted">Inspección de componentes y notas técnicas registradas en bitácora.</small>
+    </div>
+    <div class="card-body p-4">
+      <% if @logbook_record&.notes.present? || @payment_order&.notes.present? %>
+        <div class="p-3 bg-light rounded-3 mb-4 border">
+          <h6 class="fw-bold text-dark mb-2"><i class="fas fa-comment-alt text-secondary me-2"></i>Observaciones del Mecánico / Taller:</h6>
+          <p class="mb-0 text-dark"><%= @logbook_record&.notes.presence || @payment_order&.notes %></p>
+        </div>
+      <% end %>
+
+      <% if @maintenance_checks.any? %>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0" style="color: #333 !important;">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-3 text-dark">Sistema / Componente</th>
+                <th class="text-dark">Elemento Revisado</th>
+                <th class="text-center text-dark">Estado / Resultado</th>
+                <th class="text-dark pe-3">Detalle Técnico</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @maintenance_checks.each do |check| %>
+                <tr>
+                  <td class="ps-3 fw-bold"><%= check.component&.name || "General" %></td>
+                  <td><%= check.sub_component&.name || "-" %></td>
+                  <td class="text-center">
+                    <% case check.status %>
+                    <% when 0 %>
+                      <span class="badge bg-success">Óptimo / OK</span>
+                    <% when 1 %>
+                      <span class="badge bg-warning text-dark">Requiere Mantención</span>
+                    <% when 2 %>
+                      <span class="badge bg-danger">Reemplazado / Crítico</span>
+                    <% else %>
+                      <span class="badge bg-secondary">Revisado</span>
+                    <% end %>
+                  </td>
+                  <td class="pe-3 small text-muted"><%= check.notes.presence || "Sin observaciones adicionales." %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-3 text-muted">
+          <i class="fas fa-check-double fa-2x mb-2 text-secondary opacity-50"></i>
+          <p class="mb-0">Servicio general sin lista de chequeo específica registrada.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Parts Installed & Financial Summary Grid -->
+  <div class="row g-4">
+    <!-- Parts Installed Table -->
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm border-0 h-100 bg-white">
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold text-dark mb-0"><i class="fas fa-boxes text-primary me-2"></i>Repuestos e Insumos Instalados</h5>
+          <span class="badge bg-light text-secondary border"><%= @parts_used.count %> Ítems</span>
+        </div>
+        <div class="card-body p-0 table-responsive">
+          <table class="table table-hover align-middle mb-0" style="color: #333 !important;">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-4 text-dark">Repuesto / Insumo</th>
+                <th class="text-center text-dark">Cantidad</th>
+                <th class="text-end text-dark">Precio Unit.</th>
+                <th class="text-end pe-4 text-dark">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if @parts_used.any? %>
+                <% parts_subtotal = 0 %>
+                <% @parts_used.each do |movement| %>
+                  <% price = movement.warehouse_item&.sale_price || 0 %>
+                  <% line_total = movement.quantity * price %>
+                  <% parts_subtotal += line_total %>
+                  <tr>
+                    <td class="ps-4">
+                      <div class="fw-bold"><%= movement.warehouse_item&.name %></div>
+                      <% if movement.warehouse_item&.sku.present? %>
+                        <small class="text-muted"><%= movement.warehouse_item.sku %></small>
+                      <% end %>
+                    </td>
+                    <td class="text-center fw-bold"><%= movement.quantity %> <%= movement.warehouse_item&.unit %></td>
+                    <td class="text-end text-muted">$<%= number_with_delimiter(price.to_i) %></td>
+                    <td class="text-end pe-4 fw-bold">$<%= number_with_delimiter(line_total.to_i) %></td>
+                  </tr>
+                <% end %>
+              <% else %>
+                <tr>
+                  <td colspan="4" class="text-center py-4 text-muted">No se utilizaron repuestos de bodega en esta intervención.</td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Breakdown & Payments -->
+    <div class="col-12 col-lg-5">
+      <div class="card shadow-sm border-0 h-100 bg-white">
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+          <h5 class="fw-bold text-dark mb-0"><i class="fas fa-receipt text-primary me-2"></i>Resumen de Costos y Cobros</h5>
+        </div>
+        <div class="card-body p-4">
+          <% if @payment_order %>
+            <table class="table table-sm table-borderless mb-4" style="color: #333 !important;">
+              <tbody>
+                <tr>
+                  <td>Mano de Obra / Servicios:</td>
+                  <td class="text-end fw-bold">$<%= number_with_delimiter(@payment_order.labor_amount.to_i) %></td>
+                </tr>
+                <tr>
+                  <td>Repuestos e Insumos:</td>
+                  <td class="text-end fw-bold">$<%= number_with_delimiter(@payment_order.parts_amount.to_i) %></td>
+                </tr>
+                <% if @payment_order.discount_amount > 0 %>
+                  <tr class="text-danger">
+                    <td>Descuento Especial:</td>
+                    <td class="text-end fw-bold">-$<%= number_with_delimiter(@payment_order.discount_amount.to_i) %></td>
+                  </tr>
+                <% end %>
+                <tr class="border-top pt-2">
+                  <td class="fs-5 fw-bold text-dark">TOTAL REPARACIÓN:</td>
+                  <td class="text-end fs-5 fw-bold text-dark">$<%= number_with_delimiter(@payment_order.total_amount.to_i) %></td>
+                </tr>
+                <tr class="text-success">
+                  <td class="fw-bold">Total Abonado / Pagado:</td>
+                  <td class="text-end fw-bold">-$<%= number_with_delimiter(@payment_order.total_paid.to_i) %></td>
+                </tr>
+                <tr class="border-top">
+                  <td class="fw-bold <%= @payment_order.balance_due > 0 ? 'text-danger' : 'text-success' %>">SALDO PENDIENTE:</td>
+                  <td class="text-end fw-bold fs-6 <%= @payment_order.balance_due > 0 ? 'text-danger' : 'text-success' %>">
+                    $<%= number_with_delimiter(@payment_order.balance_due.to_i) %>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h6 class="fw-bold text-dark mb-2 small text-uppercase">Abonos Registrados:</h6>
+            <% if @payments.any? %>
+              <div class="list-group list-group-flush mb-0 border rounded">
+                <% @payments.each do |pay| %>
+                  <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                    <div>
+                      <small class="fw-bold"><%= pay.payment_channel_label %></small>
+                      <small class="text-muted d-block"><%= pay.recorded_at.strftime("%d/%m/%Y %H:%M") %></small>
+                    </div>
+                    <span class="badge bg-success fs-6">$<%= number_with_delimiter(pay.amount.to_i) %></span>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="text-muted small mb-0">Sin abonos registrados.</p>
+            <% end %>
+          <% else %>
+            <p class="text-muted mb-0">Sin orden de venta asociada a esta reparación.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

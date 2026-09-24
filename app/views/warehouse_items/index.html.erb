@@ -31,9 +31,12 @@
       </div>
     </div>
 
-    <div class="col-12 col-sm-12 col-md-4 d-flex align-items-center justify-content-md-end">
-      <%= link_to new_warehouse_item_path, class: "btn btn-primary btn-lg rounded-pill px-4 shadow-sm", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
-        <i class="fas fa-plus me-1"></i> Nuevo Repuesto / Insumo
+    <div class="col-12 col-sm-12 col-md-4 d-flex align-items-center justify-content-md-end gap-2">
+      <%= link_to inventory_report_path, class: "btn btn-outline-primary btn-lg rounded-pill px-3 shadow-sm" do %>
+        <i class="fas fa-chart-pie me-1"></i> Informe de Stock
+      <% end %>
+      <%= link_to new_warehouse_item_path, class: "btn btn-primary btn-lg rounded-pill px-3 shadow-sm", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+        <i class="fas fa-plus me-1"></i> Nuevo Repuesto
       <% end %>
     </div>
   </div>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Helvetica, Arial, sans-serif; font-size: 10px; color: #333; line-height: 1.35; margin: 15px; }
+    .header { border-bottom: 2px solid #041C36; padding-bottom: 10px; margin-bottom: 15px; }
+    .title { font-size: 18px; font-weight: bold; color: #041C36; }
+    .meta-table, .data-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    .meta-table td { padding: 4px 6px; vertical-align: top; }
+    .data-table th, .data-table td { border: 1px solid #ddd; padding: 5px 6px; text-align: left; }
+    .data-table th { background-color: #f2f5f8; color: #041C36; font-weight: bold; }
+    .text-end { text-align: right; }
+    .text-center { text-align: center; }
+    .fw-bold { font-weight: bold; }
+    .box { border: 1px solid #ddd; background: #fafafa; padding: 8px 10px; border-radius: 4px; margin-bottom: 12px; }
+    .badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; }
+    .bg-dark { background-color: #212529; color: #fff; }
+    .bg-success { background-color: #d1e7dd; color: #0f5132; }
+    .bg-warning { background-color: #fff3cd; color: #664d03; }
+    .kpi-card { background: #f8f9fa; border: 1px solid #e2e8f0; padding: 6px 10px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <table style="width: 100%;">
+      <tr>
+        <td>
+          <div class="title"><%= @account.nombre_fantasia.presence || @account.razon_social.presence || @account.name %></div>
+          <div style="color: #555; font-size: 11px;">
+            <%= @account.direccion.presence || "Casa Matriz / Taller Principal" %><%= @account.city ? ", #{@account.city.name}" : "" %>
+            <%= @account.contacto_telefono.present? ? " &bull; Fono: #{@account.contacto_telefono}" : "" %>
+          </div>
+        </td>
+        <td class="text-end" style="vertical-align: top;">
+          <div style="font-size: 15px; font-weight: bold; color: #041C36; text-transform: uppercase;">HOJA DE VIDA Y HISTORIAL INTEGRAL</div>
+          <div style="color: #666; font-size: 10px; margin-top: 2px;">Fecha Emisión: <%= Time.current.strftime('%d/%m/%Y %H:%M') %></div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <table class="meta-table box">
+    <tr>
+      <td style="width: 50%;">
+        <strong style="color: #041C36; font-size: 12px;">FICHA TÉCNICA DEL VEHÍCULO</strong><br>
+        <strong>Vehículo:</strong> <%= @asset.name %><br>
+        <strong>Patente:</strong> <span class="badge bg-dark"><%= @asset.plate.presence || "S/N" %></span><br>
+        <strong>Marca / Modelo:</strong> <%= @asset.make %> <%= @asset.model %> (<%= @asset.year %>)<br>
+        <strong>N° Serie / Chasis:</strong> <%= @asset.serial_number.presence || "-" %><br>
+        <strong>Estado Operativo:</strong> <%= @asset.status_label.upcase %><br>
+        <strong>Medidores Actuales:</strong>
+        <% @asset.meters.each do |m| %>
+          <%= m.name %>: <%= number_with_delimiter(m.current_value.to_i) %> <%= m.unit %> &nbsp;
+        <% end %>
+      </td>
+      <td style="width: 50%;">
+        <strong style="color: #041C36; font-size: 12px;">DATOS DEL PROPIETARIO / CLIENTE</strong><br>
+        <strong>Cliente:</strong> <%= @asset.client&.name || "Cliente General" %><br>
+        <strong>RUT:</strong> <%= @asset.client&.rut.presence || "-" %><br>
+        <strong>Teléfono:</strong> <%= @asset.client&.phone.presence || "-" %><br>
+        <strong>Email:</strong> <%= @asset.client&.email.presence || "-" %><br>
+        <strong>Dirección:</strong> <%= @asset.client&.address.presence || "-" %>
+      </td>
+    </tr>
+  </table>
+
+  <!-- KPI Cumulative Stats Table -->
+  <table style="width: 100%; margin-bottom: 15px; border-collapse: separate; border-spacing: 5px;">
+    <tr>
+      <td style="width: 25%;" class="kpi-card">
+        <div style="font-size: 9px; text-transform: uppercase; color: #666;">Total Servicios / OTs</div>
+        <div style="font-size: 13px; font-weight: bold; color: #041C36;"><%= @total_interventions %> intervenciones</div>
+      </td>
+      <td style="width: 25%;" class="kpi-card">
+        <div style="font-size: 9px; text-transform: uppercase; color: #666;">Inversión Acumulada</div>
+        <div style="font-size: 13px; font-weight: bold; color: #198754;">$<%= number_with_delimiter(@total_spent.to_i) %></div>
+      </td>
+      <td style="width: 25%;" class="kpi-card">
+        <div style="font-size: 9px; text-transform: uppercase; color: #666;">Total Pagado / Saldado</div>
+        <div style="font-size: 13px; font-weight: bold; color: #0d6efd;">$<%= number_with_delimiter(@total_paid.to_i) %></div>
+      </td>
+      <td style="width: 25%;" class="kpi-card">
+        <div style="font-size: 9px; text-transform: uppercase; color: #666;">Repuestos Cambiados</div>
+        <div style="font-size: 13px; font-weight: bold; color: #6c757d;"><%= @total_parts_count.to_i %> unidades</div>
+      </td>
+    </tr>
+  </table>
+
+  <h4 style="margin: 0 0 5px 0; color: #041C36; font-size: 11px; text-transform: uppercase;">Registro Cronológico de Mantenimientos e Intervenciones</h4>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width: 14%;">Fecha</th>
+        <th style="width: 15%;">Medidor / Km</th>
+        <th style="width: 33%;">Detalle del Trabajo / Servicio</th>
+        <th style="width: 20%;">Mecánico / Proveedor</th>
+        <th class="text-center" style="width: 18%;">Repuestos Instalados</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @logbook_records.any? %>
+        <% @logbook_records.each do |record| %>
+          <% parts = record.stock_movements.where(movement_type: :exit).includes(:warehouse_item) %>
+          <tr>
+            <td><strong><%= record.recorded_at.strftime("%d/%m/%Y %H:%M") %></strong></td>
+            <td>
+              <% if record.logbook_entries.any? %>
+                <% record.logbook_entries.each do |e| %>
+                  <%= number_with_delimiter(e.current_value.to_i) %> <%= e.meter&.unit %><br>
+                <% end %>
+              <% else %>
+                -
+              <% end %>
+            </td>
+            <td>
+              <div><%= record.notes.presence || "Mantenimiento Preventivo / Correctivo" %></div>
+              <% if record.maintenance_checks.any? %>
+                <small style="color: #666;">&bull; <%= record.maintenance_checks.count %> puntos chequeados</small>
+              <% end %>
+            </td>
+            <td>
+              <%= record.user.name %><br>
+              <% if record.provider %>
+                <small style="color: #666;">Prov: <%= record.provider.name %></small>
+              <% end %>
+            </td>
+            <td class="text-center">
+              <% if parts.any? %>
+                <% parts.each do |p| %>
+                  <div style="font-size: 9px;"><%= p.quantity.to_i %>x <%= p.warehouse_item&.name %></div>
+                <% end %>
+              <% else %>
+                <span style="color: #888;">-</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="5" class="text-center" style="color: #777; padding: 15px;">Sin registros de intervenciones en bitácora.</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if @payment_orders.any? %>
+    <h4 style="margin: 15px 0 5px 0; color: #041C36; font-size: 11px; text-transform: uppercase;">Historial de Órdenes de Trabajo y Cobros (OTs)</h4>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Folio OT</th>
+          <th style="width: 15%;">Fecha</th>
+          <th style="width: 20%;">Estado Mecánico</th>
+          <th class="text-end" style="width: 15%;">Mano de Obra</th>
+          <th class="text-end" style="width: 15%;">Repuestos</th>
+          <th class="text-end" style="width: 20%;">Total OT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @payment_orders.each do |order| %>
+          <tr>
+            <td><strong><%= order.folio_number %></strong></td>
+            <td><%= order.created_at.strftime("%d/%m/%Y") %></td>
+            <td><%= order.mechanical_status_badge[:label] %></td>
+            <td class="text-end">$<%= number_with_delimiter(order.labor_amount.to_i) %></td>
+            <td class="text-end">$<%= number_with_delimiter(order.parts_amount.to_i) %></td>
+            <td class="text-end fw-bold">$<%= number_with_delimiter(order.total_amount.to_i) %></td>
+          </tr>
+        <% end %>
+        <tr style="background-color: #f0f4f8; font-weight: bold;">
+          <td colspan="5">TOTAL HISTÓRICO ACUMULADO:</td>
+          <td class="text-end">$<%= number_with_delimiter(@total_spent.to_i) %></td>
+        </tr>
+      </tbody>
+    </table>
+  <% end %>
+
+  <div style="margin-top: 40px; padding-top: 8px; border-top: 1px solid #eee; text-align: center; font-size: 9px; color: #888;">
+    Documento emitido por <%= @account.nombre_fantasia.presence || @account.name %> &bull; Plataforma <strong>T-MIM</strong> (Talleres y Mantención Inteligente)
+  </div>
+</body>
+</html>

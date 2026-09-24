@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #333; line-height: 1.35; margin: 15px; }
+    .header { border-bottom: 2px solid #041C36; padding-bottom: 10px; margin-bottom: 15px; }
+    .title { font-size: 18px; font-weight: bold; color: #041C36; }
+    .meta-table, .data-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    .meta-table td { padding: 4px 6px; vertical-align: top; }
+    .data-table th, .data-table td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+    .data-table th { background-color: #f2f5f8; color: #041C36; font-weight: bold; }
+    .text-end { text-align: right; }
+    .text-center { text-align: center; }
+    .fw-bold { font-weight: bold; }
+    .box { border: 1px solid #ddd; background: #fafafa; padding: 8px 10px; border-radius: 4px; margin-bottom: 12px; }
+    .badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; }
+    .bg-dark { background-color: #212529; color: #fff; }
+    .bg-success { background-color: #d1e7dd; color: #0f5132; }
+    .bg-warning { background-color: #fff3cd; color: #664d03; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <table style="width: 100%;">
+      <tr>
+        <td>
+          <div class="title"><%= @account.nombre_fantasia.presence || @account.razon_social.presence || @account.name %></div>
+          <div style="color: #555; font-size: 11px;">
+            <%= @account.direccion.presence || "Casa Matriz / Taller Principal" %><%= @account.city ? ", #{@account.city.name}" : "" %>
+            <%= @account.contacto_telefono.present? ? " &bull; Fono: #{@account.contacto_telefono}" : "" %>
+          </div>
+        </td>
+        <td class="text-end" style="vertical-align: top;">
+          <div style="font-size: 15px; font-weight: bold; color: #041C36;">INFORME DE SERVICIO Y REPARACIÓN</div>
+          <div style="color: #666; font-size: 10px; margin-top: 2px;">
+            OT: <strong><%= @payment_order&.folio_number || "S/F" %></strong> &bull; Emisión: <%= Time.current.strftime('%d/%m/%Y %H:%M') %>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <table class="meta-table box">
+    <tr>
+      <td style="width: 50%;">
+        <strong style="color: #041C36; font-size: 12px;">DATOS DEL VEHÍCULO</strong><br>
+        <strong>Vehículo:</strong> <%= @asset.name %><br>
+        <strong>Patente:</strong> <span class="badge bg-dark"><%= @asset.plate.presence || "S/N" %></span><br>
+        <strong>Marca / Modelo:</strong> <%= @asset.make %> <%= @asset.model %> (<%= @asset.year %>)<br>
+        <strong>N° Serie:</strong> <%= @asset.serial_number.presence || "-" %><br>
+        <strong>Medidores:</strong>
+        <% @asset.meters.each do |m| %>
+          <%= m.name %>: <%= number_with_delimiter(m.current_value.to_i) %> <%= m.unit %> &nbsp;
+        <% end %>
+      </td>
+      <td style="width: 50%;">
+        <strong style="color: #041C36; font-size: 12px;">DATOS DEL CLIENTE Y ATENCIÓN</strong><br>
+        <strong>Cliente:</strong> <%= @asset.client&.name || "Cliente General" %><br>
+        <strong>RUT:</strong> <%= @asset.client&.rut.presence || "-" %><br>
+        <strong>Teléfono:</strong> <%= @asset.client&.phone.presence || "-" %><br>
+        <strong>Fecha Ingreso:</strong> <%= (@payment_order&.created_at || @logbook_record&.recorded_at || Date.today).strftime('%d/%m/%Y %H:%M') %><br>
+        <strong>Estado Mecánico:</strong> <%= @payment_order ? @payment_order.mechanical_status_badge[:label] : "Finalizado" %>
+      </td>
+    </tr>
+  </table>
+
+  <% if @logbook_record&.notes.present? || @payment_order&.notes.present? %>
+    <div class="box">
+      <strong>Observaciones y Diagnóstico Técnico:</strong><br>
+      <%= @logbook_record&.notes.presence || @payment_order&.notes %>
+    </div>
+  <% end %>
+
+  <% if @maintenance_checks.any? %>
+    <h4 style="margin: 10px 0 5px 0; color: #041C36; font-size: 11px; text-transform: uppercase;">Puntos de Mantenimiento e Inspección Realizados</h4>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 25%;">Sistema / Componente</th>
+          <th style="width: 30%;">Elemento Revisado</th>
+          <th class="text-center" style="width: 15%;">Resultado</th>
+          <th style="width: 30%;">Detalle / Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @maintenance_checks.each do |c| %>
+          <tr>
+            <td><strong><%= c.component&.name %></strong></td>
+            <td><%= c.sub_component&.name %></td>
+            <td class="text-center">
+              <% case c.status %>
+              <% when 0 %> OK / Óptimo
+              <% when 1 %> Requiere Mantención
+              <% when 2 %> Reemplazado
+              <% else %> Inspeccionado
+              <% end %>
+            </td>
+            <td><%= c.notes.presence || "-" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+  <h4 style="margin: 10px 0 5px 0; color: #041C36; font-size: 11px; text-transform: uppercase;">Repuestos e Insumos Utilizados en la Reparación</h4>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width: 45%;">Descripción del Repuesto / Insumo</th>
+        <th class="text-center" style="width: 15%;">Cantidad</th>
+        <th class="text-end" style="width: 20%;">Precio Unit.</th>
+        <th class="text-end" style="width: 20%;">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @parts_used.any? %>
+        <% parts_sum = 0 %>
+        <% @parts_used.each do |p| %>
+          <% line_price = p.warehouse_item&.sale_price || 0 %>
+          <% line_sub = p.quantity * line_price %>
+          <% parts_sum += line_sub %>
+          <tr>
+            <td><strong><%= p.warehouse_item&.name %></strong> <%= p.warehouse_item&.sku.present? ? "[#{p.warehouse_item.sku}]" : "" %></td>
+            <td class="text-center"><%= p.quantity %> <%= p.warehouse_item&.unit %></td>
+            <td class="text-end">$<%= number_with_delimiter(line_price.to_i) %></td>
+            <td class="text-end fw-bold">$<%= number_with_delimiter(line_sub.to_i) %></td>
+          </tr>
+        <% end %>
+        <tr style="font-weight: bold; background-color: #f8f9fa;">
+          <td colspan="3">TOTAL REPUESTOS E INSUMOS:</td>
+          <td class="text-end">$<%= number_with_delimiter(parts_sum.to_i) %></td>
+        </tr>
+      <% else %>
+        <tr>
+          <td colspan="4" class="text-center" style="color: #777;">No se utilizaron repuestos adicionales de bodega.</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if @payment_order %>
+    <h4 style="margin: 10px 0 5px 0; color: #041C36; font-size: 11px; text-transform: uppercase;">Liquidación Financiera del Servicio</h4>
+    <table class="data-table" style="width: 60%; margin-left: auto;">
+      <tr>
+        <td>Mano de Obra y Servicios Especializados:</td>
+        <td class="text-end fw-bold">$<%= number_with_delimiter(@payment_order.labor_amount.to_i) %></td>
+      </tr>
+      <tr>
+        <td>Repuestos e Insumos de Bodega:</td>
+        <td class="text-end fw-bold">$<%= number_with_delimiter(@payment_order.parts_amount.to_i) %></td>
+      </tr>
+      <% if @payment_order.discount_amount > 0 %>
+        <tr style="color: red;">
+          <td>Descuento Especial:</td>
+          <td class="text-end fw-bold">-$<%= number_with_delimiter(@payment_order.discount_amount.to_i) %></td>
+        </tr>
+      <% end %>
+      <tr style="background-color: #f0f4f8; font-weight: bold; font-size: 12px;">
+        <td>TOTAL REPARACIÓN:</td>
+        <td class="text-end">$<%= number_with_delimiter(@payment_order.total_amount.to_i) %></td>
+      </tr>
+      <tr style="color: green; font-weight: bold;">
+        <td>Total Abonado / Pagado:</td>
+        <td class="text-end">-$<%= number_with_delimiter(@payment_order.total_paid.to_i) %></td>
+      </tr>
+      <tr style="background-color: <%= @payment_order.balance_due > 0 ? '#ffebee' : '#f1f8e9' %>; font-weight: bold;">
+        <td>SALDO PENDIENTE:</td>
+        <td class="text-end">$<%= number_with_delimiter(@payment_order.balance_due.to_i) %></td>
+      </tr>
+    </table>
+  <% end %>
+
+  <div style="margin-top: 40px; padding-top: 8px; border-top: 1px solid #eee; text-align: center; font-size: 9px; color: #888;">
+    Documento emitido por <%= @account.nombre_fantasia.presence || @account.name %> &bull; Plataforma <strong>T-MIM</strong> (Talleres y Mantención Inteligente)
+  </div>
+</body>
+</html>

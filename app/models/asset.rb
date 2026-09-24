@@ -7,6 +7,8 @@ class Asset < ApplicationRecord
   has_many :meters, dependent: :destroy
   has_many :logbook_records, dependent: :destroy
   has_many :maintenance_states, dependent: :destroy
+  has_many :payment_orders, dependent: :nullify
+  has_many :stock_movements, dependent: :nullify
 
   validates :name, presence: true
   validates :status, presence: true
@@ -22,6 +24,22 @@ class Asset < ApplicationRecord
 
   def maintenance_structure
     asset_category.components.includes(:sub_components)
+  end
+
+  def latest_payment_order
+    payment_orders.order(created_at: :desc).first
+  end
+
+  def latest_logbook_record
+    logbook_records.order(recorded_at: :desc).first
+  end
+
+  def total_spent_on_repairs
+    payment_orders.sum(:total_amount)
+  end
+
+  def total_parts_used_count
+    stock_movements.where(movement_type: :exit).sum(:quantity)
   end
 
   private
