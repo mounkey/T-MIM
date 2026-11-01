@@ -9,6 +9,36 @@
     </div>
   </div>
 
+  <!-- Banner Explicativo del Modelo de Cobro por usar Flow -->
+  <div class="card border-0 shadow-sm bg-dark text-white rounded-3 mb-4 p-4">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <div class="d-flex align-items-start">
+          <div class="rounded-circle p-3 bg-primary bg-opacity-25 text-primary me-3 mt-1">
+            <i class="fas fa-hand-holding-usd fa-2x"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-white mb-1">Modelo de Recaudación y Liquidación Quincenal</h5>
+            <p class="text-white-50 mb-2 small">
+              <strong>Por usar Flow como forma de pago:</strong> El sistema recauda las ventas pagadas por sus clientes con tarjetas y transfiere el monto neto recaudado a su cuenta bancaria <strong>cada 15 días</strong> (los días 1 y 16 de cada mes).
+            </p>
+            <div class="d-flex flex-wrap gap-3 small">
+              <span class="text-light"><i class="fas fa-percentage text-warning me-1"></i> Comisión Total Recaudación: <strong>4,89% + IVA</strong> (Flow 2,89% + IVA | Gestión T-MIM 2,0% + IVA)</span>
+              <span class="text-light"><i class="fas fa-calendar-check text-success me-1"></i> Transferencia Quincenal: <strong>Monto Neto Directo a su banco</strong></span>
+              <span class="text-light"><i class="fas fa-plug text-info me-1"></i> Si tiene credenciales Flow propias: <strong>Conexión directa gratuita</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 text-md-end mt-3 mt-md-0 border-start-md border-secondary ps-md-4">
+        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 11px;">Cuenta de Transferencia</small>
+        <div class="fw-bold text-white"><%= current_user.account.bank_name.presence || 'Banco no configurado' %></div>
+        <div class="small text-white-50">N° <%= current_user.account.bank_account_number.presence || 'S/N' %></div>
+        <div class="small text-success mt-1"><i class="fas fa-shield-alt me-1"></i> Liquidación cada 15 días</div>
+      </div>
+    </div>
+  </div>
+
   <div class="card border-0 shadow-sm bg-white rounded-3 mb-4 p-4">
     <div class="row align-items-center">
       <div class="col-md-8">
@@ -35,9 +65,9 @@
               <th class="ps-3">N° Liquidación</th>
               <th>Período</th>
               <th class="text-end">Total Recaudado</th>
-              <th class="text-end text-muted">Costo Flow (2.89%)</th>
-              <th class="text-end text-danger">Comisión T-MIM (5%)</th>
-              <th class="text-end text-success">Monto Transferido</th>
+              <th class="text-end text-muted">Costo Flow (2.89% + IVA)</th>
+              <th class="text-end text-danger">Gestión T-MIM (2.0% + IVA)</th>
+              <th class="text-end text-success">Monto Transferido Neto</th>
               <th class="text-center">Estado</th>
               <th class="text-end pe-3">Detalle</th>
             </tr>

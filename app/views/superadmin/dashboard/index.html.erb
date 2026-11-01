@@ -15,6 +15,14 @@
         </div>
         <div class="col-md-3">
           <div class="border rounded p-3 text-center bg-light">
+            <h2 class="text-primary fw-bold mb-0">
+              <%= Account.where(active: true).sum(:monthly_price_uf).round(2) %> UF
+            </h2>
+            <p class="text-muted mb-0 small">MRR Proyectado Mensual</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="border rounded p-3 text-center bg-light">
             <h2 class="text-success fw-bold mb-0">$<%= number_with_delimiter(Payment.where(payment_channel: :flow_online).sum(:amount).to_i) %></h2>
             <p class="text-muted mb-0 small">Recaudación Flow</p>
           </div>
@@ -25,12 +33,24 @@
             <p class="text-muted mb-0 small">Ganancias T-MIM</p>
           </div>
         </div>
-        <div class="col-md-3">
-          <div class="border rounded p-3 text-center bg-light">
-            <h2 class="text-warning fw-bold mb-0">$<%= number_with_delimiter(Payment.where(payment_channel: :flow_online, settlement_id: nil).sum(:net_amount).to_i) %></h2>
-            <p class="text-muted mb-0 small">Por Liquidar a Talleres</p>
+      </div>
+
+      <!-- Resumen por Planes de Suscripción -->
+      <h5 class="mt-4 pt-3 border-top text-secondary"><i class="fas fa-layer-group text-primary me-2"></i> Distribución de Talleres por Plan</h5>
+      <div class="row g-3 mt-1">
+        <% Account::PLANS.each do |key, plan| %>
+          <% count = Account.where(plan_type: key).count %>
+          <div class="col-md">
+            <div class="card border p-3 text-center h-100 shadow-sm">
+              <span class="badge bg-dark mb-2 mx-auto"><%= plan[:name] %></span>
+              <h3 class="fw-bold mb-0 text-dark"><%= count %></h3>
+              <small class="text-muted"><%= plan[:price_uf] %> UF / mes</small>
+              <div class="mt-2 small text-primary fw-bold">
+                <%= (count * plan[:price_uf]).round(2) %> UF mes
+              </div>
+            </div>
           </div>
-        </div>
+        <% end %>
       </div>
     </div>
   </div>

@@ -1,0 +1,16 @@
+T-MIM — AVISO DE CAPACIDAD DE VEHÍCULOS
+======================================================
+Estimado/a Administrador/a de <%= @account.name %>,
+
+Le informamos que su taller registra actualmente <%= @current_count %> de <%= @limit %> vehículos (<%= @percentage %>% de uso) en su Plan <%= @account.plan_name %>.
+
+<% if @percentage >= 100 %>
+⚠️ ATENCIÓN: Ha alcanzado el 100% de su capacidad mensual. El registro de nuevos vehículos se encuentra temporalmente bloqueado.
+<% else %>
+🔔 AVISO PREVENTIVO: Ha superado el 95% de su capacidad contratada.
+<% end %>
+
+Para activar una ampliación de plan o sumar un paquete de +20 / +50 vehículos de inmediato, contáctenos respondiendo a este correo o escribiendo a contacto@t-mim.cl.
+
+Saludos,
+Equipo T-MIM

@@ -1,5 +1,6 @@
 class MaintenancePlansController < ApplicationController
   before_action :authenticate_user!
+  before_action :ensure_maintenance_access!
 
   def index
     # Fetch all plans with eager loading for the full hierarchy

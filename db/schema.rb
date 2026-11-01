@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_09_24_194500) do
+ActiveRecord::Schema[8.2].define(version: 2026_11_01_151133) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -22,23 +22,48 @@ ActiveRecord::Schema[8.2].define(version: 2026_09_24_194500) do
     t.string "bank_account_number"
     t.string "bank_account_type"
     t.string "bank_name"
+    t.string "billing_cycle", default: "monthly", null: false
+    t.string "billing_mode", default: "flow", null: false
     t.uuid "city_id"
     t.string "contacto_cargo"
     t.string "contacto_email"
     t.string "contacto_nombre"
     t.string "contacto_rut"
     t.string "contacto_telefono"
+    t.datetime "contract_accepted_at"
+    t.string "contract_accepted_by_rut"
+    t.string "contract_accepted_ip"
+    t.string "contract_status", default: "pending_activation"
+    t.string "contract_version", default: "v1.0-2026"
     t.datetime "created_at", null: false
+    t.string "custom_flow_api_key"
+    t.string "custom_flow_secret_key"
     t.string "direccion"
     t.string "email"
+    t.integer "extra_assets_quota", default: 0, null: false
+    t.string "flow_integration_mode", default: "delegated", null: false
+    t.string "giro"
+    t.datetime "invitation_expires_at"
+    t.datetime "invitation_sent_at"
+    t.string "invitation_token"
+    t.datetime "last_capacity_warning_sent_at"
+    t.string "legal_representative_name"
+    t.string "legal_representative_rut"
+    t.integer "max_assets_limit", default: 50, null: false
+    t.decimal "monthly_price_uf", precision: 6, scale: 2, default: "0.5", null: false
     t.string "name"
     t.string "nombre_fantasia"
+    t.string "plan_type", default: "inicial", null: false
     t.string "razon_social"
     t.uuid "region_id"
     t.string "rut"
     t.string "subdomain"
+    t.string "temporary_password"
     t.datetime "updated_at", null: false
     t.index ["city_id"], name: "index_accounts_on_city_id"
+    t.index ["contract_status"], name: "index_accounts_on_contract_status"
+    t.index ["invitation_token"], name: "index_accounts_on_invitation_token", unique: true
+    t.index ["plan_type"], name: "index_accounts_on_plan_type"
     t.index ["region_id"], name: "index_accounts_on_region_id"
   end
 

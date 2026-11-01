@@ -1,6 +1,97 @@
 <% content_for :page_title, "Dashboard" %>
 
 <div class="container-fluid pb-5">
+  <!-- Welcome Header & Subscription Plan Status -->
+  <% account = current_user.account %>
+  <% if account %>
+    <% pct = account.capacity_percentage %>
+    <% alert_level = account.capacity_alert_level %>
+    
+    <% if alert_level == :limit_reached %>
+      <div class="alert alert-danger shadow-lg border-2 border-danger d-flex align-items-center justify-content-between p-3 mb-4 animate__animated animate__shakeX">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-ban fa-2x me-3 text-danger"></i>
+          <div>
+            <h5 class="fw-bold mb-1 text-danger">LÍMITE MENSUAL DE VEHÍCULOS ALCANZADO (100%)</h5>
+            <p class="mb-0 small text-dark">Ha alcanzado el tope de <strong><%= account.assets.count %> / <%= account.effective_assets_limit %> vehículos</strong> de su <strong>Plan <%= account.plan_name %></strong>. El registro de nuevos vehículos está temporalmente bloqueado.</p>
+          </div>
+        </div>
+        <div class="text-end">
+          <a href="mailto:contacto@t-mim.cl?subject=Ampliacion%20Cupo%20Taller%20<%= account.name %>" class="btn btn-danger fw-bold shadow-sm">
+            <i class="fas fa-arrow-circle-up me-1"></i> Ampliar Plan o Paquete
+          </a>
+        </div>
+      </div>
+    <% elsif alert_level == :critical_warning %>
+      <div class="alert alert-warning shadow border-2 border-warning d-flex align-items-center justify-content-between p-3 mb-4">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-exclamation-triangle fa-2x me-3 text-warning"></i>
+          <div>
+            <h5 class="fw-bold mb-1 text-dark">AVISO DE CAPACIDAD: <%= pct %>% CONSUMIDO</h5>
+            <p class="mb-0 small text-dark">Lleva registrados <strong><%= account.assets.count %> de <%= account.effective_assets_limit %> vehículos</strong> este mes en su <strong>Plan <%= account.plan_name %></strong>. Está al 95%+ de su cuota contratada.</p>
+          </div>
+        </div>
+        <div class="text-end">
+          <a href="mailto:contacto@t-mim.cl?subject=Consulta%20Upgrade%20<%= account.name %>" class="btn btn-warning text-dark fw-bold shadow-sm">
+            <i class="fas fa-plus-circle me-1"></i> Cotizar Paquete Extra
+          </a>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Plan info bar -->
+    <div class="card bg-dark text-white border-secondary mb-4 shadow-sm">
+      <div class="card-body p-3">
+        <div class="row align-items-center">
+          <div class="col-md-4 mb-2 mb-md-0">
+            <div class="d-flex align-items-center">
+              <div class="rounded-circle p-2 bg-primary bg-opacity-25 text-primary me-3">
+                <i class="fas fa-certificate fa-lg"></i>
+              </div>
+              <div>
+                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">Plan Contratado</small>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="fs-5 fw-bold text-white">Plan <%= account.plan_name %></span>
+                  <span class="badge bg-primary text-uppercase" style="font-size: 11px;"><%= account.monthly_price_uf %> UF / mes</span>
+                  <% if account.annual_cycle? %>
+                    <span class="badge bg-success" style="font-size: 10px;"><i class="fas fa-gift me-1"></i>Anual +20% Cupo</span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-5 mb-2 mb-md-0">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Consumo de Flota / Mes</small>
+              <small class="fw-bold <%= pct >= 100 ? 'text-danger' : (pct >= 90 ? 'text-warning' : 'text-info') %>">
+                <%= account.assets.count %> / <%= account.effective_assets_limit %> vehículos (<%= pct %>%)
+              </small>
+            </div>
+            <div class="progress" style="height: 10px; background-color: rgba(255,255,255,0.1);">
+              <div class="progress-bar <%= pct >= 100 ? 'bg-danger' : (pct >= 90 ? 'bg-warning text-dark' : 'bg-primary') %>" 
+                   role="progressbar" 
+                   style="width: <%= [pct, 100].min %>%;" 
+                   aria-valuenow="<%= pct %>" 
+                   aria-valuemin="0" 
+                   aria-valuemax="100">
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 text-md-end">
+            <small class="text-muted d-block" style="font-size: 11px;">
+              Modalidad: <strong><%= account.flow_debit? ? 'Débito Automático Flow' : 'Transferencia Bancaria' %></strong>
+            </small>
+            <small class="text-muted" style="font-size: 11px;">
+              Ciclo: <strong><%= account.annual_cycle? ? 'Anual (Prepagado)' : 'Mensual recurrente' %></strong>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <!-- Welcome Header -->
   <div class="row mb-4">
     <div class="col-12 text-white">

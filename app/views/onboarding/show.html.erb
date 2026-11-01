@@ -1,0 +1,110 @@
+<div class="container py-5 mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      
+      <!-- Card Superior de Bienvenida -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white border-start border-4 border-primary">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+          <div>
+            <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-1 rounded-pill mb-2">
+              <i class="fas fa-file-contract me-1"></i> Expediente de Activación Digital
+            </span>
+            <h3 class="fw-bold mb-1 text-dark">Bienvenido a T-MIM, <%= @account.legal_representative_name.presence || @account.contacto_nombre.presence || "Taller" %></h3>
+            <p class="text-muted mb-0">Taller: <strong><%= @account.razon_social.presence || @account.name %></strong> (RUT: <%= @account.rut %>) &bull; Plan: <strong>Plan <%= @account.plan_name %></strong></p>
+          </div>
+          <div class="text-end">
+            <span class="badge bg-warning-subtle text-dark border px-3 py-2 rounded-pill">
+              <i class="fas fa-stopwatch me-1 text-danger"></i> Válido hasta: <%= @account.invitation_expires_at&.strftime("%d/%m/%Y %H:%M") %> (48h)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card del Contrato Legal -->
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+        <div class="card-header bg-dark text-white py-3 px-4 d-flex justify-content-between align-items-center">
+          <span class="fw-bold"><i class="fas fa-balance-scale me-2 text-info"></i> Contrato de Prestación de Servicios SaaS T-MIM</span>
+          <span class="badge bg-secondary">Versión <%= @account.contract_version || 'v1.0-2026' %></span>
+        </div>
+        
+        <div class="card-body p-4 p-md-5" style="max-height: 480px; overflow-y: auto; background-color: #fdfdfd; font-size: 0.92rem; line-height: 1.7; color: #334155; border-bottom: 2px solid #e2e8f0;">
+          <h4 class="text-center fw-bold text-dark mb-4">CONTRATO DE PRESTACIÓN DE SERVICIOS DE SOFTWARE (SaaS) Y LICENCIA DE USO "T-MIM"</h4>
+          
+          <p class="text-justify">
+            En <strong>Puerto Montt, Chile</strong>, entre:
+          </p>
+          <ol>
+            <li class="mb-2">
+              <strong>T-MIM SpA</strong>, Rol Único Tributario N° <strong>77.980.456-1</strong>, domiciliada en la ciudad de <strong>Puerto Montt, Región de Los Lagos</strong>, representada legalmente por don <strong>Juan Pablo Grover Pinto</strong>, cédula de identidad N° <strong>12.345.678-9</strong>, en adelante el <strong>"Proveedor"</strong> o <strong>"T-MIM"</strong>; y por la otra parte,
+            </li>
+            <li class="mb-2">
+              <strong><%= @account.razon_social.presence || @account.name %></strong>, giro <strong><%= @account.giro.presence || "Reparación y Mantenimiento de Vehículos Automotores" %></strong>, RUT N° <strong><%= @account.rut %></strong>, domiciliada en <strong><%= @account.direccion.presence || "Domicilio Registrado" %>, <%= @account.city&.name || "Puerto Montt" %></strong>, representada por don(ña) <strong><%= @account.legal_representative_name.presence || @account.contacto_nombre.presence || "Representante Designado" %></strong>, cédula de identidad N° <strong><%= @account.legal_representative_rut.presence || @account.contacto_rut.presence || @account.rut %></strong>, en adelante el <strong>"Cliente"</strong> o el <strong>"Taller"</strong>;
+            </li>
+          </ol>
+          <p>quienes han convenido en celebrar el siguiente contrato de prestación de servicios y condiciones de uso de la plataforma digital <strong>T-MIM (Talleres y Mantención Inteligente)</strong>:</p>
+
+          <hr class="my-4">
+
+          <h5 class="fw-bold text-dark">CLÁUSULA PRIMERA: OBJETO DEL CONTRATO</h5>
+          <p>T-MIM otorga al Cliente una licencia de uso de software en la modalidad SaaS (Software as a Service), no exclusiva, intransferible y revocable, para el acceso y uso de la plataforma digital denominada T-MIM. La plataforma tiene como finalidad la administración operativa de talleres mecánicos, registro de patentes y clientes, bitácoras de trabajo, y módulos complementarios según el plan contratado.</p>
+
+          <h5 class="fw-bold text-dark mt-4">CLÁUSULA SEGUNDA: PLAN CONTRATADO, PRECIO Y FACTURACIÓN</h5>
+          <p>El Cliente contrata el <strong>Plan <%= @account.plan_name %></strong>, con una capacidad asignada de <strong><%= @account.effective_assets_limit %> vehículos por ciclo mensual</strong>, por un precio convenido de <strong><%= @account.monthly_price_uf %> UF mensuales</strong> (o su equivalente anual prepagado).</p>
+          <p>Para los Planes Inicial, Estándar y Pro, el pago de la suscripción mensual se realiza mediante suscripción automática recurrente vía Flow. Para los Planes Full y Gran Taller, el Cliente podrá convenir pago mediante Transferencia Bancaria Directa.</p>
+
+          <h5 class="fw-bold text-dark mt-4">CLÁUSULA TERCERA: CONDICIONES DE CAPACIDAD Y PAQUETES DE FLOTA</h5>
+          <p>Al alcanzar el 95% de la capacidad de vehículos registrados, el sistema emitirá avisos preventivos. Al alcanzar el 100%, el registro de nuevos vehículos quedará temporalmente bloqueado hasta la renovación del ciclo mensual, o bien mediante la adquisición de paquetes adicionales de cupo (+20 o +50 vehículos) gestionados administrativamente.</p>
+
+          <h5 class="fw-bold text-dark mt-4">CLÁUSULA CUARTA: SERVICIO DE PASARELA Y COBRO ONLINE CON FLOW</h5>
+          <p>En caso de habilitar recaudación online para los clientes del taller:</p>
+          <ul>
+            <li><strong>Conexión Directa Propia:</strong> Si el Taller conecta sus propias credenciales de Flow, T-MIM no cobrará comisiones sobre las ventas y los fondos serán transferidos directamente por Flow.</li>
+            <li><strong>Servicio de Recaudación T-MIM:</strong> Por usar Flow como forma de pago a través de la cuenta recaudadora de T-MIM, se aplicará una comisión total del <strong>4,89% + IVA</strong> sobre cada transacción cobrada (2,89% + IVA por procesamiento bancario Flow + 2,0% + IVA por gestión de recaudación, conciliación y transferencias de T-MIM). T-MIM transferirá el <strong>monto neto recaudado a la cuenta bancaria del taller cada 15 días</strong> (días 1 y 16 de cada mes).</li>
+          </ul>
+
+          <h5 class="fw-bold text-dark mt-4">CLÁUSULA QUINTA: PROPIEDAD INTELECTUAL Y DE LOS DATOS</h5>
+          <p>El software y su código fuente son propiedad exclusiva de T-MIM SpA. Toda la data de vehículos, clientes, órdenes de trabajo y repuestos ingresada pertenece íntegramente al Taller, garantizándose la estricta confidencialidad y aislamiento multi-tenant.</p>
+
+          <h5 class="fw-bold text-dark mt-4">CLÁUSULA SEXTA: FIRMA ELECTRÓNICA LEY 19.799 Y JURISDICCIÓN</h5>
+          <p>Las partes convienen expresamente que la aceptación electrónica del presente documento constituye firma electrónica válida y vinculante conforme a la <strong>Ley N° 19.799 sobre Documentos Electrónicos y Firma Electrónica</strong> del Estado de Chile. Para todos los efectos legales, las partes fijan su domicilio en la comuna de <strong>Puerto Montt</strong> y se someten a la competencia de sus Tribunales de Justicia.</p>
+        </div>
+
+        <!-- Formulario de Aceptación -->
+        <div class="card-footer bg-light p-4">
+          <%= form_with url: accept_contract_account_path(token: @account.invitation_token), method: :post, local: true do |f| %>
+            
+            <% if @account.temporary_password.present? %>
+              <div class="mb-3 p-3 bg-warning-subtle rounded border border-warning">
+                <label class="form-label fw-bold text-dark small text-uppercase">
+                  <i class="fas fa-key me-1 text-warning"></i> Contraseña Provisoria de Activación *
+                </label>
+                <input type="password" name="primary_password" class="form-control" placeholder="Ingrese la contraseña provisoria recibida en su correo de invitación" required>
+                <small class="text-muted">Enviada en el correo de bienvenida para verificar su identidad.</small>
+              </div>
+            <% end %>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold text-dark small text-uppercase">RUT de quien firma electrónicamente *</label>
+              <input type="text" name="legal_representative_rut" class="form-control" value="<%= @account.legal_representative_rut.presence || @account.rut %>" required>
+              <small class="text-muted">RUT del representante legal o titular facultado.</small>
+            </div>
+
+            <div class="form-check mb-4">
+              <input class="form-check-input" type="checkbox" id="checkLegal" required style="width: 20px; height: 20px;">
+              <label class="form-check-label ms-2 text-dark fw-bold" for="checkLegal">
+                He leído, comprendo y acepto íntegramente los Términos y Condiciones del Contrato de Servicios SaaS T-MIM bajo la Ley 19.799 en Puerto Montt, Chile.
+              </label>
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-tmim-orange btn-lg px-5 shadow">
+                <i class="fas fa-file-signature me-2"></i> Firmar Electrónicamente y Continuar
+              </button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -24,28 +24,44 @@
             <i class="fas fa-car icon-assets"></i> Vehículos
           <% end %>
 
-          <%= link_to warehouse_items_path, class: "nav-link #{'active' if controller_name == 'warehouse_items'}" do %>
-            <i class="fas fa-boxes icon-warehouse"></i> Bodega
+          <% if current_user&.account&.can_access_warehouse? %>
+            <%= link_to warehouse_items_path, class: "nav-link #{'active' if controller_name == 'warehouse_items'}" do %>
+              <i class="fas fa-boxes icon-warehouse"></i> Bodega
+            <% end %>
+          <% else %>
+            <div class="nav-link text-muted opacity-50 pe-none d-flex justify-content-between align-items-center" title="Disponible en Plan Estándar o superior">
+              <span><i class="fas fa-boxes icon-warehouse me-2"></i> Bodega</span>
+              <span class="badge bg-secondary" style="font-size: 9px;">PRO/STD</span>
+            </div>
           <% end %>
 
           <%= link_to logbook_index_path, class: "nav-link #{'active' if controller_name == 'logbook'}" do %>
             <i class="fas fa-clipboard-list icon-logbook"></i> Bitácora
           <% end %>
 
-          <%= link_to finances_path, class: "nav-link #{'active' if controller_name == 'finances'}" do %>
-            <i class="fas fa-cash-register text-success"></i> Finanzas
+          <% if current_user&.account&.can_access_finances? %>
+            <%= link_to finances_path, class: "nav-link #{'active' if controller_name == 'finances'}" do %>
+              <i class="fas fa-cash-register text-success"></i> Finanzas
+            <% end %>
+          <% else %>
+            <div class="nav-link text-muted opacity-50 pe-none d-flex justify-content-between align-items-center" title="Disponible en Plan Pro o superior">
+              <span><i class="fas fa-cash-register text-success me-2"></i> Finanzas</span>
+              <span class="badge bg-secondary" style="font-size: 9px;">PRO</span>
+            </div>
           <% end %>
 
           <%= link_to reports_path, class: "nav-link #{'active' if controller_name == 'reports'}" do %>
             <i class="fas fa-chart-line text-info"></i> Reportes
           <% end %>
 
-          <%= link_to maintenance_path, class: "nav-link #{'active' if controller_name == 'maintenance'}" do %>
-            <i class="fas fa-tools icon-maintenance"></i> Mantenimiento
-          <% end %>
+          <% if current_user&.account&.can_access_maintenance? %>
+            <%= link_to maintenance_path, class: "nav-link #{'active' if controller_name == 'maintenance'}" do %>
+              <i class="fas fa-tools icon-maintenance"></i> Mantenimiento
+            <% end %>
 
-          <%= link_to maintenance_plans_path, class: "nav-link #{'active' if controller_name == 'maintenance_plans'}" do %>
-            <i class="fas fa-clipboard-check icon-maintenance-plans"></i> Planes
+            <%= link_to maintenance_plans_path, class: "nav-link #{'active' if controller_name == 'maintenance_plans'}" do %>
+              <i class="fas fa-clipboard-check icon-maintenance-plans"></i> Planes
+            <% end %>
           <% end %>
 
           <%= link_to providers_path, class: "nav-link #{'active' if controller_name == 'providers'}" do %>

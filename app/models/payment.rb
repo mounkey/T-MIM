@@ -47,15 +47,17 @@ class Payment < ApplicationRecord
 
   def calculate_fees_and_net
     if flow_online?
-      # 1. Costo Pasarela Flow: 2.89% ($2.890 por cada $100.000)
-      self.flow_fee = (amount * 0.0289).round(2)
+      # 1. Costo Pasarela Flow: 2.89% + IVA (19%) = 3.4391%
+      base_flow_fee = amount * 0.0289
+      self.flow_fee = (base_flow_fee * 1.19).round(2)
 
-      # 2. Comisión T-MIM Plataforma: 5.0% ($5.000 por cada $100.000)
+      # 2. Comisión T-MIM Gestión & Transferencia: 2.0% + IVA (19%) = 2.38%
       percent_setting = SystemSetting.find_by(key: 'ONLINE_COMMISSION_PERCENT')&.value
-      tmim_rate = (percent_setting.present? ? percent_setting.to_f : 5.0) / 100.0
-      self.platform_fee = (amount * tmim_rate).round(2)
+      tmim_rate = (percent_setting.present? ? percent_setting.to_f : 2.0) / 100.0
+      base_platform_fee = amount * tmim_rate
+      self.platform_fee = (base_platform_fee * 1.19).round(2)
 
-      # 3. Monto Neto Líquido a Transferir al Taller
+      # 3. Monto Neto Líquido a Transferir al Taller tras 4,89% + IVA
       self.net_amount = [amount - flow_fee - platform_fee, 0].max
     else
       # Presencial: 0% comisión

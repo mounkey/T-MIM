@@ -1,5 +1,7 @@
 class FinancesController < ApplicationController
   before_action :authenticate_user!
+  before_action :ensure_finances_access!
+  before_action :ensure_flow_payments_access!, only: [:liquidaciones, :show_liquidacion]
   before_action :set_payment_order, only: [:show, :edit, :update, :parts_detail, :add_payment, :finish_work, :print_pdf]
 
   def index

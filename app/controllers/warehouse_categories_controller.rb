@@ -1,5 +1,6 @@
 class WarehouseCategoriesController < ApplicationController
   before_action :authenticate_user!
+  before_action :ensure_warehouse_access!
   before_action :set_warehouse_category, only: %i[edit update destroy]
 
   def index

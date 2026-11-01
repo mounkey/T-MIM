@@ -7,28 +7,68 @@
       <i class="fas fa-plus"></i> Nueva Empresa
     <% end %>
   </div>
+
+  <!-- Filtros Rápidos de Planes -->
+  <div class="p-3 bg-light border-bottom d-flex flex-wrap gap-2 align-items-center">
+    <span class="text-muted small fw-bold"><i class="fas fa-filter me-1"></i> Filtrar Plan:</span>
+    <%= link_to "Todos", superadmin_accounts_path, class: "badge #{params[:plan_type].blank? ? 'bg-primary' : 'bg-white text-dark border'} text-decoration-none px-3 py-2" %>
+    <% Account::PLANS.each do |key, plan| %>
+      <%= link_to "#{plan[:name]} (#{plan[:price_uf]} UF)", superadmin_accounts_path(plan_type: key), class: "badge #{params[:plan_type] == key ? 'bg-primary' : 'bg-white text-dark border'} text-decoration-none px-3 py-2" %>
+    <% end %>
+  </div>
   
   <div class="card-body p-0">
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead class="table-light">
           <tr>
-            <th class="ps-4">Nombre de la Empresa</th>
-            <th>Subdominio (URL)</th>
+            <th class="ps-4">Empresa</th>
+            <th>Subdominio</th>
+            <th>Plan y Precio</th>
+            <th>Capacidad Vehículos</th>
+            <th>Pago / Ciclo</th>
             <th>Estado</th>
-            <th>Fecha de Creación</th>
             <th class="text-end pe-4">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <% if @accounts.any? %>
             <% @accounts.each do |account| %>
+              <% pct = account.capacity_percentage %>
               <tr class="<%= 'table-light opacity-75' unless account.active? %>">
-                <td class="ps-4 fw-bold"><%= account.name %></td>
+                <td class="ps-4">
+                  <div class="fw-bold"><%= account.name %></div>
+                  <small class="text-muted"><%= account.rut.presence || 'Sin RUT' %></small>
+                </td>
                 <td>
                   <span class="badge bg-light text-dark border">
                     <%= account.subdomain %>.mim.cl
                   </span>
+                </td>
+                <td>
+                  <span class="badge bg-dark text-white"><%= account.plan_name %></span>
+                  <div class="small text-primary fw-bold"><%= account.monthly_price_uf %> UF / mes</div>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-2" style="min-width: 140px;">
+                    <div class="progress flex-grow-1" style="height: 6px;">
+                      <div class="progress-bar <%= pct >= 100 ? 'bg-danger' : (pct >= 90 ? 'bg-warning' : 'bg-success') %>" style="width: <%= [pct, 100].min %>%;"></div>
+                    </div>
+                    <span class="small fw-bold <%= pct >= 100 ? 'text-danger' : (pct >= 90 ? 'text-warning' : 'text-muted') %>">
+                      <%= account.assets.count %>/<%= account.effective_assets_limit %>
+                    </span>
+                  </div>
+                  <% if account.extra_assets_quota > 0 %>
+                    <span class="badge bg-success-subtle text-success border border-success small" style="font-size: 10px;">
+                      +<%= account.extra_assets_quota %> extra
+                    </span>
+                  <% end %>
+                </td>
+                <td>
+                  <span class="badge <%= account.flow_debit? ? 'bg-info text-dark' : 'bg-secondary' %>">
+                    <%= account.flow_debit? ? 'Flow Débito' : 'Transferencia' %>
+                  </span>
+                  <div class="small text-muted"><%= account.annual_cycle? ? 'Anual (+20% cupo)' : 'Mensual' %></div>
                 </td>
                 <td>
                   <% if account.active? %>
@@ -36,9 +76,35 @@
                   <% else %>
                     <span class="badge bg-danger"><i class="fas fa-ban"></i> Bloqueada</span>
                   <% end %>
+                  <div class="small text-muted mt-1">
+                    <% if account.contract_accepted? %>
+                      <i class="fas fa-file-contract text-success" title="Contrato firmado"></i> Firmado
+                    <% else %>
+                      <i class="fas fa-clock text-warning" title="Pendiente firma"></i> Pend. Contrato
+                    <% end %>
+                  </div>
                 </td>
-                <td><%= account.created_at.strftime("%d/%m/%Y") %></td>
                 <td class="text-end pe-4">
+                  <!-- Botón Rápido SuperAdmin: Sumar Paquete de Cupo (+20 / +50) -->
+                  <div class="btn-group mx-1">
+                    <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Sumar Paquete de Flota">
+                      <i class="fas fa-plus-circle"></i> Cupo
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                      <li><h6 class="dropdown-header">Sumar Cupo a <%= account.name %></h6></li>
+                      <li>
+                        <%= button_to add_quota_package_superadmin_account_path(account, amount: 20), method: :patch, class: "dropdown-item small" do %>
+                          <i class="fas fa-car me-2 text-success"></i> Sumar Paquete +20 vehículos
+                        <% end %>
+                      </li>
+                      <li>
+                        <%= button_to add_quota_package_superadmin_account_path(account, amount: 50), method: :patch, class: "dropdown-item small" do %>
+                          <i class="fas fa-truck-monster me-2 text-primary"></i> Sumar Paquete +50 vehículos
+                        <% end %>
+                      </li>
+                    </ul>
+                  </div>
+
                   <%= link_to superadmin_account_path(account), class: "btn btn-sm btn-outline-info", title: "Ver detalles" do %>
                     <i class="fas fa-eye"></i>
                   <% end %>

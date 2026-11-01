@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #1e293b; }
+      .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
+      .header { background: #0f172a; color: #ffffff; padding: 25px 30px; text-align: center; }
+      .header h1 { margin: 0; font-size: 22px; }
+      .body { padding: 30px; }
+      .badge-warning { background-color: #fef3c7; color: #92400e; padding: 6px 12px; border-radius: 6px; font-weight: bold; display: inline-block; }
+      .badge-danger { background-color: #fee2e2; color: #991b1b; padding: 6px 12px; border-radius: 6px; font-weight: bold; display: inline-block; }
+      .kpi-card { background: #f1f5f9; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; border-left: 4px solid <%= @percentage >= 100 ? '#ef4444' : '#f59e0b' %>; }
+      .progress-bar-container { background: #e2e8f0; border-radius: 10px; height: 14px; overflow: hidden; margin-top: 10px; }
+      .progress-bar { background: <%= @percentage >= 100 ? '#ef4444' : '#f59e0b' %>; height: 100%; width: <%= [@percentage, 100].min %>%; }
+      .btn { display: inline-block; background: #ea580c; color: #ffffff !important; text-decoration: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; margin-top: 15px; }
+      .footer { background: #f8fafc; padding: 20px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>T-MIM — Torre de Control</h1>
+      </div>
+      <div class="body">
+        <p>Estimado/a Administrador/a de <strong><%= @account.name %></strong>,</p>
+
+        <% if @percentage >= 100 %>
+          <div class="badge-danger">LÍMITE MENSUAL ALCANZADO (100%)</div>
+          <p style="margin-top: 15px;">Le informamos que su taller ha llegado al <strong>tope máximo de vehículos permitidos</strong> para su <strong>Plan <%= @account.plan_name %></strong> este mes.</p>
+        <% else %>
+          <div class="badge-warning">AVISO PREVENTIVO DE CAPACIDAD (95%)</div>
+          <p style="margin-top: 15px;">Le notificamos que su taller está alcanzando el <strong>95% de la capacidad de flota</strong> contratada para su <strong>Plan <%= @account.plan_name %></strong>.</p>
+        <% end %>
+
+        <div class="kpi-card">
+          <div style="font-size: 13px; text-transform: uppercase; color: #64748b; font-weight: bold;">Vehículos Registrados Este Mes</div>
+          <div style="font-size: 32px; font-weight: bold; margin: 5px 0; color: <%= @percentage >= 100 ? '#ef4444' : '#f59e0b' %>;">
+            <%= @current_count %> / <%= @limit %>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar"></div>
+          </div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 8px;">Capacidad utilizada: <strong><%= @percentage %>%</strong></div>
+        </div>
+
+        <p>Como en un taller hay días de alto flujo (15, 20 o más vehículos ingresando), le sugerimos <strong>ampliar su cupo mensual o solicitar un paquete adicional</strong> de forma inmediata para evitar interrupciones en la recepción de clientes:</p>
+
+        <div style="text-align: center;">
+          <a href="mailto:contacto@t-mim.cl?subject=Ampliacion%20Cupo%20Taller%20<%= @account.name %>" class="btn">
+            Solicitar Ampliación de Cupo
+          </a>
+        </div>
+
+        <p style="margin-top: 25px; font-size: 13px; color: #64748b;">
+          Recuerde que puede adquirir paquetes inmediatos de <strong>+20 o +50 vehículos</strong> sin necesidad de cambiar su plan mensual si se trata de un mes de alta demanda estacional.
+        </p>
+      </div>
+      <div class="footer">
+        Este es un correo automático generado por el motor de capacidad de T-MIM.<br>
+        T-MIM — Plataforma de Mantención Inteligente para Talleres Mecánicos.
+      </div>
+    </div>
+  </body>
+</html>

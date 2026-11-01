@@ -1,5 +1,6 @@
 class MaintenanceController < ApplicationController
   before_action :authenticate_user!
+  before_action :ensure_maintenance_access!
 
   def index
     # Fetch all assets with eager loading

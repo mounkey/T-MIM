@@ -1,5 +1,6 @@
 class MeasurementUnitsController < ApplicationController
   before_action :authenticate_user!
+  before_action :ensure_warehouse_access!
   before_action :set_measurement_unit, only: %i[edit update destroy]
 
   def index

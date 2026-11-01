@@ -44,6 +44,10 @@ class AssetsController < ApplicationController
   end
 
   def new
+    if current_user&.account && !current_user.account.can_add_asset?
+      redirect_to assets_path, alert: "Ha alcanzado el límite mensual de vehículos (#{current_user.account.effective_assets_limit}) para su Plan #{current_user.account.plan_name}. Para continuar registrando vehículos, actualice su plan o adquiera un paquete adicional."
+      return
+    end
     @asset = Asset.new(client_id: params[:client_id])
   end
 
@@ -51,9 +55,15 @@ class AssetsController < ApplicationController
   end
 
   def create
+    if current_user&.account && !current_user.account.can_add_asset?
+      redirect_to assets_path, alert: "No es posible registrar el vehículo. Ha alcanzado el límite mensual permitido (#{current_user.account.effective_assets_limit}) para su Plan #{current_user.account.plan_name}."
+      return
+    end
+
     @asset = Asset.new(asset_params)
 
     if @asset.save
+      current_user.account.check_and_send_capacity_warning! if current_user&.account
       redirect_to asset_path(@asset), notice: "Vehículo registrado correctamente."
     else
       render :new, status: :unprocessable_entity

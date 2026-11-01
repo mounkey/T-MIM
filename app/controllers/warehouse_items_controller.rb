@@ -1,5 +1,6 @@
 class WarehouseItemsController < ApplicationController
   before_action :authenticate_user!
+  before_action :ensure_warehouse_access!
   before_action :set_warehouse_item, only: %i[ show edit update destroy add_stock ]
 
   def index

@@ -86,6 +86,86 @@
       </div>
     </div>
 
+    <h5 class="border-bottom pb-2 mt-3 mb-3 text-success">Plan Comercial y Facturación</h5>
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <%= form.label :plan_type, "Plan de Suscripción", class: "form-label fw-bold" %>
+        <%= form.select :plan_type, Account::PLANS.map { |k, v| ["#{v[:name]} (#{v[:price_uf]} UF - #{v[:limit]} vehículos)", k] }, {}, class: "form-select" %>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :monthly_price_uf, "Precio Mensual (UF)", class: "form-label fw-bold" %>
+        <%= form.number_field :monthly_price_uf, step: :any, class: "form-control" %>
+        <small class="text-muted">Si se deja vacío, tomará el precio por defecto del plan.</small>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :max_assets_limit, "Límite Máximo Vehículos", class: "form-label fw-bold" %>
+        <%= form.number_field :max_assets_limit, class: "form-control" %>
+        <small class="text-muted">Personalizable para Gran Taller o ampliaciones.</small>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :extra_assets_quota, "Paquete Cupo Extra (+Vehículos)", class: "form-label fw-bold text-success" %>
+        <%= form.number_field :extra_assets_quota, class: "form-control" %>
+        <small class="text-muted">Cupo adicional acumulable sumado por SuperAdmin.</small>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :billing_cycle, "Ciclo de Cobro", class: "form-label fw-bold" %>
+        <%= form.select :billing_cycle, [["Mensual Recurrente", "monthly"], ["Anual Prepagado (2 meses gratis + 20% cupo)", "annual"]], {}, class: "form-select" %>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :billing_mode, "Medio de Recaudación Suscripción", class: "form-label fw-bold" %>
+        <%= form.select :billing_mode, [["Débito Automático Flow", "flow_debit"], ["Transferencia Bancaria Manual", "transfer"]], {}, class: "form-select" %>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :contract_status, "Estado del Contrato", class: "form-label fw-bold" %>
+        <%= form.select :contract_status, [["Pendiente Aceptación", "pending"], ["Aceptado Electrónicamente (Ley 19.799)", "accepted"], ["Expirado", "expired"]], {}, class: "form-select" %>
+      </div>
+    </div>
+
+    <h5 class="border-bottom pb-2 mt-3 mb-3 text-info">Configuración de Pasarela Flow para Clientes del Taller</h5>
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <%= form.label :flow_integration_mode, "Modalidad Flow del Taller", class: "form-label fw-bold" %>
+        <%= form.select :flow_integration_mode, [["Recaudación T-MIM (Liquidación cada 15 días)", "delegated"], ["Credenciales Propias del Taller (Conexión Directa Gratuita)", "custom"]], {}, class: "form-select" %>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :custom_flow_api_key, "ApiKey Propio Flow (Opcional)", class: "form-label fw-bold" %>
+        <%= form.text_field :custom_flow_api_key, class: "form-control", placeholder: "Solo si usa credenciales propias" %>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :custom_flow_secret_key, "SecretKey Propio Flow (Opcional)", class: "form-label fw-bold" %>
+        <%= form.text_field :custom_flow_secret_key, class: "form-control", placeholder: "Solo si usa credenciales propias" %>
+      </div>
+    </div>
+
+    <h5 class="border-bottom pb-2 mt-3 mb-3 text-primary">Representación Legal (Contrato)</h5>
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <%= form.label :giro, "Giro Comercial", class: "form-label fw-bold" %>
+        <%= form.text_field :giro, class: "form-control", placeholder: "Ej: Reparación y mantenimiento de vehículos automotores" %>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :legal_representative_name, "Nombre Representante Legal", class: "form-label fw-bold" %>
+        <%= form.text_field :legal_representative_name, class: "form-control" %>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :legal_representative_rut, "RUT Representante Legal", class: "form-label fw-bold" %>
+        <%= form.text_field :legal_representative_rut, class: "form-control" %>
+      </div>
+    </div>
+
     <h5 class="border-bottom pb-2 mt-3 mb-3 text-danger">Configuración del Sistema</h5>
     
     <div class="row align-items-center">

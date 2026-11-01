@@ -17,6 +17,7 @@ Rails.application.routes.draw do
     resources :accounts do
       member do
         patch :toggle_status
+        patch :add_quota_package
       end
     end
     get "dashboard/index"
@@ -39,10 +40,18 @@ Rails.application.routes.draw do
   end
 
   unauthenticated do
-    devise_scope :user do
-      root to: "devise/sessions#new", as: :unauthenticated_root
-    end
+    root to: "landing#index", as: :unauthenticated_root
   end
+
+  post "solicitud_alta", to: "landing#request_plan", as: :request_plan
+
+  # Onboarding & Legal Contract (Clon MIM)
+  get "onboarding/:token", to: "onboarding#show", as: :account_onboarding
+  post "onboarding/:token/accept", to: "onboarding#accept_contract", as: :accept_contract_account
+  get "onboarding/:token/payment", to: "onboarding#payment", as: :account_payment
+  post "onboarding/:token/complete_payment", to: "onboarding#complete_payment", as: :complete_payment_account
+  get "onboarding/:token/final_security", to: "onboarding#final_security", as: :account_final_security
+  post "onboarding/:token/set_final_password", to: "onboarding#set_final_password", as: :set_final_password_account
 
   resources :regions
   resources :cities
