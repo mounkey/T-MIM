@@ -128,24 +128,7 @@
       </div>
     </div>
 
-    <h5 class="border-bottom pb-2 mt-3 mb-3 text-info">Configuración de Pasarela Flow para Clientes del Taller</h5>
-
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <%= form.label :flow_integration_mode, "Modalidad Flow del Taller", class: "form-label fw-bold" %>
-        <%= form.select :flow_integration_mode, [["Recaudación T-MIM (Liquidación cada 15 días)", "delegated"], ["Credenciales Propias del Taller (Conexión Directa Gratuita)", "custom"]], {}, class: "form-select" %>
-      </div>
-
-      <div class="col-md-4 mb-3">
-        <%= form.label :custom_flow_api_key, "ApiKey Propio Flow (Opcional)", class: "form-label fw-bold" %>
-        <%= form.text_field :custom_flow_api_key, class: "form-control", placeholder: "Solo si usa credenciales propias" %>
-      </div>
-
-      <div class="col-md-4 mb-3">
-        <%= form.label :custom_flow_secret_key, "SecretKey Propio Flow (Opcional)", class: "form-label fw-bold" %>
-        <%= form.text_field :custom_flow_secret_key, class: "form-control", placeholder: "Solo si usa credenciales propias" %>
-      </div>
-    </div>
+    <!-- Configuración Comercial y Contrato -->
 
     <h5 class="border-bottom pb-2 mt-3 mb-3 text-primary">Representación Legal (Contrato)</h5>
 
