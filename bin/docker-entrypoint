@@ -9,8 +9,8 @@ if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
 fi
 
-# Ensure node modules are installed and CSS is built (if package.json exists)
-if [ -f "package.json" ]; then
+# Ensure node modules are installed and CSS is built (in development or if node_modules missing)
+if [ -f "package.json" ] && [ "$RAILS_ENV" != "production" ]; then
   echo "Installing Node dependencies and building CSS..."
   npm install
   npm run build:css
