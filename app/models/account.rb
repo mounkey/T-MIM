@@ -190,6 +190,18 @@ class Account < ApplicationRecord
     !manual_billing?
   end
 
+  def flow_debit?
+    billing_mode.to_s == "flow_debit" || flow_billing?
+  end
+
+  def annual_cycle?
+    billing_cycle.to_s == "annual"
+  end
+
+  def monthly_cycle?
+    !annual_cycle?
+  end
+
   # Contract & Activation helpers (Clon MIM)
   def contract_accepted?
     (contract_status == "active" || contract_status == "accepted") && contract_accepted_at.present?
