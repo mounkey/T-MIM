@@ -116,6 +116,10 @@
         <!-- Footer Buttons -->
         <div class="sidebar-footer">
            <%= button_to "Cerrar Sesion", destroy_user_session_path, method: :delete, class: "btn-sidebar-action" %>
-           <%= link_to "Soporte", "#", class: "btn-sidebar-action" %>
+           <% company_name = current_tenant&.name.presence || "T-MIM" %>
+           <% wa_msg = ERB::Util.url_encode("Hola equipo de soporte T-MIM, necesito asistencia para la empresa #{company_name}.") %>
+           <%= link_to "https://wa.me/56982657064?text=#{wa_msg}", target: "_blank", rel: "noopener noreferrer", class: "btn-sidebar-action text-decoration-none d-flex align-items-center justify-content-center gap-1" do %>
+             <i class="fab fa-whatsapp text-success fs-5"></i> Soporte
+           <% end %>
         </div>
       </nav>
