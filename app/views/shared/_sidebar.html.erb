@@ -73,34 +73,27 @@
           <% end %>
 
           <!-- Configuration Dropdown/Link -->
-          <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#configMenu" role="button" aria-expanded="<%= request.path.match?(/regions|cities|tags|asset_categories|warehouse_categories|measurement_units|users/) %>" aria-controls="configMenu">
+          <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#configMenu" role="button" aria-expanded="<%= request.path.match?(/tags|asset_categories|warehouse_categories|measurement_units|users/) %>" aria-controls="configMenu">
              <span><i class="fas fa-cog icon-config me-2"></i> Configuración</span>
              <i class="fas fa-chevron-down small opacity-50"></i>
           </a>
-          <div class="collapse <%= 'show' if request.path.match?(/regions|cities|tags|asset_categories|warehouse_categories|measurement_units|users/) %>" id="configMenu">
+          <div class="collapse <%= 'show' if request.path.match?(/tags|asset_categories|warehouse_categories|measurement_units|users/) %>" id="configMenu">
              <div class="ps-2 pt-1 border-start ms-3 my-1">
-                 <!-- 1. Lugar -->
-                 <div class="text-uppercase text-muted fw-bold ps-2 mt-2 mb-1" style="font-size: 10px; letter-spacing: 0.5px;">
-                   <i class="fas fa-map-marker-alt me-1 text-secondary"></i> Lugar
-                 </div>
-                 <%= link_to "Regiones", regions_path, class: "nav-link small py-1 ps-3 #{'active' if current_page?(regions_path)}" %>
-                 <%= link_to "Ciudades", cities_path, class: "nav-link small py-1 ps-3 #{'active' if current_page?(cities_path)}" %>
-
-                 <!-- 2. Vehículos -->
+                 <!-- 1. Vehículos -->
                  <div class="text-uppercase text-muted fw-bold ps-2 mt-2 mb-1" style="font-size: 10px; letter-spacing: 0.5px;">
                    <i class="fas fa-car me-1 text-secondary"></i> Vehículos
                  </div>
                  <%= link_to "Categorías", asset_categories_path, class: "nav-link small py-1 ps-3 #{'active' if current_page?(asset_categories_path)}" %>
                  <%= link_to "Etiquetas", tags_path, class: "nav-link small py-1 ps-3 #{'active' if current_page?(tags_path)}" %>
 
-                 <!-- 3. Bodega -->
+                 <!-- 2. Bodega -->
                  <div class="text-uppercase text-muted fw-bold ps-2 mt-2 mb-1" style="font-size: 10px; letter-spacing: 0.5px;">
                    <i class="fas fa-boxes me-1 text-secondary"></i> Bodega
                  </div>
                  <%= link_to "Categorías", warehouse_categories_path, class: "nav-link small py-1 ps-3 #{'active' if current_page?(warehouse_categories_path)}" %>
                  <%= link_to "Métricas (Unidades)", measurement_units_path, class: "nav-link small py-1 ps-3 #{'active' if current_page?(measurement_units_path)}" %>
 
-                 <!-- 4. Acceso -->
+                 <!-- 3. Acceso -->
                  <div class="text-uppercase text-muted fw-bold ps-2 mt-2 mb-1" style="font-size: 10px; letter-spacing: 0.5px;">
                    <i class="fas fa-user-shield me-1 text-secondary"></i> Acceso
                  </div>
