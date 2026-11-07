@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_11_01_151133) do
+ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -473,6 +473,21 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_01_151133) do
     t.index ["sku", "account_id"], name: "index_warehouse_items_on_sku_and_account_id"
   end
 
+  create_table "wiki_articles", force: :cascade do |t|
+    t.uuid "account_id"
+    t.string "category", default: "General"
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.string "icon", default: "fa-book"
+    t.boolean "is_global", default: false
+    t.integer "position", default: 0
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_wiki_articles_on_account_id"
+    t.index ["category"], name: "index_wiki_articles_on_category"
+    t.index ["is_global"], name: "index_wiki_articles_on_is_global"
+  end
+
   add_foreign_key "accounts", "cities"
   add_foreign_key "accounts", "regions"
   add_foreign_key "assets", "asset_categories"
@@ -528,4 +543,5 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_01_151133) do
   add_foreign_key "user_login_histories", "users"
   add_foreign_key "warehouse_categories", "accounts"
   add_foreign_key "warehouse_items", "accounts"
+  add_foreign_key "wiki_articles", "accounts"
 end

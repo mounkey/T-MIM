@@ -68,6 +68,10 @@
             <i class="fas fa-users-cog icon-providers"></i> Proveedores
           <% end %>
 
+          <%= link_to wiki_index_path, class: "nav-link #{'active' if controller_name == 'wiki'}" do %>
+            <i class="fas fa-book-reader text-warning"></i> Wiki & Guías
+          <% end %>
+
           <!-- Configuration Dropdown/Link -->
           <a class="nav-link d-flex align-items-center justify-content-between" data-bs-toggle="collapse" href="#configMenu" role="button" aria-expanded="<%= request.path.match?(/regions|cities|tags|asset_categories|warehouse_categories|measurement_units|users/) %>" aria-controls="configMenu">
              <span><i class="fas fa-cog icon-config me-2"></i> Configuración</span>

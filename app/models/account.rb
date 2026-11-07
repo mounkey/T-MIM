@@ -14,6 +14,7 @@ class Account < ApplicationRecord
   has_many :warehouse_categories, dependent: :destroy
   has_many :measurement_units, dependent: :destroy
   has_many :clients, dependent: :destroy
+  has_many :wiki_articles, dependent: :destroy
 
   belongs_to :region, optional: true
   belongs_to :city, optional: true

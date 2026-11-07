@@ -1,0 +1,54 @@
+<%= turbo_frame_tag "modal_body" do %>
+  <h2 class="text-center mb-4 text-white">
+    <i class="fas fa-book text-white me-2"></i>
+    <%= @article.new_record? ? "Nuevo Procedimiento del Taller" : "Editar Procedimiento" %>
+  </h2>
+
+  <%= form_with(model: @article, data: { turbo_frame: "_top" }) do |f| %>
+    <% if @article.errors.any? %>
+      <div class="alert alert-danger text-start">
+        <h6 class="fw-bold"><%= pluralize(@article.errors.count, 'error') %> impidieron guardar:</h6>
+        <ul class="mb-0">
+          <% @article.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="row text-start">
+      <div class="col-md-8 mb-3">
+        <%= f.label :title, "Título del Procedimiento o Ficha Técnica", class: "form-label text-white fw-bold" %>
+        <%= f.text_field :title, class: "form-control", placeholder: "Ej: Pauta de Recepción y Diagnóstico Motos 250cc", required: true %>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= f.label :category, "Categoría / Especialidad", class: "form-label text-white fw-bold" %>
+        <%= f.text_field :category, class: "form-control", placeholder: "Ej: Mecánica Rápida / Frenos", required: true %>
+      </div>
+
+      <div class="col-md-12 mb-3">
+        <%= f.label :icon, "Ícono Identificador", class: "form-label text-white fw-bold" %>
+        <%= f.select :icon, [
+          ["Llave de Taller / Mecánica", "fa-wrench"],
+          ["Vehículo / Auto", "fa-car"],
+          ["Moto / Scooter", "fa-motorcycle"],
+          ["Repuestos / Bodega", "fa-boxes"],
+          ["Seguridad / Prevención", "fa-shield-alt"],
+          ["Chequeo / Diagnóstico", "fa-clipboard-check"],
+          ["Motor / Aceite", "fa-oil-can"],
+          ["Manual General", "fa-book"]
+        ], {}, class: "form-select" %>
+      </div>
+
+      <div class="col-md-12 mb-3">
+        <%= f.label :content, "Instrucciones, Pasos y Pautas Técnicas", class: "form-label text-white fw-bold" %>
+        <%= f.text_area :content, rows: 9, class: "form-control", placeholder: "Describa detalladamente los pasos a seguir por los mecánicos y ayudantes...", style: "border-radius: 18px !important;", required: true %>
+      </div>
+    </div>
+
+    <div class="mt-4 text-center">
+      <%= f.submit "Guardar en Base de Conocimiento", class: "btn btn-light text-primary px-5 py-2 rounded-pill fw-bold fs-5 shadow" %>
+    </div>
+  <% end %>
+<% end %>

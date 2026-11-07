@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   
   authenticated :user do
     root to: "home#index", as: :authenticated_root
+    resources :wiki
     resources :users, path: "gestion_usuarios" do
       collection do
         get :global_login_history
