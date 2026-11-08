@@ -3,7 +3,15 @@ class Superadmin::InvoicesController < Superadmin::BaseController
 
   # GET /superadmin/invoices or /superadmin/invoices.json
   def index
-    @invoices = Invoice.all
+    @active_tab = params[:tab].presence || "sales" # sales (ventas/suscripciones), remittances (remesas/cierres), flow (pasarela)
+    @invoices = Invoice.includes(:account).order(created_at: :desc)
+    @remittances = RemittanceBatch.recent rescue []
+    @settings = SystemSetting.all.index_by(&:key) rescue {}
+
+    # KPIs de Ventas y Finanzas
+    @total_paid_invoices = @invoices.where("LOWER(status) IN ('pagado', 'paid')").count
+    @total_pending_invoices = @invoices.where.not("LOWER(status) IN ('pagado', 'paid')").count
+    @total_revenue = @invoices.where("LOWER(status) IN ('pagado', 'paid')").sum(:amount)
   end
 
   # GET /superadmin/invoices/1 or /superadmin/invoices/1.json
@@ -25,7 +33,7 @@ class Superadmin::InvoicesController < Superadmin::BaseController
 
     respond_to do |format|
       if @invoice.save
-        format.html { redirect_to [:superadmin, @invoice], notice: "Invoice was successfully created." }
+        format.html { redirect_to superadmin_invoices_path(tab: "sales"), notice: "Pago de suscripción registrado con éxito." }
         format.json { render :show, status: :created, location: @invoice }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +46,7 @@ class Superadmin::InvoicesController < Superadmin::BaseController
   def update
     respond_to do |format|
       if @invoice.update(invoice_params)
-        format.html { redirect_to [:superadmin, @invoice], notice: "Invoice was successfully updated.", status: :see_other }
+        format.html { redirect_to superadmin_invoices_path(tab: "sales"), notice: "Registro de suscripción actualizado.", status: :see_other }
         format.json { render :show, status: :ok, location: @invoice }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +60,7 @@ class Superadmin::InvoicesController < Superadmin::BaseController
     @invoice.destroy!
 
     respond_to do |format|
-      format.html { redirect_to superadmin_invoices_path, notice: "Invoice was successfully destroyed.", status: :see_other }
+      format.html { redirect_to superadmin_invoices_path(tab: "sales"), notice: "Registro eliminado.", status: :see_other }
       format.json { head :no_content }
     end
   end
@@ -65,6 +73,6 @@ class Superadmin::InvoicesController < Superadmin::BaseController
 
     # Only allow a list of trusted parameters through.
     def invoice_params
-      params.fetch(:invoice, {})
+      params.fetch(:invoice, {}).permit(:account_id, :amount, :due_date, :paid_at, :status)
     end
 end

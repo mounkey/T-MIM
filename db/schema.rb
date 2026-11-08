@@ -10,20 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
+ActiveRecord::Schema[8.2].define(version: 2026_11_07_132854) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
 
   create_table "accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.boolean "active"
-    t.string "bank_account_holder_name"
-    t.string "bank_account_holder_rut"
-    t.string "bank_account_number"
-    t.string "bank_account_type"
-    t.string "bank_name"
-    t.string "billing_cycle", default: "monthly", null: false
-    t.string "billing_mode", default: "flow", null: false
+    t.string "billing_mode", default: "flow"
+    t.string "billing_plan", default: "monthly"
     t.uuid "city_id"
     t.string "contacto_cargo"
     t.string "contacto_email"
@@ -36,34 +31,29 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
     t.string "contract_status", default: "pending_activation"
     t.string "contract_version", default: "v1.0-2026"
     t.datetime "created_at", null: false
-    t.string "custom_flow_api_key"
-    t.string "custom_flow_secret_key"
     t.string "direccion"
     t.string "email"
-    t.integer "extra_assets_quota", default: 0, null: false
-    t.string "flow_integration_mode", default: "delegated", null: false
     t.string "giro"
     t.datetime "invitation_expires_at"
     t.datetime "invitation_sent_at"
     t.string "invitation_token"
-    t.datetime "last_capacity_warning_sent_at"
     t.string "legal_representative_name"
     t.string "legal_representative_rut"
-    t.integer "max_assets_limit", default: 50, null: false
-    t.decimal "monthly_price_uf", precision: 6, scale: 2, default: "0.5", null: false
+    t.integer "max_assets_limit", default: 40
+    t.decimal "monthly_price_uf", precision: 8, scale: 2, default: "2.0"
     t.string "name"
     t.string "nombre_fantasia"
-    t.string "plan_type", default: "inicial", null: false
+    t.text "payment_notes"
+    t.string "plan_tier", default: "basic", null: false
     t.string "razon_social"
     t.uuid "region_id"
+    t.boolean "requires_password_change", default: true
     t.string "rut"
     t.string "subdomain"
     t.string "temporary_password"
     t.datetime "updated_at", null: false
     t.index ["city_id"], name: "index_accounts_on_city_id"
-    t.index ["contract_status"], name: "index_accounts_on_contract_status"
     t.index ["invitation_token"], name: "index_accounts_on_invitation_token", unique: true
-    t.index ["plan_type"], name: "index_accounts_on_plan_type"
     t.index ["region_id"], name: "index_accounts_on_region_id"
   end
 
@@ -80,7 +70,6 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
   create_table "assets", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.uuid "asset_category_id", null: false
-    t.uuid "client_id"
     t.date "commission_date"
     t.datetime "created_at", null: false
     t.text "description"
@@ -96,7 +85,6 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
     t.integer "year"
     t.index ["account_id"], name: "index_assets_on_account_id"
     t.index ["asset_category_id"], name: "index_assets_on_asset_category_id"
-    t.index ["client_id"], name: "index_assets_on_client_id"
     t.index ["tag_id"], name: "index_assets_on_tag_id"
   end
 
@@ -108,20 +96,6 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
     t.index ["region_id"], name: "index_cities_on_region_id"
   end
 
-  create_table "clients", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.string "address"
-    t.datetime "created_at", null: false
-    t.string "email"
-    t.string "name", null: false
-    t.text "notes"
-    t.string "phone"
-    t.string "rut"
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_clients_on_account_id"
-    t.index ["rut", "account_id"], name: "index_clients_on_rut_and_account_id"
-  end
-
   create_table "components", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_id"
     t.uuid "asset_category_id", null: false
@@ -130,6 +104,20 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_components_on_account_id"
     t.index ["asset_category_id"], name: "index_components_on_asset_category_id"
+  end
+
+  create_table "remittance_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "batch_code", null: false
+    t.date "period_start", null: false
+    t.date "period_end", null: false
+    t.decimal "total_amount_uf", precision: 10, scale: 2, default: "0.0"
+    t.integer "total_amount_clp", default: 0
+    t.integer "invoices_count", default: 0
+    t.string "status", default: "cerrado"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["batch_code"], name: "index_remittance_batches_on_batch_code", unique: true
   end
 
   create_table "invoices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -222,17 +210,6 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
     t.index ["maintenance_plan_id"], name: "index_maintenance_states_on_maintenance_plan_id"
   end
 
-  create_table "measurement_units", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "abbreviation", null: false
-    t.uuid "account_id", null: false
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.string "name", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_measurement_units_on_account_id"
-    t.index ["name", "account_id"], name: "index_measurement_units_on_name_and_account_id", unique: true
-  end
-
   create_table "meters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_id"
     t.uuid "asset_id", null: false
@@ -243,53 +220,6 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_meters_on_account_id"
     t.index ["asset_id"], name: "index_meters_on_asset_id"
-  end
-
-  create_table "payment_orders", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.uuid "asset_id"
-    t.uuid "client_id"
-    t.datetime "created_at", null: false
-    t.decimal "discount_amount", precision: 12, scale: 2, default: "0.0", null: false
-    t.string "folio_number"
-    t.decimal "labor_amount", precision: 12, scale: 2, default: "0.0", null: false
-    t.uuid "logbook_record_id"
-    t.integer "mechanical_status", default: 0, null: false
-    t.text "notes"
-    t.decimal "parts_amount", precision: 12, scale: 2, default: "0.0", null: false
-    t.string "payment_token"
-    t.decimal "total_amount", precision: 12, scale: 2, default: "0.0", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id", "folio_number"], name: "index_payment_orders_on_account_id_and_folio_number"
-    t.index ["account_id", "mechanical_status"], name: "index_payment_orders_on_account_id_and_mechanical_status"
-    t.index ["account_id"], name: "index_payment_orders_on_account_id"
-    t.index ["asset_id"], name: "index_payment_orders_on_asset_id"
-    t.index ["client_id"], name: "index_payment_orders_on_client_id"
-    t.index ["logbook_record_id"], name: "index_payment_orders_on_logbook_record_id"
-    t.index ["payment_token"], name: "index_payment_orders_on_payment_token", unique: true
-  end
-
-  create_table "payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.decimal "amount", precision: 12, scale: 2, null: false
-    t.datetime "created_at", null: false
-    t.decimal "flow_fee", precision: 12, scale: 2, default: "0.0", null: false
-    t.string "flow_order_id"
-    t.decimal "net_amount", precision: 12, scale: 2, default: "0.0", null: false
-    t.string "notes"
-    t.integer "payment_channel", default: 0, null: false
-    t.uuid "payment_order_id", null: false
-    t.decimal "platform_fee", precision: 12, scale: 2, default: "0.0", null: false
-    t.datetime "recorded_at", null: false
-    t.uuid "settlement_id"
-    t.datetime "updated_at", null: false
-    t.uuid "user_id"
-    t.index ["account_id", "payment_channel"], name: "index_payments_on_account_id_and_payment_channel"
-    t.index ["account_id", "recorded_at"], name: "index_payments_on_account_id_and_recorded_at"
-    t.index ["account_id"], name: "index_payments_on_account_id"
-    t.index ["payment_order_id"], name: "index_payments_on_payment_order_id"
-    t.index ["settlement_id"], name: "index_payments_on_settlement_id"
-    t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
   create_table "providers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -323,45 +253,6 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
     t.datetime "created_at", null: false
     t.string "name"
     t.datetime "updated_at", null: false
-  end
-
-  create_table "settlements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.text "bank_details_snapshot"
-    t.datetime "created_at", null: false
-    t.decimal "net_payout", precision: 12, scale: 2, default: "0.0", null: false
-    t.text "notes"
-    t.date "period_end", null: false
-    t.date "period_start", null: false
-    t.integer "status", default: 0, null: false
-    t.decimal "total_collected", precision: 12, scale: 2, default: "0.0", null: false
-    t.decimal "total_gateway_fees", precision: 12, scale: 2, default: "0.0", null: false
-    t.decimal "total_platform_fees", precision: 12, scale: 2, default: "0.0", null: false
-    t.string "transfer_reference"
-    t.datetime "transferred_at"
-    t.datetime "updated_at", null: false
-    t.index ["account_id", "period_start", "period_end"], name: "idx_on_account_id_period_start_period_end_4fc5ff3bdc"
-    t.index ["account_id"], name: "index_settlements_on_account_id"
-    t.index ["status"], name: "index_settlements_on_status"
-  end
-
-  create_table "stock_movements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.uuid "asset_id"
-    t.datetime "created_at", null: false
-    t.uuid "logbook_record_id"
-    t.integer "movement_type", default: 0, null: false
-    t.text "notes"
-    t.decimal "quantity", precision: 10, scale: 2, null: false
-    t.datetime "updated_at", null: false
-    t.uuid "user_id", null: false
-    t.uuid "warehouse_item_id", null: false
-    t.index ["account_id"], name: "index_stock_movements_on_account_id"
-    t.index ["asset_id"], name: "index_stock_movements_on_asset_id"
-    t.index ["logbook_record_id"], name: "index_stock_movements_on_logbook_record_id"
-    t.index ["movement_type"], name: "index_stock_movements_on_movement_type"
-    t.index ["user_id"], name: "index_stock_movements_on_user_id"
-    t.index ["warehouse_item_id"], name: "index_stock_movements_on_warehouse_item_id"
   end
 
   create_table "sub_components", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -442,37 +333,6 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
     t.index ["run", "account_id"], name: "index_users_on_run_and_account_id", unique: true
   end
 
-  create_table "warehouse_categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.string "icon"
-    t.string "name", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_warehouse_categories_on_account_id"
-    t.index ["name", "account_id"], name: "index_warehouse_categories_on_name_and_account_id", unique: true
-  end
-
-  create_table "warehouse_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.string "category", default: "General"
-    t.decimal "cost_price", precision: 12, scale: 2, default: "0.0"
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.string "location"
-    t.decimal "minimum_stock", precision: 10, scale: 2, default: "2.0", null: false
-    t.string "name", null: false
-    t.decimal "reserved_quantity", precision: 10, scale: 2, default: "0.0", null: false
-    t.decimal "sale_price", precision: 12, scale: 2, default: "0.0"
-    t.string "sku"
-    t.decimal "stock_quantity", precision: 10, scale: 2, default: "0.0", null: false
-    t.string "unit", default: "Unidad"
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_warehouse_items_on_account_id"
-    t.index ["name", "account_id"], name: "index_warehouse_items_on_name_and_account_id"
-    t.index ["sku", "account_id"], name: "index_warehouse_items_on_sku_and_account_id"
-  end
-
   create_table "wiki_articles", force: :cascade do |t|
     t.uuid "account_id"
     t.string "category", default: "General"
@@ -491,10 +351,8 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
   add_foreign_key "accounts", "cities"
   add_foreign_key "accounts", "regions"
   add_foreign_key "assets", "asset_categories"
-  add_foreign_key "assets", "clients"
   add_foreign_key "assets", "tags"
   add_foreign_key "cities", "regions"
-  add_foreign_key "clients", "accounts"
   add_foreign_key "components", "accounts"
   add_foreign_key "components", "asset_categories"
   add_foreign_key "invoices", "accounts"
@@ -515,25 +373,10 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
   add_foreign_key "maintenance_states", "accounts"
   add_foreign_key "maintenance_states", "assets"
   add_foreign_key "maintenance_states", "maintenance_plans"
-  add_foreign_key "measurement_units", "accounts"
   add_foreign_key "meters", "accounts"
   add_foreign_key "meters", "assets"
-  add_foreign_key "payment_orders", "accounts"
-  add_foreign_key "payment_orders", "assets"
-  add_foreign_key "payment_orders", "clients"
-  add_foreign_key "payment_orders", "logbook_records"
-  add_foreign_key "payments", "accounts"
-  add_foreign_key "payments", "payment_orders"
-  add_foreign_key "payments", "settlements"
-  add_foreign_key "payments", "users"
   add_foreign_key "providers", "cities"
   add_foreign_key "providers", "regions"
-  add_foreign_key "settlements", "accounts"
-  add_foreign_key "stock_movements", "accounts"
-  add_foreign_key "stock_movements", "assets"
-  add_foreign_key "stock_movements", "logbook_records"
-  add_foreign_key "stock_movements", "users"
-  add_foreign_key "stock_movements", "warehouse_items"
   add_foreign_key "sub_components", "accounts"
   add_foreign_key "sub_components", "components"
   add_foreign_key "super_admins", "cities"
@@ -541,7 +384,5 @@ ActiveRecord::Schema[8.2].define(version: 2026_11_07_161045) do
   add_foreign_key "tags", "accounts"
   add_foreign_key "user_login_histories", "accounts"
   add_foreign_key "user_login_histories", "users"
-  add_foreign_key "warehouse_categories", "accounts"
-  add_foreign_key "warehouse_items", "accounts"
   add_foreign_key "wiki_articles", "accounts"
 end

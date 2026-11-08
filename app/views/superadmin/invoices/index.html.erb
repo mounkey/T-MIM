@@ -1,62 +1,208 @@
-<% content_for :page_title, "Suscripciones (Finanzas)" %>
-<div class="card bg-white rounded shadow-sm border-0 mb-4">
-  <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
-    <h4 class="mb-0 text-secondary"><i class="fas fa-file-invoice-dollar text-success me-2"></i> Control de Suscripciones</h4>
-    <%= link_to new_superadmin_invoice_path, class: "btn btn-success", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
-      <i class="fas fa-plus"></i> Registrar Pago
-    <% end %>
+<% content_for :page_title, "Centro Financiero y Suscripciones" %>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card bg-white border-0 shadow-sm rounded-4 p-4">
+      <span class="text-muted small fw-bold text-uppercase">Ingresos Totales Cobrados</span>
+      <div class="d-flex justify-content-between align-items-baseline mt-2">
+        <h3 class="fw-bold text-dark mb-0"><%= number_to_currency(@total_revenue, unit: "UF ", precision: 1) %></h3>
+        <span class="badge bg-success-subtle text-success fw-bold">Efectivo</span>
+      </div>
+      <p class="text-muted small mb-0 mt-2">Total de pagos formalizados</p>
+    </div>
   </div>
-  <div class="card-body p-0">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
-          <tr>
-            <th class="ps-4">Empresa Cliente</th>
-            <th>Mes Cobrado</th>
-            <th>Fecha de Pago</th>
-            <th>Hora</th>
-            <th>Estado</th>
-            <th class="text-end pe-4">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if @invoices.any? %>
-            <% @invoices.order(created_at: :desc).each do |invoice| %>
-              <tr class="<%= 'table-light opacity-75' unless invoice.account.active? %>">
-                <td class="ps-4 fw-bold">
-                  <%= link_to invoice.account.name, superadmin_account_path(invoice.account), class: "text-decoration-none text-primary" %>
-                </td>
-                <td><span class="badge bg-light text-dark border"><%= invoice.due_date&.strftime("%B %Y") || "-" %></span></td>
-                <td><%= invoice.paid_at&.strftime("%d/%m/%Y") || "-" %></td>
-                <td class="text-muted"><%= invoice.paid_at&.strftime("%H:%M") || "-" %></td>
-                <td>
-                  <% if invoice.status.to_s.downcase == 'pagado' || invoice.status.to_s.downcase == 'paid' %>
-                    <span class="badge bg-success">Pagado</span>
-                  <% else %>
-                    <span class="badge bg-danger">Pendiente / Fallido</span>
-                  <% end %>
-                </td>
-                <td class="text-end pe-4">
-                  <!-- Botón Bloquear Empresa -->
-                  <%= button_to toggle_status_superadmin_account_path(invoice.account), method: :patch, class: "btn btn-sm #{invoice.account.active ? 'btn-outline-warning' : 'btn-outline-success'} mx-1", form: { style: "display:inline-block;" }, title: (invoice.account.active ? "Bloquear Sistema al Cliente" : "Desbloquear Sistema") do %>
-                    <i class="fas #{invoice.account.active ? 'fa-ban' : 'fa-check-circle'}"></i>
-                  <% end %>
-                  <!-- Botón Editar Pago -->
-                  <%= link_to edit_superadmin_invoice_path(invoice), class: "btn btn-sm btn-outline-primary mx-1", title: "Editar Registro", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
-                    <i class="fas fa-edit"></i>
-                  <% end %>
-                  <!-- Botón Borrar Pago -->
-                  <%= link_to superadmin_invoice_path(invoice), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro de eliminar este registro de pago?' }, class: 'btn btn-sm btn-outline-danger mx-1', title: 'Borrar Pago' do %>
-                    <i class='fas fa-trash'></i>
-                  <% end %>
-                </td>
-              </tr>
-            <% end %>
-          <% else %>
-            <tr><td colspan="6" class="text-center py-5 text-muted">No hay registros de suscripción en el sistema.</td></tr>
-          <% end %>
-        </tbody>
-      </table>
+
+  <div class="col-md-4">
+    <div class="card bg-white border-0 shadow-sm rounded-4 p-4">
+      <span class="text-muted small fw-bold text-uppercase">Suscripciones al Día</span>
+      <div class="d-flex justify-content-between align-items-baseline mt-2">
+        <h3 class="fw-bold text-success mb-0"><%= @total_paid_invoices %></h3>
+        <span class="badge bg-primary-subtle text-primary fw-bold">Activas</span>
+      </div>
+      <p class="text-muted small mb-0 mt-2">Empresas con pago al día</p>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card bg-white border-0 shadow-sm rounded-4 p-4">
+      <span class="text-muted small fw-bold text-uppercase">Cobros Pendientes</span>
+      <div class="d-flex justify-content-between align-items-baseline mt-2">
+        <h3 class="fw-bold text-danger mb-0"><%= @total_pending_invoices %></h3>
+        <span class="badge bg-warning-subtle text-warning fw-bold">Atención</span>
+      </div>
+      <p class="text-muted small mb-0 mt-2">Suscripciones por regularizar</p>
     </div>
   </div>
 </div>
+
+<!-- Barra de Pestañas (Tabs) -->
+<ul class="nav nav-pills mb-4 gap-2 bg-white p-2 rounded-4 shadow-sm border">
+  <li class="nav-item">
+    <%= link_to superadmin_invoices_path(tab: "sales"), class: "nav-link rounded-pill fw-bold px-4 #{@active_tab == 'sales' ? 'active bg-primary' : 'text-secondary'}" do %>
+      <i class="fas fa-file-invoice-dollar me-2"></i> 1. Historial de Ventas / Cobros
+      <span class="badge <%= @active_tab == 'sales' ? 'bg-white text-primary' : 'bg-light text-dark' %> ms-2"><%= @invoices.count %></span>
+    <% end %>
+  </li>
+  <li class="nav-item">
+    <%= link_to superadmin_invoices_path(tab: "remittances"), class: "nav-link rounded-pill fw-bold px-4 #{@active_tab == 'remittances' ? 'active bg-success' : 'text-secondary'}" do %>
+      <i class="fas fa-money-check-alt me-2"></i> 2. Histórico de Remesas / Cierres
+      <span class="badge <%= @active_tab == 'remittances' ? 'bg-white text-success' : 'bg-light text-dark' %> ms-2"><%= @remittances.count %></span>
+    <% end %>
+  </li>
+  <li class="nav-item">
+    <%= link_to superadmin_invoices_path(tab: "flow"), class: "nav-link rounded-pill fw-bold px-4 #{@active_tab == 'flow' ? 'active bg-dark' : 'text-secondary'}" do %>
+      <i class="fas fa-key me-2"></i> 3. Configuración Pasarela Flow
+    <% end %>
+  </li>
+</ul>
+
+<!-- CONTENIDO POR PESTAÑA -->
+
+<% if @active_tab == "sales" %>
+  <!-- TAB 1: HISTORIAL DE VENTAS Y COBROS -->
+  <div class="card bg-white rounded-4 shadow-sm border-0 mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
+      <div>
+        <h5 class="mb-0 text-dark fw-bold"><i class="fas fa-cash-register text-primary me-2"></i> Registro Histórico de Ventas</h5>
+        <small class="text-muted">Cobros mensuales y anuales facturados a las empresas clientes</small>
+      </div>
+      <%= link_to new_superadmin_invoice_path, class: "btn btn-primary rounded-pill px-4 fw-bold", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+        <i class="fas fa-plus me-1"></i> Registrar Pago
+      <% end %>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Empresa Cliente</th>
+              <th>Mes Cobrado</th>
+              <th>Tarifa Pactada</th>
+              <th>Fecha de Pago</th>
+              <th>Estado</th>
+              <th class="text-end pe-4">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @invoices.any? %>
+              <% @invoices.each do |invoice| %>
+                <tr class="<%= 'table-light opacity-75' unless invoice.account&.active? %>">
+                  <td class="ps-4 fw-bold">
+                    <%= link_to invoice.account&.name || "Cliente General", superadmin_account_path(invoice.account), class: "text-decoration-none text-primary" %>
+                  </td>
+                  <td><span class="badge bg-light text-dark border"><%= invoice.due_date&.strftime("%B %Y") || "-" %></span></td>
+                  <td class="fw-bold text-dark"><%= invoice.amount ? number_to_currency(invoice.amount, unit: "UF ", precision: 1) : "-" %></td>
+                  <td><%= invoice.paid_at&.strftime("%d/%m/%Y %H:%M") || "-" %></td>
+                  <td>
+                    <% if invoice.status.to_s.downcase == 'pagado' || invoice.status.to_s.downcase == 'paid' %>
+                      <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill">✓ Pagado</span>
+                    <% else %>
+                      <span class="badge bg-danger-subtle text-danger fw-bold px-3 py-1 rounded-pill">Pendiente / Fallido</span>
+                    <% end %>
+                  </td>
+                  <td class="text-end pe-4">
+                    <% if invoice.account %>
+                      <%= button_to toggle_status_superadmin_account_path(invoice.account), method: :patch, class: "btn btn-sm #{invoice.account.active ? 'btn-outline-warning' : 'btn-outline-success'} rounded-circle mx-1", form: { style: "display:inline-block;" }, title: (invoice.account.active ? "Bloquear Sistema al Cliente" : "Desbloquear Sistema") do %>
+                        <i class="fas <%= invoice.account.active ? 'fa-ban' : 'fa-check-circle' %>"></i>
+                      <% end %>
+                    <% end %>
+                    <%= link_to edit_superadmin_invoice_path(invoice), class: "btn btn-sm btn-outline-primary rounded-circle mx-1", title: "Editar Registro", data: { turbo_frame: "modal_body" }, onclick: "new bootstrap.Modal(document.getElementById('mainModal')).show()" do %>
+                      <i class="fas fa-edit"></i>
+                    <% end %>
+                    <%= link_to superadmin_invoice_path(invoice), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro de eliminar este registro de pago?' }, class: 'btn btn-sm btn-outline-danger rounded-circle mx-1', title: 'Borrar Pago' do %>
+                      <i class='fas fa-trash'></i>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr><td colspan="6" class="text-center py-5 text-muted">No hay registros de ventas en el sistema.</td></tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<% elsif @active_tab == "remittances" %>
+  <!-- TAB 2: HISTÓRICO DE REMESAS Y CIERRES -->
+  <div class="card bg-white rounded-4 shadow-sm border-0 mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
+      <div>
+        <h5 class="mb-0 text-dark fw-bold"><i class="fas fa-calendar-check text-success me-2"></i> Histórico de Remesas y Cierres Contables</h5>
+        <small class="text-muted">Lotes periódicos de facturación y cuadratura general de T-MIM</small>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <% if @remittances.any? %>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-4">Código Lote</th>
+                <th>Período Facturado</th>
+                <th>Suscripciones</th>
+                <th>Total UF</th>
+                <th>Total CLP</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @remittances.each do |r| %>
+                <tr>
+                  <td class="ps-4 fw-bold font-monospace text-primary"><%= r.batch_code %></td>
+                  <td><%= r.period_start.strftime("%d/%m") %> al <%= r.period_end.strftime("%d/%m/%Y") %></td>
+                  <td><span class="badge bg-light text-dark border"><%= r.invoices_count %> facturas</span></td>
+                  <td class="fw-bold"><%= number_to_currency(r.total_amount_uf, unit: "UF ", precision: 1) %></td>
+                  <td class="fw-bold text-success">$<%= number_with_delimiter(r.total_amount_clp, delimiter: ".") %></td>
+                  <td><span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill">✓ <%= r.status.capitalize %></span></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-5">
+          <div class="d-inline-flex p-3 rounded-circle bg-light text-muted mb-3">
+            <i class="fas fa-folder-open fa-2x"></i>
+          </div>
+          <h6 class="fw-bold text-dark">Sin lotes de remesa generados aún</h6>
+          <p class="text-muted small">Al realizar el corte mensual de facturación, los lotes de cierre se archivarán aquí automáticamente.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+<% elsif @active_tab == "flow" %>
+  <!-- TAB 3: CONFIGURACIÓN PASARELA FLOW -->
+  <div class="card bg-white rounded-4 shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3 border-bottom">
+      <h5 class="mb-0 text-dark fw-bold"><i class="fas fa-lock text-warning me-2"></i> Llaves de Integración Flow.cl</h5>
+      <small class="text-muted">Parámetros de conexión con la pasarela para cobro directo a clientes de T-MIM</small>
+    </div>
+    <div class="card-body p-4">
+      <%= form_with url: update_multiple_superadmin_system_settings_path, method: :patch, local: true do |f| %>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Flow API Key (Público)</label>
+            <%= f.text_field "settings[FLOW_API_KEY]", value: @settings['FLOW_API_KEY']&.value, class: "form-control font-monospace", placeholder: "Ej: 9A5B-4C2E-..." %>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Flow Secret Key (Privado)</label>
+            <%= f.password_field "settings[FLOW_SECRET_KEY]", value: @settings['FLOW_SECRET_KEY']&.value, class: "form-control font-monospace", placeholder: "••••••••••••••••" %>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Entorno de Operación</label>
+            <%= f.select "settings[FLOW_ENV]", options_for_select([['Pruebas (Sandbox)', 'sandbox'], ['Producción (Real)', 'production']], @settings['FLOW_ENV']&.value), {}, class: "form-select" %>
+          </div>
+        </div>
+        <div class="mt-4 text-end">
+          <button type="submit" class="btn btn-dark rounded-pill px-4 fw-bold">
+            <i class="fas fa-save me-1"></i> Guardar Credenciales Flow
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
