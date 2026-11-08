@@ -9,8 +9,8 @@ class ApplicationController < ActionController::Base
   protected
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :run])
-    devise_parameter_sanitizer.permit(:account_update, keys: [:name, :run])
+    devise_parameter_sanitizer.permit(:sign_up, keys: [ :name, :run ])
+    devise_parameter_sanitizer.permit(:account_update, keys: [ :name, :run ])
   end
 
   # Plan permission guards
@@ -48,7 +48,7 @@ class ApplicationController < ActionController::Base
         user_agent: request.user_agent
       )
     end
-    
+
     if resource.is_a?(SuperAdmin)
       superadmin_dashboard_index_path
     else

@@ -61,7 +61,6 @@ class AssetCategoriesController < ApplicationController
       @asset_category.components.each do |component|
         component.sub_components.each do |sub_component|
           sub_component.maintenance_plans.each do |plan|
-
             # 1. Try to find cached state
             state = asset.maintenance_states.find { |s| s.maintenance_plan_id == plan.id }
 
@@ -71,10 +70,10 @@ class AssetCategoriesController < ApplicationController
                 percentage: state.percentage_used || 0.0,
                 target: state.next_due_at ? "Vence: #{state.next_due_at.strftime("%d/%m/%Y")}" : "Calculando...",
                 color_class: case state.current_status.to_sym
-                             when :red then 'bg-danger'
-                             when :orange then 'bg-orange'
-                             when :yellow then 'bg-warning'
-                             else 'bg-success'
+                             when :red then "bg-danger"
+                             when :orange then "bg-orange"
+                             when :yellow then "bg-warning"
+                             else "bg-success"
                              end,
                 details: "Estado Guardado"
               }
