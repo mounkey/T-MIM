@@ -63,13 +63,14 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV.fetch("RENDER_EXTERNAL_HOSTNAME", "localhost") }
 
   # Specify outgoing SMTP server.
+  config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address:              ENV.fetch("SMTP_ADDRESS", "mail.mounkey.cl"),
-    port:                 ENV.fetch("SMTP_PORT", 587),
-    domain:               ENV.fetch("SMTP_DOMAIN", "mounkey.cl"),
-    user_name:            ENV.fetch("SMTP_USERNAME", "software@mounkey.cl"),
-    password:             ENV.fetch("SMTP_PASSWORD", ""),
-    authentication:       :login,
+    address:              'smtp.gmail.com',
+    port:                 587,
+    domain:               'mounkey.cl',
+    user_name:            ENV.fetch('SMTP_USERNAME', 'juanpablogroverpinto@mounkey.cl'),
+    password:             ENV['SMTP_PASSWORD'],
+    authentication:       'plain',
     enable_starttls_auto: true
   }
 
